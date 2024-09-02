@@ -1,0 +1,17 @@
+<svg width="160" height="77" viewBox="0 0 160 77" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Chart">
+<mask id="mask0_4032_21259" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="160" height="77">
+<rect id="BG" x="0.5" y="0.5" width="159" height="76" rx="5.5" fill="white" stroke="#E0E6ED"/>
+</mask>
+<g mask="url(#mask0_4032_21259)">
+<path id="Shadow" d="M-18 133.471V57.1726C-3.06667 57.1726 9.73333 13 24.6667 13C39.6 13 52.4 57.1726 67.3333 57.1726C82.2667 57.1726 95.0667 29.0627 110 29.0627C124.933 29.0627 137.733 61.1882 152.667 61.1882C167.6 61.1882 180.4 53.1569 195.333 53.1569C210.267 53.1569 223.067 77.251 238 77.251C238 77.251 238 77.251 238 133.471H-18Z" fill="url(#paint0_linear_4032_21259)"/>
+<path id="Color" d="M-18 57.1726C-3.06667 57.1726 9.73333 13 24.6667 13C39.6 13 52.4 57.1726 67.3333 57.1726C82.2667 57.1726 95.0667 29.0627 110 29.0627C124.933 29.0627 137.733 61.1882 152.667 61.1882C167.6 61.1882 180.4 53.1569 195.333 53.1569C210.267 53.1569 223.067 77.251 238 77.251" stroke="#015640"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_4032_21259" x1="-18" y1="13" x2="-18" y2="133.471" gradientUnits="userSpaceOnUse">
+<stop stop-color="#B6D8D0"/>
+<stop offset="1" stop-color="#EBEFEE" stop-opacity="0.25"/>
+</linearGradient>
+</defs>
+</svg>
