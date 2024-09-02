@@ -1,6 +1,6 @@
 "use client";
 
-import AuthLayout from "@/layouts/AuthLayout";
+import { AuthLayout } from "@/components/Layouts/AuthLayout";
 import Image from "next/image";
 import { useState } from "react";
 
