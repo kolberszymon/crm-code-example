@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/Layouts/AuthLayout";
 import { signIn } from "next-auth/react";
