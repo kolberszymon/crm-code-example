@@ -45,4 +45,24 @@ export default NextAuth({
       },
     }),
   ],
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      if (!user) {
+        throw new Error('Invalid email or password');
+      }
+      return true;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.role = token.role;
+      }
+      return session;
+    },
+  },
 });
