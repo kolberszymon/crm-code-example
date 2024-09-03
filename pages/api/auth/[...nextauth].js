@@ -7,12 +7,6 @@ export default NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
-      // The name to display on the sign in form (e.g. "Sign in with...")
-      name: "Credentials",
-      // `credentials` is used to generate a form on the sign in page.
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
         email: {},
         password: {},
@@ -44,25 +38,5 @@ export default NextAuth({
         };
       },
     }),
-  ],
-  callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
-      if (!user) {
-        throw new Error('Invalid email or password');
-      }
-      return true;
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.role = token.role;
-      }
-      return session;
-    },
-  },
+  ]
 });
