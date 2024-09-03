@@ -14,7 +14,7 @@ export default function Home() {
   const [merchantType, setMerchantType] = useState("");
 
   return (
-    <AdminLayout>
+    <AdminLayout path={["Szkolenia", "Lista Szkoleń"]}>
       <MainComponent>
         <div className="flex flex-row justify-between items-center mb-6">
           <p className="text-zinc-950 text-base font-semibold leading-normal">

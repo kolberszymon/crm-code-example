@@ -16,6 +16,7 @@ import AdminLayout from "@/components/Layouts/AdminLayout";
 import { MulticolorTitleTile } from "@/components/Custom/MulticolorTitleTile";
 import { MerchantCard } from "@/components/Custom/MerchantCard";
 import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
+import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
 
 const data = [
   {
@@ -147,19 +148,12 @@ export default function Home() {
             setValue={setSearchValue}
             extraCss="my-[32px]"
           />
-          <select
-            value={merchantType} // Bind value to merchantType state
-            onChange={(e) => {
-              setMerchantType(e.target.value);
-            }}
-            className="border border-main-gray rounded-md px-[8px] py-[6px] text-xs text-zinc-400 font-medium w-[220px]"
-          >
-            {["Merchant", "View", "Edit"].map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
+          <SelectDropdown
+            value={merchantType}
+            setValue={setMerchantType}
+            options={["Merchant", "View", "Edit"]}
+            extraCss=""
+          />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-6">
           {filteredData.length > 0 &&

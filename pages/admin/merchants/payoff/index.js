@@ -8,6 +8,7 @@ import { Modal } from "@/components/Modal";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
 import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
 import AdminLayout from "@/components/Layouts/AdminLayout";
+import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
 
 export default function Home() {
   //push to another page once page loads
@@ -62,19 +63,12 @@ export default function Home() {
               setValue={setSearchValue}
               extraCss="my-[32px]"
             />
-            <select
-              value={merchantType} // Bind value to merchantType state
-              onChange={(e) => {
-                setMerchantType(e.target.value);
-              }}
-              className="border border-main-gray rounded-md px-[16px] py-[6px]"
-            >
-              {["Merchant", "View", "Edit"].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
+               <SelectDropdown
+              value={merchantType}
+              setValue={setMerchantType}
+              options={["Merchant", "View", "Edit"]}
+              extraCss=""
+            />
           </div>
           <button
             className="p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors disabled:hover:bg-[#f6f7f8]"

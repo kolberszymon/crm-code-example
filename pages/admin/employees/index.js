@@ -10,6 +10,7 @@ import { EmployeesAccountTable } from "@/components/Tables/EmployeesAccountTable
 import Link from "next/link";
 import { ButtonRed } from "@/components/Buttons/ButtonRed";
 import AdminLayout from "@/components/Layouts/AdminLayout";
+import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
 
 export default function Home() {
   //push to another page once page loads
@@ -60,19 +61,12 @@ export default function Home() {
               setValue={setSearchValue}
               extraCss="my-[32px]"
             />
-            <select
-              value={merchantType} // Bind value to merchantType state
-              onChange={(e) => {
-                setMerchantType(e.target.value);
-              }}
-              className="border border-main-gray rounded-md px-[16px] py-[6px]"
-            >
-              {["Merchant", "View", "Edit"].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
+            <SelectDropdown
+              value={merchantType}
+              setValue={setMerchantType}
+              options={["Merchant", "View", "Edit"]}
+              extraCss=""
+            />
           </div>
           <div className="flex flex-row gap-[8px]">
             <button
