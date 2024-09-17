@@ -4,18 +4,55 @@ import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import { ButtonWhiteWithBorder } from "@/components/Buttons/ButtonWhiteWithBorder";
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { showToastNotificationError, showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 
 export default function NewMerchantForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    formState: { isValid }
   } = useForm();
   const billingAddress = watch("billingAddress", false);
+  const queryClient = useQueryClient();
+
+  const createMerchantMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await fetch('/api/merchant/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        
+        throw new Error(errorData.message || 'Wystąpił błąd podczas dodawania merchanta');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['merchants']);
+      showToastNotificationSuccess("Sukces", "Merchant został dodany pomyślnie")
+      router.push("/admin/merchants");
+    },
+    onError: (error) => {
+      console.error('Error creating merchant:', error);
+      showToastNotificationError("Wystąpił błąd", error.message)
+    }
+  });
 
   const onSubmit = (data) => {
     console.log(data);
+    createMerchantMutation.mutate(data);
   };
 
   return (
@@ -230,23 +267,23 @@ export default function NewMerchantForm() {
                 <div className="flex-row flex gap-6">
                   <div className="flex flex-col">
                     <label
-                      htmlFor="billingPostalCode"
+                      htmlFor="postalCode"
                       className="block text-sm font-medium"
                     >
                       Kod pocztowy
                     </label>
                     <input
                       type="text"
-                      id="billingPostalCode"
-                      {...register("billingPostalCode", {
+                      id="postalCode"
+                      {...register("postalCode", {
                         required:
-                          billingAddress && "Kod pocztowy jest wymagany",
+                          "Kod pocztowy jest wymagany",
                       })}
                       className="mt-1 block w-full border rounded-md p-2"
                     />
-                    {errors.billingPostalCode && (
+                    {errors.postalCode && (
                       <span className="text-red-600 text-sm">
-                        {errors.billingPostalCode.message}
+                        {errors.postalCode.message}
                       </span>
                     )}
                   </div>
@@ -487,7 +524,7 @@ export default function NewMerchantForm() {
 
             {/* Buttons */}
             <div className="flex justify-start space-x-4">
-              <ButtonGreen title="Dodaj Merchanta" type="submit" />
+              <ButtonGreen title="Dodaj Merchanta" type="submit" disabled={!isValid} />
               <Link href="/admin/merchants">
                 <ButtonWhiteWithBorder
                   title="Anuluj"

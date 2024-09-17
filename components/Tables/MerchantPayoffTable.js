@@ -67,10 +67,10 @@ const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
 
 export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
   const [rowSelection, setRowSelection] = useState({});
-  const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
-
+  const [data, setData] = useState(tableData);
+  
   const columns = useMemo(
     () => [
       {
@@ -128,16 +128,18 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
       {
         accessorKey: "topUpAmount",
         header: "Kwota zasilenia",
-        cell: ({ getValue, row, column, table }) => (
-          <div className="flex items-center justify-start">
-            <TopUpAmountCell
-              getValue={getValue}
+        cell: ({ getValue, row, column, table }) => {
+          return (
+            <div className="flex items-center justify-start">
+              <TopUpAmountCell
+                getValue={getValue}
               row={row}
               column={column}
               table={table}
             />
           </div>
-        ),
+        )
+        },
       },
       {
         accessorKey: "view",
@@ -145,13 +147,15 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
         header: () => {
           <></>;
         },
-        cell: ({ getValue }) => (
-          <Link href={`/admin/merchants/transaction/1`}>
+        cell: ({ getValue, row }) => {          
+          return (
+          <Link href={`/admin/merchants/view/${row.original.id}`}>
           <button className="flex items-center justify-center gap-1 bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors p-[4px]">
             <Icons.EyeImage w={16} h={16} />
           </button>
           </Link>
-        ),
+        )
+        },
       },
     ],
     []
@@ -170,17 +174,18 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
     getPaginationRowModel: getPaginationRowModel(),
     meta: {
       updateData: (rowIndex, columnId, value) => {
-        setData((old) =>
-          old.map((row, index) => {
-            if (index === rowIndex) {
-              return {
-                ...old[rowIndex],
-                [columnId]: value,
-              };
-            }
-            return row;
-          })
-        );
+        const newData = data.map((row, index) => {
+          if (index === rowIndex) {
+            return {
+              ...row,
+              [columnId]: value,
+            };
+          }
+          return row;
+        });
+        
+        setData(newData);
+       
       },
     },
   });
@@ -189,9 +194,13 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
     const selectedRowsWithData = Object.keys(rowSelection)
       .filter((key) => rowSelection[key])
       .map((key) => data[key]);
-
+  
     setSelectedRowValues(selectedRowsWithData);
-  }, [rowSelection]);
+  }, [rowSelection, data]);
+
+  useEffect(() => {
+    setData(tableData);
+  }, [tableData]);
 
   return (
     <>
@@ -277,7 +286,7 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
           </p>
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
             <Image src="/icons/arrow-right-black.svg" width={16} height={16} />

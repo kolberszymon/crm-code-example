@@ -6,31 +6,14 @@ import { SearchBar } from "@/components/Inputs/SearchBar";
 import { MerchantPayoffTable } from "@/components/Tables/MerchantPayoffTable";
 import { Modal } from "@/components/Modal";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
-import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
+import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-export default function Home() {
-  //push to another page once page loads
-  const data = useMemo(
-    () => [
-      {
-        merchantName: "Mechanik Good car",
-        merchantType: "View",
-        merchantBalance: 100000,
-        topUpAmount: 100000,
-        transactionAmount: 100000,
-      },
-      {
-        merchantName: "Masazysta relax",
-        merchantType: "Edit",
-        merchantBalance: 100000,
-        topUpAmount: 100000,
-        transactionAmount: 100000,
-      },
-    ],
-    []
-  );
+
+export default function MerchantPayoff() {  
+  const queryClient = useQueryClient();
 
   const [searchValue, setSearchValue] = useState(null);
   const [merchantType, setMerchantType] = useState("");
@@ -38,8 +21,68 @@ export default function Home() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const { data: merchantsRaw, isLoading } = useQuery({
+    queryKey: ['merchants'],
+    queryFn: async () => {
+      const response = await fetch('/api/merchant/fetch-all');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      console.log(data);
+      return data;
+    },
+  });
+
+  const updateTokenBalancesMutation = useMutation({
+    mutationFn: async (selectedMerchants) => {
+      const response = await fetch('/api/merchant/update-token-balances', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(selectedMerchants),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.success === false) {        
+        throw new Error(data.message || "Wystąpił błąd podczas przesyłania tokenów");
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['merchants']);
+      showToastNotificationSuccess("Sukces!", "Tokeny zostały przesłane");
+    },
+    onError: (error) => {
+      console.error("Error updating token balances:", error);
+      showToastNotificationError("Błąd!", error.message);
+    },
+  });
+
+  const merchants = useMemo(() => {
+    if (!merchantsRaw) return [];
+
+    return merchantsRaw.map((merchant) => {
+      return {
+        merchantId: merchant.id,
+        userId: merchant.user.id,
+        merchantName: merchant.merchantName,
+        merchantType: merchant.accountType,
+        merchantBalance: merchant.user.tokens,
+        topUpAmount: merchant.lastTopupAmount,
+      };
+    });
+  }, [merchantsRaw]);
+
+  const submitPayoff = () => {
+    updateTokenBalancesMutation.mutate(selectedRowValues);
+    
+    setIsModalOpen(false);
+  }
 
   return (
     <AdminLayout path={["Merchant", "Rozliczenia z Merchantami"]}>
@@ -51,7 +94,7 @@ export default function Home() {
           <ButtonGreen
             title="Wyślij przelew"
             onPress={() => {
-              openModal();
+              setIsModalOpen(true);
             }}
             disabled={selectedRowValues.length === 0}
           />
@@ -82,15 +125,17 @@ export default function Home() {
             />
           </button>
         </div>
+        {isLoading ? <div>Ładowanie...</div> : (
         <MerchantPayoffTable
-          tableData={data}
+          tableData={merchants}
           setSelectedRowValues={setSelectedRowValues}
         />
+        )}
 
         {/* Modal */}
         <Modal
           isOpen={isModalOpen}
-          closeModal={closeModal}
+          closeModal={() => setIsModalOpen(false)}
           title="Czy na pewno chcesz przesłać tokeny?"
         >
           <div className="text-sm text-gray-500 mb-4">
@@ -99,15 +144,9 @@ export default function Home() {
           <div className="flex flex-row gap-[8px]">
             <ButtonGreen
               title="Zatwierdź"
-              onPress={() => {
-                closeModal();
-                showToastNotificationSuccess(
-                  "Sukces!",
-                  "Tokeny zostały przesłane"
-                );
-              }}
+              onPress={submitPayoff}
             />
-            <ButtonGray title="Anuluj" onPress={closeModal} />
+            <ButtonGray title="Anuluj" onPress={() => setIsModalOpen(false)} />
           </div>
         </Modal>
       </MainComponent>

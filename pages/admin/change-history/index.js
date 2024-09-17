@@ -3,10 +3,19 @@ import AdminLayout from "@/components/Layouts/AdminLayout";
 import { SearchBar } from "@/components/Inputs/SearchBar";
 import { useState } from "react";
 import { LogTile } from "@/components/Custom/LogTile";
-import { DatePickerWithRange } from "@/components/Custom/DatePicker";
+import { DatePickerWithRange } from "@/components/Custom/DatePickerRange";
+import { useQuery } from "@tanstack/react-query";
+import { fetchLogs } from "@/lib/api-functions/fetch-logs";
 
 export default function Home() {
   const [searchValue, setSearchValue] = useState("");
+
+  const { data: logs, isLoading } = useQuery({
+    queryKey: ["logs"],
+    queryFn: () => fetchLogs(),
+  });
+
+
 
   return (
     <AdminLayout path={["Konto", "Historia zmian"]}>
@@ -23,65 +32,19 @@ export default function Home() {
           />
           <DatePickerWithRange className="w-[235px] bg-white border border-zinc-400 rounded-md"/>
           </div>
-          
-           <LogTile
-              title={"Dodanie merchanta (John Doe)"}
-              date={"12.06.2024"}
-              type={"plus"}
-            />
-            <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
+
+          {isLoading ? <p>Ładowanie...</p> : logs.map((log, index) => (
             <LogTile
-              title={"Wysłanie tokenów do merchanta (John Doe)"}
-              date={"12.06.2024"}
-              type={"coin"}
-              topLine={true}
+              key={log.id}
+              title={log.message}
+              date={log.createdAt}
+              type={log.icon.toLowerCase()}
+              bottomLine={index !== logs.length - 1 && logs.length > 1}
             />
-             <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Wysłanie tokenów do merchanta"}
-              date={"12.06.2024"}
-              type={"coin"}
-              topLine={true}
-            />
-             <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Wysłanie tokenów do merchanta"}
-              date={"12.06.2024"}
-              type={"coin"}
-              topLine={true}
-            />
-             <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Wysłanie tokenów do merchanta"}
-              date={"12.06.2024"}
-              type={"coin"}
-              topLine={true}
-            />
-             <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Wysłanie tokenów do merchanta"}
-              date={"12.06.2024"}
-              type={"coin"}
-              topLine={true}
-            />
-             <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Dodanie merchanta (John Doe)"}
-              date={"12.06.2024"}
-              type={"plus"}
-            />
+          ))}
+
+          {logs.length === 0 && <p>Brak logów</p>}
+           
         </div>
 
       </MainComponent>

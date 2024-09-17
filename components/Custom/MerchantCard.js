@@ -7,7 +7,7 @@ import { ButtonWhiteWithBorder } from "@/components/Buttons/ButtonWhiteWithBorde
 export const MerchantCard = ({ item, openModal }) => (
   <div className="p-4 border rounded-md">
     <div className="flex justify-between items-center">
-      <MulticolorTitleTile title={item.merchantType} color={item.merchantType === "View" ? "blue" : "orange"} />
+      <MulticolorTitleTile title={item.accountType} color={item.accountType === "View" ? "blue" : "orange"} />
       <div className="flex flex-row gap-3">
         <Link href={`/admin/merchants/view/${item.id}`}>
           <button className="p-[4px] rounded-full bg-main-gray flex items-center justify-center hover:bg-gray-200 transition-colors">

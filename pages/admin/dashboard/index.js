@@ -17,7 +17,8 @@ import {
 import Image from "next/image";
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import AdminLayout from "@/components/Layouts/AdminLayout";
-import { DatePickerWithRange } from "@/components/Custom/DatePicker";
+import { DatePickerWithRange } from "@/components/Custom/DatePickerRange";
+import TokenBalance from "@/components/pages/dashboard/TokenBalance";
 
 
 export default function Home() {
@@ -134,28 +135,7 @@ export default function Home() {
           </div>
           {/* Token Balance & Transactions To Be Completed */}
           <div className="flex flex-col min-w-[350px] justify-between">
-            <div className="min-h-[150px] bg-white w-full flex flex-col py-[22px] pl-[16px] items-start justify-between rounded shadow relative overflow-hidden">
-              <div className="flex flex-col z-10">
-                <p className="text-base font-semibold">Saldo tokenów</p>
-                <div className="flex flex-row gap-2">
-                  <Image src="/icons/coin.svg" width={16} height={16} />
-                  <p className="text-sm">200 000</p>
-                </div>
-              </div>
-              <ButtonGreen title="Sprawdź saldo" className="z-10" />
-              <Image
-                src="/icons/elipse.png"
-                width={180}
-                height={400}
-                className="absolute right-0 top-0 bottom-0 opacity-30"
-              />
-              <Image
-                src="/icons/horse.png"
-                width={216}
-                height={240}
-                className="absolute right-0 bottom-0"
-              />
-            </div>
+            <TokenBalance />
             <div className="min-h-[150px] bg-white w-full flex flex-col py-[22px] pl-[16px] items-start justify-between rounded shadow relative overflow-hidden">
               <div className="flex flex-col z-10">
                 <p className="text-base font-semibold">
@@ -170,12 +150,14 @@ export default function Home() {
                 width={180}
                 height={400}
                 className="absolute right-0 top-0 bottom-0 opacity-30"
+                alt="elipse"
               />
               <Image
                 src="/icons/horse.png"
                 width={216}
                 height={240}
                 className="absolute right-0 bottom-0"
+                alt="horse"
               />
             </div>
           </div>
@@ -263,7 +245,7 @@ export default function Home() {
             <div className="h-[128px] bg-white w-full flex flex-col py-[22px] pl-[16px] items-start justify-between rounded shadow overflow-hidden relative">
               <div className="flex flex-row items-center gap-2">
                 <div className="bg-[#e2a13f21] w-[30px] h-[30px] flex items-center justify-center rounded-full">
-                  <Image src="/icons/card-orange.svg" width={15} height={15} />
+                  <Image src="/icons/card-orange.svg" width={15} height={15} alt="card-orange" />
                 </div>
                 <div className="flex flex-col">
                   <p className="text-base font-semibold">251</p>
@@ -275,6 +257,7 @@ export default function Home() {
                 width={400}
                 height={200}
                 className="absolute right-0 bottom-0 left-0"
+                alt="chart-orange"
               />
             </div>
             <div className="flex flex-row gap-[32px]">
@@ -285,6 +268,7 @@ export default function Home() {
                       src="/icons/profile-circle-orange.svg"
                       width={20}
                       height={20}
+                      alt="profile-circle-orange"
                     />
                   </div>
                   <div className="flex flex-col">
@@ -296,6 +280,7 @@ export default function Home() {
                     width={400}
                     height={200}
                     className="absolute right-0 bottom-0 left-0"
+                    alt="chart-orange-steep"
                   />
                 </div>
               </div>
@@ -306,6 +291,7 @@ export default function Home() {
                       src="/icons/profile-circle-green.svg"
                       width={20}
                       height={20}
+                      alt="profile-circle-green"
                     />
                   </div>
                   <div className="flex flex-col">
@@ -317,6 +303,7 @@ export default function Home() {
                     width={400}
                     height={200}
                     className="absolute right-0 bottom-0 left-0"
+                    alt="chart-green"
                   />
                 </div>
               </div>

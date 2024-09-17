@@ -6,16 +6,20 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { merchantName, email, password, role } = req.body;
+  const { email, password, role } = req.body;
 
-  if (!merchantName || !email || !password || !role) {
+  if (!email || !password || !role) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  console.log("Here");
-
   try {
-    const results = await createMerchant(req.body);
+    const body = {
+      email,
+      password,
+      role,
+    };
+
+    const results = await createMerchant(body);
 
     return res.status(200).json(results);
   } catch (error) {

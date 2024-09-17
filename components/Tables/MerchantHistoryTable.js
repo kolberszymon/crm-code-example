@@ -5,6 +5,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   flexRender,
+  getSortedRowModel
 } from "@tanstack/react-table";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -38,6 +39,7 @@ export const MerchantHistoryTable = ({ tableData }) => {
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
+  const [sorting, setSorting] = useState([])
 
   const columns = useMemo(
     () => [
@@ -84,6 +86,21 @@ export const MerchantHistoryTable = ({ tableData }) => {
       {
         accessorKey: "date",
         header: "Data",
+        header: ({ column }) => (
+          <div className="flex items-center">
+            Data
+            <button
+              onClick={() => {
+                const isDesc = column.getIsSorted() === "desc";
+                setSorting([{ id: "date", desc: !isDesc }]);
+              }}
+              className="ml-2"
+            >
+              <Icons.SortImage w={9} h={12} /> 
+            </button>
+          </div>
+        ),
+        cell: ({ getValue }) => getValue(),
       },
       {
         accessorKey: "time",
@@ -101,7 +118,20 @@ export const MerchantHistoryTable = ({ tableData }) => {
       },
       {
         accessorKey: "transactionAmount",
-        header: "Kwota transakcji",
+        header: ({ column }) => (
+          <div className="flex items-center">
+            Kwota transakcji
+            <button
+              onClick={() => {
+                const isDesc = column.getIsSorted() === "desc";
+                setSorting([{ id: "transactionAmount", desc: !isDesc }]);
+              }}
+              className="ml-2"
+            >
+              <Icons.SortImage w={9} h={12} /> 
+            </button>
+          </div>
+        ),
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
@@ -115,8 +145,8 @@ export const MerchantHistoryTable = ({ tableData }) => {
         header: () => {
           <></>;
         },
-        cell: ({ getValue }) => (
-          <Link href={`/admin/merchants/transaction/1`}>
+        cell: ({ row }) => (
+          <Link href={`/admin/merchants/transaction/${row.original.id}`}>
             <button className="flex items-center justify-start gap-1 bg-[#f6f7f8] p-[4px] rounded-full hover:bg-gray-200 transition-colors">
               <Icons.EyeImage w={16} h={16} />
             </button>
@@ -133,12 +163,24 @@ export const MerchantHistoryTable = ({ tableData }) => {
     state: {
       rowSelection,
       pagination: { pageIndex, pageSize },
+      sorting
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onPaginationChange: (updater) => {
+      const newPagination = updater(table.getState().pagination);
+      setPageIndex(newPagination.pageIndex);
+      setPageSize(newPagination.pageSize);
+    },
+    getSortedRowModel: getSortedRowModel(),
   });
+
+  useEffect(() => {
+    setData(tableData);
+  }, [tableData]);
 
   return (
     <>

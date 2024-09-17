@@ -10,6 +10,8 @@ const AdminLayout = ({ path = [], children }) => {
   const router = useRouter();
 
   useEffect(() => {
+    console.log(session);
+
     if (!session) {
       router.push("/login");
     }
@@ -36,7 +38,7 @@ const AdminLayout = ({ path = [], children }) => {
             } else {
               return (
                 <>
-                  <Image src="/icons/arrow-right.svg" width={16} height={16} />
+                  <Image src="/icons/arrow-right.svg" width={16} height={16} alt="arrow-right" />
                   <p className="text-[#0e1726] text-xs font-normal">
                     {path}
                   </p>

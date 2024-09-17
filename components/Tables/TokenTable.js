@@ -33,9 +33,8 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   );
 }
 
-export const TokenTable = ({ tableData, setSelectedRowValues }) => {
+export const TokenTable = ({ data, setSelectedRowValues }) => {
   const [rowSelection, setRowSelection] = useState({});
-  const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
   const [sorting, setSorting] = useState([])
@@ -113,7 +112,20 @@ export const TokenTable = ({ tableData, setSelectedRowValues }) => {
       },
       {
         accessorKey: "transactionAmount",
-        header: "Kwota transakcji",
+        header: ({ column }) => (
+          <div className="flex items-center">
+            Kwota transakcji
+            <button
+              onClick={() => {
+                const isDesc = column.getIsSorted() === "desc";
+                setSorting([{ id: "transactionAmount", desc: !isDesc }]);
+              }}
+              className="ml-2"
+            >
+              <Icons.SortImage w={9} h={12} /> 
+            </button>
+          </div>
+        ),
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
@@ -133,8 +145,14 @@ export const TokenTable = ({ tableData, setSelectedRowValues }) => {
       pagination: { pageIndex, pageSize },
       sorting,
     },
+    onPaginationChange: setPageIndex,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: (updater) => {
+      const newPagination = updater(table.getState().pagination);
+      setPageIndex(newPagination.pageIndex);
+      setPageSize(newPagination.pageSize);
+    },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -219,8 +237,7 @@ export const TokenTable = ({ tableData, setSelectedRowValues }) => {
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
-              table.previousPage();
-              setPageIndex(table.getState().pagination.pageIndex);
+              table.previousPage();              
             }}
             disabled={!table.getCanPreviousPage()}
           >
@@ -237,8 +254,7 @@ export const TokenTable = ({ tableData, setSelectedRowValues }) => {
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
-              table.nextPage();
-              setPageIndex(table.getState().pagination.pageIndex);
+              table.nextPage();              
             }}
             disabled={!table.getCanNextPage()}
           >

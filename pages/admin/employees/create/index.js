@@ -4,33 +4,85 @@ import { useState } from "react";
 import { MainComponent } from "@/components/MainComponent";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
+import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import AdminLayout from "@/components/Layouts/AdminLayout";
+import { DatePickerSingle } from "@/components/Custom/DatePickerSingle";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import SelectSearchBar from "@/components/Custom/SelectSearchBar";
+
 
 export default function CreateEmployee() {
   const [automaticReturn, setAutomaticReturn] = useState(false);
   const [recurrentPayment, setRecurrentPayment] = useState(false);
-  const [paymentValue, setPaymentValue] = useState(0);
+  const [startDate, setStartDate] = useState(new Date());
+  const [selectedMerchant, setSelectedMerchant] = useState(null);
+
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm();
 
+  const { data: merchantsOptions } = useQuery({
+    queryKey: ['merchants'],
+    queryFn: async () => {
+     const res = await fetch('/api/merchant/fetch-all');
+
+     const data = await res.json();
+
+     const merchantsOptions = data.map((merchant) => ({
+      value: merchant.id,
+      label: merchant.merchantName,
+     }));
+         
+     return merchantsOptions;
+    }
+  });
+
+  
+  const createEmployeeMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await fetch('/api/employee/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        
+        throw new Error(errorData.message || 'Wystąpił błąd podczas dodawania pracownika');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['employees']);
+      showToastNotificationSuccess("Sukces", "Merchant został dodany pomyślnie")
+      router.push("/admin/employees");
+    },
+    onError: (error) => {
+      console.error('Error creating merchant:', error);
+      showToastNotificationError("Wystąpił błąd", error.message)
+    }
+  });
+
   const onSubmit = (data) => {
-    router.push("/admin/employees");
-    showToastNotificationSuccess(
-      "Dodano konto pracownika",
-      "Konto pracownika zostało utworzone"
-    );
+    const body = {...data, startDate, recurrentPaymentOn: recurrentPayment, automaticReturnOn: automaticReturn, merchantId: selectedMerchant};
+    createEmployeeMutation.mutate(body);
   };
 
+
+
   return (
-    <AdminLayout>
+    <AdminLayout path={["Merchant", "Konto pracownika"]}>
       <MainComponent>
         <h3 className="text-xl font-semibold mb-6">Konto pracownika</h3>
 
@@ -54,13 +106,15 @@ export default function CreateEmployee() {
                 <input
                   type="checkbox"
                   checked={recurrentPayment}
-                  onChange={() => setRecurrecntPayment(!recurrentPayment)}
+                  onChange={() => setRecurrentPayment(!recurrentPayment)}
                   className="mr-2 accent-main-green w-[14px] h-[14px]"
                 />
                 <label className="text-sm">
                   Transakcje wykonywane cyklicznie
                 </label>
               </div>
+              {recurrentPayment && (
+                <>
               <div className="w-1/4">
                 <label className="block text-sm font-medium mb-2">
                   Wartość kwoty przesyłanej cyklicznie
@@ -74,12 +128,10 @@ export default function CreateEmployee() {
                   />
                   <input
                     type="text"
-                    className="text-sm p-[8px]"
-                    placeholder="Kwota"
-                    value={paymentValue}
-                    onChange={(e) => setPaymentValue(e.target.value)}
-                    {...register("paymentValue", {
-                      required: "Wartość kwoty jest wymagana",
+                    className="text-sm p-[8px] flex-1 outline-none rounded-md"
+                    placeholder="10000"                                        
+                    {...register("paymentAmount", {
+                      required: recurrentPayment ?  "Wartość kwoty jest wymagana" : false,
                       pattern: {
                         value: /^[0-9]+$/,
                         message: "Wartość musi być liczbą",
@@ -87,9 +139,9 @@ export default function CreateEmployee() {
                     })}
                   />
                 </div>
-                {errors.paymentValue && (
+                {errors.paymentAmount && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.paymentValue.message}
+                    {errors.paymentAmount.message}
                   </p>
                 )}
               </div>
@@ -98,38 +150,47 @@ export default function CreateEmployee() {
                 <label className="block text-sm font-medium mb-2">
                   Data początkowa płatności cyklicznej
                 </label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  {...register("startDate", {
-                    required: "Data początkowa jest wymagana",
-                  })}
-                />
+                <DatePickerSingle className="w-full" date={startDate} setDate={setStartDate} />
                 {errors.startDate && (
                   <p className="text-red-500 text-xs mt-1">
                     {errors.startDate.message}
                   </p>
                 )}
               </div>
-              <div className="w-1/3">
+              <div className="w-[230px]">
                 <label className="block text-sm font-medium mb-2">
                   Cykliczność płatności
                 </label>
                 <select
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm hover:cursor-pointer outline-none hover:bg-gray-100 transition-colors"
                   {...register("paymentFrequency", {
-                    required: "Cykliczność płatności jest wymagana",
+                    required: recurrentPayment ? "Cykliczność płatności jest wymagana" : false,
                   })}
                 >
-                  <option value="weekly">Co tydzień</option>
-                  <option value="monthly">Co miesiąc</option>
+                  <option value="WEEKLY">Co tydzień</option>
+                  <option value="BIWEEKLY">Co 2 tygodnie</option>
+                  <option value="MONTHLY">Co miesiąc</option>
                 </select>
                 {errors.paymentFrequency && (
                   <p className="text-red-500 text-xs mt-1">
                     {errors.paymentFrequency.message}
                   </p>
-                )}
-              </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="mb-6 border rounded-md p-[16px]">
+            <h4 className="text-zinc-800 text-sm font-semibold mb-[24px]">
+              Dane merchanta przypisane do pracownika
+            </h4>
+            <p className="block text-sm font-medium mb-2">
+              Merchant
+            </p>
+            <div className="w-1/2">
+              <SelectSearchBar options={merchantsOptions} placeholder={"Salon urody beauty"} onChange={(e) => setSelectedMerchant(e.value)}/>
             </div>
           </div>
 
@@ -146,7 +207,7 @@ export default function CreateEmployee() {
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Imię"
+                  placeholder="Jan"
                   {...register("firstName", {
                     required: "Imię jest wymagane",
                   })}
@@ -164,7 +225,7 @@ export default function CreateEmployee() {
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Nazwisko"
+                  placeholder="Kowalski"
                   {...register("lastName", {
                     required: "Nazwisko jest wymagane",
                   })}
@@ -180,7 +241,7 @@ export default function CreateEmployee() {
                 <input
                   type="email"
                   className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Email"
+                  placeholder="jan.kowalski@gmail.com"
                   {...register("email", {
                     required: "Email jest wymagany",
                     pattern: {
@@ -200,7 +261,7 @@ export default function CreateEmployee() {
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Pesel"
+                  placeholder="84051252487"
                   {...register("pesel", {
                     required: "Pesel jest wymagany",
                   })}
@@ -212,14 +273,30 @@ export default function CreateEmployee() {
                 )}
               </div>
               <div className="w-1/2">
+                <label className="block text-sm font-medium mb-2">Dowód osobisty lub paszport</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                  placeholder="84051252487"
+                  {...register("idPassportNumber", {
+                    required: "Dowód osobisty lub paszport jest wymagany",
+                  })}
+                />
+                {errors.idPassportNumber && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.idPassportNumber.message}
+                  </p>
+                )}
+              </div>
+              <div className="w-1/2">
                 <label className="block text-sm font-medium mb-2">
                   Numer telefonu
                 </label>
                 <input
                   type="tel"
                   className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Numer telefonu"
-                  {...register("phoneNumber", {
+                  placeholder="+48 123 456 789"
+                  {...register("phone", {
                     required: "Numer telefonu jest wymagany",
                     pattern: {
                       value: /^[0-9]{9}$/,
@@ -227,9 +304,9 @@ export default function CreateEmployee() {
                     },
                   })}
                 />
-                {errors.phoneNumber && (
+                {errors.phone && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.phoneNumber.message}
+                    {errors.phone.message}
                   </p>
                 )}
               </div>
@@ -240,7 +317,7 @@ export default function CreateEmployee() {
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Numer konta"
+                  placeholder="PL 12 1234 1234 1234 1234 1234 1234"
                   {...register("accountNumber", {
                     required: "Numer konta jest wymagany",
                   })}
@@ -317,7 +394,7 @@ export default function CreateEmployee() {
                 <input
                   type="text"
                   className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Ogrodwa"
+                  placeholder="Ogrodowa"
                   {...register("street", {
                     required: "Ulica jest wymagana",
                   })}
@@ -362,7 +439,7 @@ export default function CreateEmployee() {
           </div>
 
           <div className="flex flex-row gap-[8px]">
-            <ButtonGreen title="Dodaj pracownika" type="submit" />
+            <ButtonGreen title="Dodaj pracownika" type="submit" disabled={!isValid || selectedMerchant === null} />
             <Link href="/admin/employees">
               <ButtonGray title="Anuluj" />
             </Link>

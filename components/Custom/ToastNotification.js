@@ -23,7 +23,7 @@ export const showToastNotificationError = (title, description) =>
     pauseOnFocusLoss: false,
     icon: false,
     progressStyle: {
-      backgroundColor: "#015640",
+      backgroundColor: "#ef4444",
     },
   });
     

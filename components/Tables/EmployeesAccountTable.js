@@ -97,16 +97,28 @@ export const EmployeesAccountTable = ({ tableData }) => {
         header: "Pracownik",
       },
       {
-        accessorKey: "payment",
+        accessorKey: "automaticReturnOn",
         header: "Zwrot",
-        cell: ({ getValue }) => (
-          <div className="flex items-center justify-start">
-            <MulticolorTitleTile title={getValue()} color="blue" />
+        cell: ({ getValue }) => {
+          let title, color;
+
+          if (getValue() === true) {
+            title = "Auto"
+            color = "blue"
+          } else {
+            title = "Ręczny"
+            color = "red"
+          }
+          
+          return (
+            <div className="flex items-center justify-start">
+              <MulticolorTitleTile title={title} color={color} />
           </div>
-        ),
+        );
+      },
       },
       {
-        accessorKey: "merchant",
+        accessorKey: "merchantName",
         header: "Merchant",
       },
       {
@@ -120,7 +132,7 @@ export const EmployeesAccountTable = ({ tableData }) => {
         ),
       },
       {
-        accessorKey: "isPaymentRecurrent",
+        accessorKey: "recurrentPaymentOn",
         header: "Płatność cykliczna",
         cell: ({ getValue }) => {
           let status, title;

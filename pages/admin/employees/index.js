@@ -11,37 +11,35 @@ import Link from "next/link";
 import { ButtonRed } from "@/components/Buttons/ButtonRed";
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
+import { useQuery } from "@tanstack/react-query";
+
 
 export default function Home() {
-  //push to another page once page loads
-  const data = useMemo(
-    () => [
-      {
-        name: "Jan Kowalski",
-        payment: "Auto",
-        merchant: "Salon urody Beauty",
-        balance: 1000,
-        isPaymentRecurrent: false,
-      },
-      {
-        name: "Jan Pszczoła",
-        payment: "Auto",
-        merchant: "Salon urody Beauty",
-        balance: 1000,
-        isPaymentRecurrent: true,
-      },
-    ],
-    []
-  );
-
   const [searchValue, setSearchValue] = useState(null);
   const [merchantType, setMerchantType] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const { data: employees, isLoading } = useQuery({
+    queryKey: ['employees'],
+    queryFn: async () => {
+      const res = await fetch("/api/employee/fetch-all")
+      const data = await res.json()
+
+      const employees = data.map(employee => {
+        return {
+          name: employee.employeeData.firstName + " " + employee.employeeData.lastName,
+          automaticReturnOn: employee.employeeData.automaticReturnOn,
+          merchantName: employee.employeeData.merchant.merchantName,
+          balance: employee.tokens,
+          recurrentPaymentOn: employee.employeeData.recurrentPaymentOn,
+        }
+      })
+
+      return employees
+    },
+  })
 
   return (
     <AdminLayout path={["Merchant", "Konta pracowników"]}>
@@ -73,7 +71,7 @@ export default function Home() {
               className="p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors disabled:hover:bg-[#f6f7f8]"
               disabled={selectedRowValues.length === 0}
               onClick={() => {
-                openModal();
+                setIsModalOpen(true);
               }}
             >
               <Image
@@ -96,15 +94,17 @@ export default function Home() {
             </button>
           </div>
         </div>
-        <EmployeesAccountTable
-          tableData={data}
-          setSelectedRowValues={setSelectedRowValues}
-        />
+        {isLoading ? <div>Ładowanie...</div> : (
+          <EmployeesAccountTable
+            tableData={employees}
+            setSelectedRowValues={setSelectedRowValues}
+          />
+        )}
 
         {/* Modal */}
         <Modal
           isOpen={isModalOpen}
-          closeModal={closeModal}
+          closeModal={() => setIsModalOpen(false)}
           title="Czy na pewno chcesz usunąć Pracownika?"
         >
           <div className="text-sm text-gray-500 mb-4">
@@ -114,14 +114,14 @@ export default function Home() {
             <ButtonRed
               title="Zatwierdź"
               onPress={() => {
-                closeModal();
+                setIsModalOpen(false);
                 showToastNotificationSuccess(
                   "Sukces!",
                   "Pracownik został usunięty"
                 );
               }}
             />
-            <ButtonGray title="Anuluj" onPress={closeModal} />
+            <ButtonGray title="Anuluj" onPress={() => setIsModalOpen(false)} />
           </div>
         </Modal>
       </MainComponent>

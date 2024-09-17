@@ -2,9 +2,20 @@ import { useState } from "react";
 import Image from "next/image";
 import { LogTile } from "../Custom/LogTile";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { fetchLogs } from "@/lib/api-functions/fetch-logs";
 
 export const NotificationBell = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const { data: logs, isLoading } = useQuery({
+    queryKey: ["logs"],
+    queryFn: async () => {
+      const response = await fetch("/api/logs/fetch-10");
+      const data = await response.json();
+      return data;
+    },
+  });
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -24,7 +35,7 @@ export const NotificationBell = () => {
           src="/icons/bell-icon.svg"
           alt="Notifications"
           width={24}
-          height={24}
+          height={24}        
         />
       </button>
       {isDropdownOpen && (
@@ -36,64 +47,15 @@ export const NotificationBell = () => {
           <div className="w-full h-[1.1px] bg-main-gray" />
 
           <div>
-            <LogTile
-              title={"Dodanie merchanta (John Doe)"}
-              date={"12.06.2024"}
-              type={"plus"}
-            />
-            <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Wysłanie tokenów do merchanta (John Doe)"}
-              date={"12.06.2024"}
-              type={"coin"}
-              topLine={true}
-            />
-             <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Wysłanie tokenów do merchanta"}
-              date={"12.06.2024"}
-              type={"coin"}
-              topLine={true}
-            />
-             <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Wysłanie tokenów do merchanta"}
-              date={"12.06.2024"}
-              type={"coin"}
-              topLine={true}
-            />
-             <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Wysłanie tokenów do merchanta"}
-              date={"12.06.2024"}
-              type={"coin"}
-              topLine={true}
-            />
-             <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Wysłanie tokenów do merchanta"}
-              date={"12.06.2024"}
-              type={"coin"}
-              topLine={true}
-            />
-             <div className="px-[10px]">
-              <div className="ml-[18px] h-[10px] w-[1.3px] bg-[#bfc9d4]" />
-            </div>
-            <LogTile
-              title={"Dodanie merchanta (John Doe)"}
-              date={"12.06.2024"}
-              type={"plus"}
-            />
+            {isLoading ? <p>Ładowanie...</p> : logs.map((log, index) => (
+              <LogTile
+                key={log.id}
+                title={log.message}
+                date={log.createdAt}
+                type={log.icon.toLowerCase()}
+                bottomLine={index !== logs.length - 1 && logs.length > 1}
+              />
+            ))}
           </div>
           {/* Divider */}
           <div className="w-full h-[1.1px] bg-main-gray" />

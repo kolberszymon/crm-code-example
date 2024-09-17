@@ -3,8 +3,35 @@ import { MainComponent } from "@/components/MainComponent";
 import Image from "next/image";
 import Link from "next/link";
 import AdminLayout from "@/components/Layouts/AdminLayout";
+import { useRouter } from "next/router";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { formatNumberWithSpaces } from "@/helpers/formatNumberWithSpaces";
+import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 
 export default function MerchantView() {
+  const { id } = useRouter().query;
+  const router = useRouter();
+
+  const { data: transaction, isLoading } = useQuery({
+    queryKey: ["transaction", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/transactions/fetch-one?id=${id}`);
+      const data = await res.json();
+
+      console.log(data);
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <AdminLayout path={["Merchant", "Rozliczenia z merchantami", "Szczegóły transakcji"]}>
+        <MainComponent><p>Ładowanie...</p></MainComponent>
+      </AdminLayout>
+    )
+  }  
+
   return (
     <AdminLayout path={["Merchant", "Rozliczenia z merchantami", "Szczegóły transakcji"]}>
       <MainComponent>
@@ -16,19 +43,19 @@ export default function MerchantView() {
           <span className="text-zinc-800 text-xs font-medium leading-normal">
             ID transakcji
           </span>
-          <div className="flex items-center">
-            <button>
-              <Image
-                src="/icons/copy-icon.svg"
-                width={16}
-                height={16}
-                alt="Copy"
-              />
-            </button>
+          <button className="flex items-center hover:cursor-pointer" onClick={() => navigator.clipboard.writeText(transaction?.id)}>
+            
+            <Image
+              src="/icons/copy-icon.svg"
+              width={16}
+              height={16}
+              alt="Copy"
+            />
+            
             <p className="text-zinc-600 text-xs font-normal">
-              345673214690521577
+              {transaction?.id}
             </p>
-          </div>
+          </button>
         </div>
 
         <div className="p-[16px] border rounded-md mb-[16px]">
@@ -40,14 +67,18 @@ export default function MerchantView() {
             <p className="text-zinc-800 text-xs font-medium leading-normal">
               Data:
             </p>
-            <p className="text-zinc-600 text-xs font-normal">12.06.2024</p>
+            <p className="text-zinc-600 text-xs font-normal">
+              {format(new Date(transaction?.createdAt), 'dd.MM.yyyy')}
+            </p>
           </div>
 
           <div className="flex flex-col mb-[16px]">
             <p className="text-zinc-800 text-xs font-medium leading-normal">
               Godzina:
             </p>
-            <p className="text-zinc-600 text-xs font-normal">13:45:23</p>
+            <p className="text-zinc-600 text-xs font-normal">
+              {format(new Date(transaction?.createdAt), 'HH:mm:ss')}
+            </p>
           </div>
 
           <div className="flex flex-col">
@@ -62,16 +93,18 @@ export default function MerchantView() {
                 alt="Coin"
                 className="mr-1"
               />
-              <p className="text-zinc-600 text-xs font-normal">100 000</p>
+              <p className="text-zinc-600 text-xs font-normal">
+                {formatNumberWithSpaces(transaction?.transactionAmount)}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="p-4 border rounded-md">
+        <div className="p-4 border rounded-md mb-[16px]">
           <h4 className="text-zinc-800 text-sm font-semibold leading-[21px]">
             Odbiorca
           </h4>
-          <Link href="#" className="flex flex-row mb-[24px]">
+          <Link href={`/admin/merchants/view/${transaction?.to.merchantData.id}`} className="flex flex-row mb-[24px]">
             <p className="text-zinc-600 text-xs font-normal">
               zobacz szczegóły odbiorcy
             </p>
@@ -90,7 +123,7 @@ export default function MerchantView() {
             <div className="flex flex-row items-center gap-[4px]">
               <MerchantType type={"View"} />
               <p className="text-zinc-600 text-xs font-normal">
-                Mechanik samochodowy
+                {transaction?.to.merchantData?.merchantName}
               </p>
             </div>
           </div>
@@ -100,7 +133,7 @@ export default function MerchantView() {
               Email:
             </p>
             <p className="text-zinc-600 text-xs font-normal">
-              johndoe@gmail.com
+              {transaction?.to.merchantData?.email}
             </p>
           </div>
 
@@ -109,16 +142,17 @@ export default function MerchantView() {
               Numer konta:
             </p>
             <p className="text-zinc-600 text-xs font-normal">
-              PL 4565464534535456575756756487458767775689843
+              {transaction?.to.merchantData?.accountNumber}
             </p>
           </div>
         </div>
 
-        <Link href="/admin/merchants/history">
-          <button className="bg-main-green text-white px-4 py-2 rounded-md mt-[16px]">
-            Powrót
-          </button>
-        </Link>
+        <ButtonGreen 
+          title="Powrót"
+          onPress={() => router.back()}
+        />
+        
+    
       </MainComponent>
     </AdminLayout>
   );

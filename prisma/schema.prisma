@@ -11,12 +11,20 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(uuid())
-  sessions       Session[]
-  merchantName   String
-  email          String    @unique
-  hashedPassword String
-  role           Role      @default(USER)
+  id              String            @id @default(uuid())
+  sessions        Session[]
+  email           String            @unique
+  hashedPassword  String
+  phone           String?           @unique
+  role            Role              @default(MERCHANT_VIEW)
+  tokens          Int               @default(0)
+  transactionIn   Transaction[]     @relation("ToUser")
+  transactionOut  Transaction[]     @relation("FromUser")
+  merchantData    MerchantData?
+  employeeData    EmployeeData?
+  passwordSetLink PasswordSetLink[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 }
 
 model Session {
@@ -26,7 +34,112 @@ model Session {
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 }
 
+model MerchantData {
+  id                     String         @id @default(uuid())
+  accountType            String
+  merchantName           String
+  firstName              String
+  lastName               String
+  email                  String         @unique
+  phone                  String
+  lastTopupAmount        Int            @default(0)
+  nip                    String
+  accountNumber          String
+  country                String
+  city                   String
+  street                 String
+  houseNumber            String
+  apartmentNumber        String?
+  postalCode             String
+  billingAddress         Boolean        @default(false)
+  billingCountry         String?
+  billingPostalCode      String?
+  billingCity            String?
+  billingStreet          String?
+  billingHouseNumber     String?
+  billingApartmentNumber String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  user                   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                 String         @unique
+  employeeData           EmployeeData[]
+}
+
+model EmployeeData {
+  id                 String            @id @default(uuid())
+  firstName          String
+  lastName           String
+  email              String            @unique
+  phone              String
+  pesel              String
+  idPassportNumber   String
+  accountNumber      String
+  country            String
+  city               String
+  street             String
+  houseNumber        String
+  apartmentNumber    String?
+  postalCode         String
+  paymentFrequency   PaymentFrequency?
+  startDate          DateTime?
+  paymentAmount      Int?
+  automaticReturnOn  Boolean           @default(false)
+  recurrentPaymentOn Boolean           @default(false)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  merchant           MerchantData      @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  merchantId         String
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String            @unique
+}
+
+model Transaction {
+  id                String          @id @default(uuid())
+  from              User            @relation("FromUser", fields: [fromId], references: [id], onDelete: Cascade)
+  fromId            String
+  to                User            @relation("ToUser", fields: [toId], references: [id], onDelete: Cascade)
+  toId              String
+  balanceAfter      Int?
+  transactionAmount Int?
+  createdAt         DateTime        @default(now())
+  type              TransactionType
+}
+
+model PasswordSetLink {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  isActive  Boolean  @default(true)
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  message   String
+  createdAt DateTime @default(now())
+  icon      LogIcon  @default(COIN)
+}
+
 enum Role {
-  USER
+  EMPLOYEE
+  MERCHANT_VIEW
+  MERCHANT_EDIT
   ADMIN
+}
+
+enum TransactionType {
+  GENERATE_TOKENS
+  TRANSFER_TOKENS
+}
+
+enum LogIcon {
+  PLUS
+  COIN
+}
+
+enum PaymentFrequency {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
 }
