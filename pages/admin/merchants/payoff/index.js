@@ -22,9 +22,9 @@ export default function MerchantPayoff() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: merchantsRaw, isLoading } = useQuery({
-    queryKey: ['merchants'],
+    queryKey: ['merchants-edit'],
     queryFn: async () => {
-      const response = await fetch('/api/merchant/fetch-all');
+      const response = await fetch('/api/merchant/fetch-all-edit');
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

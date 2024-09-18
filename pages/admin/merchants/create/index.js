@@ -41,7 +41,7 @@ export default function NewMerchantForm() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['merchants']);
-      showToastNotificationSuccess("Sukces", "Merchant został dodany pomyślnie")
+      showToastNotificationSuccess("Sukces", "Email z linkiem rejestracyjnym został wysłany")
       router.push("/admin/merchants");
     },
     onError: (error) => {

@@ -4,18 +4,20 @@ import React, { useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import { Role } from "@prisma/client";
 
 const AdminLayout = ({ path = [], children }) => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    console.log(session);
-
-    if (!session) {
+    if (!session && status !== "loading") {
       router.push("/login");
+    } else if (session &&session.user.role !== Role.ADMIN && status !== "loading") {
+      router.push("/merchant/dashboard");
     }
-  }, [session, router]);
+
+  }, [session, router, status]);
 
   if (!session) {
     return null;

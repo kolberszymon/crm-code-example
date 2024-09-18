@@ -158,8 +158,8 @@ export const EmployeesAccountTable = ({ tableData }) => {
         header: () => {
           <></>;
         },
-        cell: ({ getValue }) => (
-          <Link href={`/admin/employees/view/1`}>
+        cell: ({ row }) => (
+          <Link href={`/admin/employees/view/${row.original.id}`}>
             <button className="flex items-center justify-start gap-1 bg-[#f6f7f8] p-[4px] rounded-full hover:bg-gray-200 transition-colors">
               <Icons.EyeImage w={16} h={16} />
             </button>

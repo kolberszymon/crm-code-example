@@ -5,9 +5,12 @@ import { useState } from "react";
 import { Modal } from "@/components/Modal";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
 import AdminLayout from "@/components/Layouts/AdminLayout";
-
+import { useSession } from "next-auth/react";
+import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
+import { useMutation } from "@tanstack/react-query";
 export default function Settings() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   const {
     register,
@@ -17,18 +20,40 @@ export default function Settings() {
     formState: { errors },
   } = useForm();
 
-  const openModal = () => {
-    reset();
-    setIsModalOpen(true);
-  };
-  const closeModal = () => setIsModalOpen(false);
-
   const newPassword = watch("newPassword");
 
+  // Create useMutation for changing password
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (formData) => {
+      const response = await fetch("/api/password/change-password", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      showToastNotificationSuccess("Sukces!", "Hasło zmienione pomyślnie");
+      setIsModalOpen(false);
+    },
+    onError: (error) => {
+      showToastNotificationError("Błąd!", error.message);
+    },
+  });
+
   const onSubmit = (data) => {
-    console.log(data);
-    closeModal(); // Close modal after submission
+    mutate(data);
   };
+
+  if (status === "loading") {
+    return <div>Ładowanie</div>;
+  }
 
   return (
     <AdminLayout path={["Konto", "Ustawienia"]}>
@@ -37,15 +62,11 @@ export default function Settings() {
           <h3 className="text-lg font-semibold">Ustawienia</h3>
         </div>
         <div className="bg-white p-6 rounded-md border border-main-gray mb-[16px]">
-          <h4 className="text-base font-semibold mb-[24px]">Dane merchanta</h4>
-          <div className="mb-[16px]">
-            <p className="text-sm font-medium text-zinc-950">Nazwa merchanta</p>
-            <p className="text-sm font-normal text-zinc-600">Agencja pracy</p>
-          </div>
+          <h4 className="text-base font-semibold mb-[24px]">Dane admina</h4>
           <div className="mb-[16px]">
             <p className="text-sm font-medium text-zinc-950">Email</p>
             <p className="text-sm font-normal text-zinc-600">
-              joannakowalczyk@mail.com
+              {session?.user?.email}
             </p>
           </div>
           <div>
@@ -53,11 +74,14 @@ export default function Settings() {
             <p className="text-sm font-normal text-zinc-600">***********</p>
           </div>
         </div>
-        <ButtonGreen title="Zmień hasło" onPress={openModal} />
+        <ButtonGreen title="Zmień hasło" onPress={() => {
+          reset()
+          setIsModalOpen(true)          
+        }} />
         {/* Modal */}
         <Modal
           isOpen={isModalOpen}
-          closeModal={closeModal}
+          closeModal={() => { setIsModalOpen(false) }}
           title="Zmiana hasła"
         >
           <div className="text-sm text-gray-500 mb-4">
@@ -136,8 +160,8 @@ export default function Settings() {
               )}
             </div>
             <div className="flex justify-start space-x-4">
-              <ButtonGreen title="Zmień hasło" type="submit" />
-              <ButtonGray title="Anuluj" onPress={() => closeModal()} />
+              <ButtonGreen title="Zmień hasło" type="submit" disabled={isPending} />
+              <ButtonGray title="Anuluj" onPress={() => setIsModalOpen(false)} />
             </div>
           </form>
         </Modal>

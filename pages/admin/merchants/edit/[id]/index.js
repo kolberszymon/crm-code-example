@@ -3,27 +3,92 @@ import { MainComponent } from "@/components/MainComponent";
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import { ButtonWhiteWithBorder } from "@/components/Buttons/ButtonWhiteWithBorder";
 import AdminLayout from "@/components/Layouts/AdminLayout";
-import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import { format } from "date-fns";
+import { useMutation } from "@tanstack/react-query";
+import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 
 export default function NewMerchantForm() {
+  const { id } = useRouter().query;
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     watch,
   } = useForm();
   const billingAddress = watch("billingAddress", false);
 
+  const { data: merchant, isLoading } = useQuery({
+    queryKey: ['merchant', id],
+    queryFn: async () => {
+      const response = await fetch(`/api/merchant/fetch-one?id=${id}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      console.log(data);
+      return data;
+    },
+    enabled: !!id, 
+  });
+
+  // useMutation for updating merchant data
+  const { mutate: updateMerchant, isPending } = useMutation({
+    mutationFn: async (formData) => {
+      const response = await fetch(`/api/merchant/update-data`, {
+        method: 'POST',
+        body: JSON.stringify({...formData, id}),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      showToastNotificationSuccess(
+        "Sukces",
+        'Konto zostało pomyślnie zaktualizowane',        
+      );
+      router.back()
+    },
+    onError: (error) => {
+      showToastNotificationError(
+        "Błąd",
+        error.message,
+      );
+    }
+  });
+
   const onSubmit = (data) => {
-    console.log(data);
+    updateMerchant(data);
   };
 
+  if (isLoading)   return (
+    <AdminLayout path={["Merchant", "Konto merchantów", "Nowe konto", "Szczegóły konta"]}>
+      <MainComponent>
+        <div className="mb-6">
+          <h2 className="text-zinc-950 text-base font-semibold leading-normal">
+            Ładowanie...
+          </h2>
+        </div>
+      </MainComponent>
+    </AdminLayout>
+  );
+
   return (
-    <AdminLayout path={["Merchant", "Konto merchantów", "Nowe konto"]}>
+    <AdminLayout path={["Merchant", "Konta merchantów", "Edytuj"]}>
       <MainComponent>
         <div className="w-full">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold">Nowe konto merchanta</h3>
+          <div className="mb-4 flex flex-col gap-[8px]">
+            <h3 className="text-lg font-semibold">Konto merchanta: {merchant?.merchantName}</h3>
+            <p className="text-xs text-zinc-600"><span className="text-zinc-800 mr-[8px] font-medium">Data dodania</span> {format( new Date(merchant?.createdAt), 'dd.MM.yyyy')}</p>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Merchant Account Data */}
@@ -37,12 +102,14 @@ export default function NewMerchantForm() {
                   >
                     Rodzaj konta
                   </label>
+                  
                   <select
                     id="accountType"
                     {...register("accountType", {
                       required: "Rodzaj konta jest wymagany",
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border rounded-md p-2 text-sm"
+                    defaultValue={merchant?.accountType}
                   >
                     <option value="View">View</option>
                     <option value="Edit">Edit</option>
@@ -66,7 +133,8 @@ export default function NewMerchantForm() {
                     {...register("merchantName", {
                       required: "Nazwa merchanta jest wymagana",
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border rounded-md p-2 text-sm"
+                    defaultValue={merchant?.merchantName}
                   />
                   {errors.merchantName && (
                     <span className="text-red-600 text-sm">
@@ -87,7 +155,8 @@ export default function NewMerchantForm() {
                     {...register("firstName", {
                       required: "Imię jest wymagane",
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border rounded-md p-2 text-sm"
+                    defaultValue={merchant?.firstName}
                   />
                   {errors.firstName && (
                     <span className="text-red-600 text-sm">
@@ -108,7 +177,8 @@ export default function NewMerchantForm() {
                     {...register("lastName", {
                       required: "Nazwisko jest wymagane",
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border rounded-md p-2 text-sm"
+                    defaultValue={merchant?.lastName}
                   />
                   {errors.lastName && (
                     <span className="text-red-600 text-sm">
@@ -130,7 +200,8 @@ export default function NewMerchantForm() {
                         message: "Niepoprawny adres email",
                       },
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border rounded-md p-2 text-sm"
+                    defaultValue={merchant?.email}
                   />
                   {errors.email && (
                     <span className="text-red-600 text-sm">
@@ -148,7 +219,8 @@ export default function NewMerchantForm() {
                     {...register("phone", {
                       required: "Numer telefonu jest wymagany",
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border rounded-md p-2 text-sm"
+                    defaultValue={merchant?.phone}
                   />
                   {errors.phone && (
                     <span className="text-red-600 text-sm">
@@ -171,7 +243,8 @@ export default function NewMerchantForm() {
                     type="text"
                     id="nip"
                     {...register("nip", { required: "NIP jest wymagany" })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border rounded-md p-2 text-sm"
+                    defaultValue={merchant?.nip}
                   />
                   {errors.nip && (
                     <span className="text-red-600 text-sm">
@@ -192,7 +265,8 @@ export default function NewMerchantForm() {
                     {...register("accountNumber", {
                       required: "Numer konta jest wymagany",
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border rounded-md p-2 text-sm"
+                    defaultValue={merchant?.accountNumber}
                   />
                   {errors.accountNumber && (
                     <span className="text-red-600 text-sm">
@@ -218,7 +292,8 @@ export default function NewMerchantForm() {
                     type="text"
                     id="country"
                     {...register("country", { required: "Kraj jest wymagany" })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border rounded-md p-2 text-sm"
+                    defaultValue={merchant?.country}
                   />
                   {errors.country && (
                     <span className="text-red-600 text-sm">
@@ -230,23 +305,24 @@ export default function NewMerchantForm() {
                 <div className="flex-row flex gap-6">
                   <div className="flex flex-col">
                     <label
-                      htmlFor="billingPostalCode"
+                      htmlFor="postalCode"
                       className="block text-sm font-medium"
                     >
                       Kod pocztowy
                     </label>
                     <input
                       type="text"
-                      id="billingPostalCode"
-                      {...register("billingPostalCode", {
+                      id="postalCode"
+                      {...register("postalCode", {
                         required:
                           billingAddress && "Kod pocztowy jest wymagany",
                       })}
-                      className="mt-1 block w-full border rounded-md p-2"
+                      className="mt-1 block w-full border rounded-md p-2 text-sm"
+                      defaultValue={merchant?.postalCode}
                     />
-                    {errors.billingPostalCode && (
+                    {errors.postalCode && (
                       <span className="text-red-600 text-sm">
-                        {errors.billingPostalCode.message}
+                        {errors.postalCode.message}
                       </span>
                     )}
                   </div>
@@ -260,7 +336,8 @@ export default function NewMerchantForm() {
                       {...register("city", {
                         required: "Miejscowość jest jest wymagana",
                       })}
-                      className="mt-1 block w-full border rounded-md p-2"
+                      className="mt-1 block w-full border rounded-md p-2 text-sm"
+                      defaultValue={merchant?.city}
                     />
                     {errors.city && (
                       <span className="text-red-600 text-sm">
@@ -278,7 +355,8 @@ export default function NewMerchantForm() {
                     type="text"
                     id="street"
                     {...register("street", { required: "Ulica jest wymagana" })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border rounded-md p-2 text-sm"
+                    defaultValue={merchant?.street}
                   />
                   {errors.street && (
                     <span className="text-red-600 text-sm">
@@ -300,7 +378,8 @@ export default function NewMerchantForm() {
                       {...register("houseNumber", {
                         required: "Nr domu jest wymagany",
                       })}
-                      className="mt-1 block w-full border rounded-md p-2"
+                      className="mt-1 block w-full border rounded-md p-2 text-sm"
+                      defaultValue={merchant?.houseNumber}
                     />
                     {errors.houseNumber && (
                       <span className="text-red-600 text-sm">
@@ -319,7 +398,8 @@ export default function NewMerchantForm() {
                       type="text"
                       id="apartmentNumber"
                       {...register("apartmentNumber")}
-                      className="mt-1 block w-full border rounded-md p-2"
+                      className="mt-1 block w-full border rounded-md p-2 text-sm"
+                      defaultValue={merchant?.apartmentNumber}
                     />
                     {errors.apartmentNumber && (
                       <span className="text-red-600 text-sm">
@@ -340,6 +420,7 @@ export default function NewMerchantForm() {
                   type="checkbox"
                   {...register("billingAddress")}
                   className="h-4 w-4 rounded"
+                  defaultChecked={merchant?.billingAddress}
                 />
                 <label
                   htmlFor="billingAddress"
@@ -364,7 +445,8 @@ export default function NewMerchantForm() {
                         {...register("billingCountry", {
                           required: billingAddress && "Kraj jest wymagany",
                         })}
-                        className="mt-1 block w-full border rounded-md p-2"
+                        className="mt-1 block w-full border rounded-md p-2 text-sm"
+                        defaultValue={merchant?.billingCountry}
                       />
                       {errors.billingCountry && (
                         <span className="text-red-600 text-sm">
@@ -387,7 +469,8 @@ export default function NewMerchantForm() {
                             required:
                               billingAddress && "Kod pocztowy jest wymagany",
                           })}
-                          className="mt-1 block w-full border rounded-md p-2"
+                          className="mt-1 block w-full border rounded-md p-2 text-sm"
+                          defaultValue={merchant?.billingPostalCode}
                         />
                         {errors.billingPostalCode && (
                           <span className="text-red-600 text-sm">
@@ -408,7 +491,8 @@ export default function NewMerchantForm() {
                           {...register("billingCity", {
                             required: "Mijescowość jest jest wymagana",
                           })}
-                          className="mt-1 block w-full border rounded-md p-2"
+                          className="mt-1 block w-full border rounded-md p-2 text-sm"
+                          defaultValue={merchant?.billingCity}
                         />
                         {errors.billingCity && (
                           <span className="text-red-600 text-sm">
@@ -430,7 +514,8 @@ export default function NewMerchantForm() {
                         {...register("billingStreet", {
                           required: billingAddress && "Ulica jest wymagana",
                         })}
-                        className="mt-1 block w-full border rounded-md p-2"
+                        className="mt-1 block w-full border rounded-md p-2 text-sm"
+                        defaultValue={merchant?.billingStreet}
                       />
                       {errors.billingStreet && (
                         <span className="text-red-600 text-sm">
@@ -452,7 +537,8 @@ export default function NewMerchantForm() {
                           {...register("billingHouseNumber", {
                             required: billingAddress && "Nr domu jest wymagany",
                           })}
-                          className="mt-1 block w-full border rounded-md p-2"
+                          className="mt-1 block w-full border rounded-md p-2 text-sm"
+                          defaultValue={merchant?.billingHouseNumber}
                         />
                         {errors.billingHouseNumber && (
                           <span className="text-red-600 text-sm">
@@ -471,7 +557,8 @@ export default function NewMerchantForm() {
                           type="text"
                           id="billingApartmentNumber"
                           {...register("billingApartmentNumber")}
-                          className="mt-1 block w-full border rounded-md p-2"
+                          className="mt-1 block w-full border rounded-md p-2 text-sm"
+                          defaultValue={merchant?.billingApartmentNumber}
                         />
                         {errors.billingApartmentNumber && (
                           <span className="text-red-600 text-sm">
@@ -487,13 +574,13 @@ export default function NewMerchantForm() {
 
             {/* Buttons */}
             <div className="flex justify-start space-x-4">
-              <ButtonGreen title="Dodaj Merchanta" type="submit" />
-              <Link href="/admin/merchants">
-                <ButtonWhiteWithBorder
-                  title="Anuluj"
-                  type="button"
-                />
-              </Link>
+              <ButtonGreen title="Zapisz zmiany" type="submit" disabled={!isValid || isPending}/>
+              
+              <ButtonWhiteWithBorder
+                title="Anuluj"
+                type="button"
+                onPress={() => router.back()}
+              />              
             </div>
           </form>
         </div>

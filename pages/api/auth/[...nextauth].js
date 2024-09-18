@@ -53,6 +53,7 @@ export default NextAuth({
 
       if (session.user) {
         session.user.id = token.sub;
+        session.user.role = dbUser.role;
       }
 
       return session;

@@ -33,7 +33,7 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: merchantsRaw, isLoading } = useQuery({
-    queryKey: ["merchants"],
+    queryKey: ["merchants-all"],
     queryFn: () => fetchMerchants(),
   });
 

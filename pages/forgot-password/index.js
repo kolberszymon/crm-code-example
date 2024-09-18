@@ -1,11 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/Layouts/AuthLayout";
 import { useMutation } from "@tanstack/react-query";
-import { showToastNotificationError } from "@/components/Custom/ToastNotification";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default function Login() {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -14,23 +14,33 @@ export default function Login() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isSubmitting },
   } = useForm();
 
   // useMutation for sending password set link
-  const { mutate, isLoading } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (formData) => {
       const res = await fetch("/api/email/send-set-password-link", {
         method: "POST",
         body: JSON.stringify(formData),
       });
-      return res.json();
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      return data;
     },
     onSuccess: (data) => {
       router.push("/password-reset-link-sent");
     },
     onError: (error) => {
-      router.push("/password-reset-link-sent");
+      setErrorMessage(error.message);
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 3000);
     },
   });
 
@@ -38,10 +48,13 @@ export default function Login() {
     mutate(formData);
   };
 
+
   return (
     <AuthLayout>
       <div className="flex flex-col items-center">
-        <Image src="/logo.svg" width={241} height={62} alt="logo" />
+        <Link href="/login">
+          <Image src="/logo.svg" width={241} height={62} alt="logo" />
+        </Link>
         <div className="flex flex-row mt-[40px] rounded-3xl overflow-hidden h-[549px] border border-main-green">
           <Image
             src="/images/forgot-password.png"
@@ -98,11 +111,15 @@ export default function Login() {
               )}
 
               <button
-                className="bg-main-green text-white text-base font-semibold rounded-md py-[10px] mt-[24px] disabled:bg-gray-400"
+                className="bg-main-green text-white text-base font-semibold rounded-md py-[10px] mt-[24px] disabled:bg-gray-400 flex items-center justify-center"
                 type="submit"
-                disabled={!isValid || isLoading}
+                disabled={!isValid || isPending}
               >
-                Odzyskaj hasło
+                {isPending ? (                  
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />                  
+                ) : (
+                  'Odzyskaj hasło'
+                )}
               </button>
             </form>
           </div>

@@ -1,4 +1,5 @@
 import {prisma} from '@/lib/init/prisma';
+import { sendEmail } from '@/lib/send-email';
 import { LogIcon, Role } from "@prisma/client";
 import crypto from 'crypto';
 import { Argon2id } from "oslo/password";
@@ -13,6 +14,10 @@ export function generateRandomPassword(length) {
   }
   
   return password;
+}
+
+export function generateToken() {
+  return crypto.randomBytes(32).toString('hex');
 }
 
 export default async function handler(req, res) {
@@ -74,9 +79,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: 'Merchant z tym emailem lub telefonem już istnieje' });
     }
 
+    const token = generateToken();
+
     await prisma.$transaction(async (prisma) => {
       const hashedPassword = await new Argon2id().hash(generateRandomPassword(12));
-
+      
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    
       const newUser = await prisma.user.create({
         data: {
           email,
@@ -113,8 +122,24 @@ export default async function handler(req, res) {
         },
       });
 
-      console.log("newMerchant")
-      console.log(newMerchant)
+      await prisma.passwordSetLink.updateMany({
+        where: {
+          userId: newUser.id,
+          isActive: true,
+        },
+        data: {
+          isActive: false,
+        },
+      });
+  
+      await prisma.passwordSetLink.create({
+        data: {
+          token,
+          expiresAt,
+          userId: newUser.id,
+          isActive: true,
+        },
+      });  
 
       await prisma.log.create({
         data: {      
@@ -123,9 +148,17 @@ export default async function handler(req, res) {
         },
       });
 
+      await sendEmail({
+        to: email,
+        subject: 'Stwórz swoje hasło do serwisu monlib',
+        text: `Dobrze Cię widzieć. Kliknij w link aby stworzyć swoje hasło do serwisu monlib.`,
+        html: `<p>Kliknij <a href="http://localhost:3000/set-new-password/${token}">tutaj</a> aby stworzyć swoje hasło do serwisu monlib.</p>`,
+      });
     });
 
-    res.status(201).json(newMerchant);
+
+
+    res.status(201).json({ success: true, message: 'Merchant został dodany' });
   } catch (error) {
     console.error('Error creating merchant:', error);
     res.status(500).json({ message: 'Error creating merchant' });

@@ -7,11 +7,78 @@ import { TrainingTile } from "@/components/Custom/TrainingTile";
 import Link from "next/link";
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Modal } from "@/components/Modal";
+import { ButtonRed } from "@/components/Buttons/ButtonRed";
+import { ButtonGray } from "@/components/Buttons/ButtonGray";
+import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 
 export default function Home() {
-  const [searchValue, setSearchValue] = useState(null);
-  const [trainingCategory, setTrainingCategory] = useState("");
+  const [searchValue, setSearchValue] = useState(null);  
   const [merchantType, setMerchantType] = useState("");
+  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+  const [isModalDuplicateOpen, setIsModalDuplicateOpen] = useState(false);
+  const [trainingIdToDelete, setTrainingIdToDelete] = useState(null);
+  const [trainingIdToDuplicate, setTrainingIdToDuplicate] = useState(null);
+  const queryClient = useQueryClient();
+  
+  // useQuery for fetching all trainings
+  const { data: trainigs, isPending } = useQuery({
+    queryKey: ['trainings'],
+    queryFn: async () => {
+      const response = await fetch("/api/trainings/fetch-all");
+      const data = await response.json();
+
+      console.log(data);
+      return data;
+    },    
+  });
+
+  // useMutation for deleting a training
+  const { mutate: deleteTraining, isPending: isDeleting } = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/trainings/delete?id=${trainingIdToDelete}`);
+      const data = await response.json();
+      return data;
+    },
+    onSuccess: () => {
+      showToastNotificationSuccess("Sukces", "Szkolenie zostało usunięte");
+      queryClient.invalidateQueries({ queryKey: ['trainings'] });
+      setIsModalDeleteOpen(false);
+    },
+    onError: () => {
+      showToastNotificationError("Błąd", "Wystąpił błąd podczas usuwania szkolenia");
+    },
+  });
+
+  // useMutation for duplicating a training
+  const { mutate: duplicateTraining, isPending: isDuplicating } = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/trainings/duplicate?id=${trainingIdToDuplicate}`);
+      const data = await response.json();
+      return data;
+    },
+    onSuccess: () => {
+      showToastNotificationSuccess("Sukces", "Szkolenie zostało zduplikowane");
+      queryClient.invalidateQueries({ queryKey: ['trainings'] });
+      setIsModalDuplicateOpen(false);
+    },
+    onError: () => {
+      showToastNotificationError("Błąd", "Wystąpił błąd podczas zduplikowania szkolenia");
+    },
+  });
+
+  const openDeleteModal = (id) => {
+    setIsModalDeleteOpen(true);
+    setTrainingIdToDelete(id);
+  }
+
+  const openDuplicateModal = (id) => {
+    setIsModalDuplicateOpen(true);
+    setTrainingIdToDuplicate(id);
+  }
+
+  if (isPending) return <div className="flex items-center justify-center h-screen">Ładowanie...</div>;
 
   return (
     <AdminLayout path={["Szkolenia", "Lista Szkoleń"]}>
@@ -34,8 +101,8 @@ export default function Home() {
           />
         </div>
         <div className="space-y-4">
-          {[...Array(6)].map((_, i) => (
-            <TrainingTile key={i} />
+          {trainigs.map((training, i) => (
+            <TrainingTile key={i} training={training} onDelete={() => openDeleteModal(training.id)} onDuplicate={() => openDuplicateModal(training.id)} />
           ))}
         </div>
         <div className="w-full flex flex-row justify-between text-sm mt-[32px] h-[50px] items-center">
@@ -70,6 +137,33 @@ export default function Home() {
             </button>
           </div>
         </div>
+         {/* Modal */}
+         <Modal
+          isOpen={isModalDeleteOpen}
+          closeModal={() => setIsModalDeleteOpen(false)}
+          title="Czy na pewno chcesz usunąć szkolenie?"
+        >
+          <div className="text-sm text-gray-500 mb-4">
+            Zatwierdź, by potwierdzić
+          </div>
+          <div className="flex flex-row gap-[8px]">
+            <ButtonRed title="Usuń" onPress={() => deleteTraining()} />
+            <ButtonGray title="Anuluj" onPress={() => setIsModalDeleteOpen(false)} />
+          </div>
+        </Modal>
+        <Modal
+          isOpen={isModalDuplicateOpen}
+          closeModal={() => setIsModalDuplicateOpen(false)}
+          title="Czy na pewno chcesz zduplikować szkolenie?"
+        >
+          <div className="text-sm text-gray-500 mb-4">
+            Zatwierdź, by potwierdzić
+          </div>
+          <div className="flex flex-row gap-[8px]">
+            <ButtonGreen title="Zduplikuj" onPress={() => duplicateTraining()} />
+            <ButtonGray title="Anuluj" onPress={() => setIsModalDuplicateOpen(false)} />
+          </div>
+        </Modal>
       </MainComponent>
     </AdminLayout>
   );

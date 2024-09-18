@@ -1,4 +1,5 @@
 import {prisma} from '@/lib/init/prisma';
+import { Role } from '@prisma/client';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
       },
       orderBy: {
         createdAt: 'desc',
-      },
+      }
     });
 
     res.status(200).json(merchants);

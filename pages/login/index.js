@@ -4,7 +4,9 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/Layouts/AuthLayout";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
+import { Loader2 } from "lucide-react";
+import { Role } from "@prisma/client";
 
 export default function Login() {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -13,7 +15,7 @@ export default function Login() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm();
 
   const onSubmit = async (formData) => {
@@ -24,9 +26,20 @@ export default function Login() {
     });
 
     if (signInResponse && !signInResponse.error) {
-      router.push("/admin/dashboard");
+      // I want to check user role and redirect to the correct page
+      const session = await getSession();
+
+      console.log(session);
+      if (session.user.role === Role.ADMIN) {
+        router.push("/admin/dashboard");
+      } else if (session.user.role === Role.MERCHANT_EDIT || session.user.role === Role.MERCHANT_VIEW) {
+        router.push("/merchant/dashboard");
+      }
     } else {
       setErrorMessage("Błędny email lub hasło");
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 3000);
     }
   };
 
@@ -126,13 +139,24 @@ export default function Login() {
                   Nie pamiętasz hasła?
                 </p>
               </Link>
-
+              
               <button
-                className="bg-main-green text-white text-base font-semibold rounded-md py-[10px] mt-[8px]"
+                className={`bg-main-green text-white text-base font-semibold rounded-md py-[10px] mt-[8px] flex items-center justify-center ${isSubmitting ? 'opacity-70' : ''}`}
                 type="submit"
+                disabled={isSubmitting}
               >
-                Zaloguj się
+                {isSubmitting ? (                  
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />                  
+                ) : (
+                  'Zaloguj się'
+                )}
               </button>
+              <Link
+                href="/trainings"
+                className={`bg-white text-main-green border border-main-green hover:bg-gray-100 transition-colors text-base font-semibold rounded-md py-[10px] mt-[8px] flex items-center justify-center ${isSubmitting ? 'opacity-70' : ''}`}                             
+              >
+                Zobacz szkolenia
+              </Link>
             </form>
           </div>
         </div>

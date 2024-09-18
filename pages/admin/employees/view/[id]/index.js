@@ -6,29 +6,39 @@ import { MulticolorTitleTile } from "@/components/Custom/MulticolorTitleTile";
 import Image from "next/image";
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import { format } from "date-fns";
+import Link from "next/link";
+
+const getPaymentFrequency = (frequency) => {
+  switch (frequency) {
+    case "WEEKLY":
+      return "Co tydzień";
+    case "BIWEEKLY":
+      return "Co 2 tygodnie";
+    case "MONTHLY":
+      return "Co miesiąc";
+    default:
+      return "-";
+  }
+}
 
 export default function EmployeeView() {
-  const merchantData = {
-    accountType: "View",
-    merchantName: "Salon urody Beauty",
-    firstName: "Joanna",
-    lastName: "Kowalczyk",
-    email: "joannakowalczyk@mail.com",
-    phone: "+48 739 254 543",
-    nip: "5464647575689780",
-    accountNumber: "PL 456546345345654765765764587765987843",
-    addressCountry: "Polska",
-    addressPostalCode: "57-353",
-    addressCity: "Kielce",
-    addressStreet: "ul. Słoneczna",
-    addressHouseNumber: "12",
-    invoiceAddressCountry: "Polska",
-    invoiceAddressPostalCode: "57-353",
-    invoiceAddressCity: "Kielce",
-    invoiceAddressStreet: "ul. Słoneczna",
-    invoiceAddressHouseNumber: "12",
-    invoiceAddressApartmentNumber: "",
-  };
+  const { id } = useRouter().query;
+
+  const { data: employee, isPending } = useQuery({
+    queryKey: ['employee', id],
+    queryFn: async () => {
+      const res = await fetch(`/api/employee/fetch-one?id=${id}`);
+      const data = await res.json();
+
+      console.log(data);
+      return data;
+    },
+  });
+
+  if (isPending) return <div>Ładowanie...</div>;
 
   return (
     <AdminLayout path={["Merchant", "Konto pracownika"]}>
@@ -42,7 +52,7 @@ export default function EmployeeView() {
               <span className="text-zinc-800 text-xs font-medium">
                 Data dodania:
               </span>{" "}
-              28.06.2024
+              {format(new Date(employee.createdAt), 'dd.MM.yyyy')}
             </p>
           </div>
           <ButtonGreen
@@ -67,17 +77,27 @@ export default function EmployeeView() {
                 <label className="text-zinc-800 text-xs font-medium leading-normal">
                   Płatność cykliczna
                 </label>
-                <StatusTile status={"greenLight"} title={"Aktywna"} />
+                {employee.recurrentPaymentOn ? (
+                  <StatusTile status={"greenLight"} title={"Aktywna"} />
+                ) : (
+                  <StatusTile status={"redLight"} title={"Nieaktywna"} />
+                )}
               </div>
               <div className="flex flex-col items-start">
                 <label className="text-zinc-800 text-xs font-medium leading-normal">
-                  Płatność cykliczna
+                  Automatyczny zwrot
                 </label>
-                <MulticolorTitleTile title="Auto" color="blue" />
+                {employee.automaticReturnOn ? (
+                  <StatusTile status={"greenLight"} title={"Aktywna"} />
+                ) : (
+                  <StatusTile status={"redLight"} title={"Nieaktywna"} />
+                )}
               </div>
             </div>
+            {employee.recurrentPaymentOn && (
+            <>
             <div>
-              <label className="text-zinc-800 text-xs font-medium leading-normal">
+                  <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Wartość kwoty przesyłanej cyklicznie
               </label>
               <div className="flex flex-row gap-[8px] items-center">
@@ -87,7 +107,7 @@ export default function EmployeeView() {
                   height={16}
                   alt="Coin"
                 />
-                <p className="text-xs text-zinc-600 font-normal">10 000</p>
+                <p className="text-xs text-zinc-600 font-normal">{employee.paymentAmount}</p>
               </div>
             </div>
             <div>
@@ -101,7 +121,7 @@ export default function EmployeeView() {
                   height={16}
                   alt="calendar"
                 />
-                <p className="text-xs text-zinc-600 font-normal">24.06.24</p>
+                <p className="text-xs text-zinc-600 font-normal">{format(new Date(employee.startDate), 'dd.MM.yyyy')}</p>
               </div>
             </div>
             <div>
@@ -115,10 +135,12 @@ export default function EmployeeView() {
                   height={16}
                   alt="calendar"
                 />
-                <p className="text-xs text-zinc-600 font-normal">Co tydzień</p>
+                <p className="text-xs text-zinc-600 font-normal">{getPaymentFrequency(employee.paymentFrequency)}</p>
               </div>
-            </div>
-          </div>
+            </div>          
+          </>
+        )}
+        </div>
         </div>
 
         {/* Merchant Details Section */}
@@ -132,9 +154,13 @@ export default function EmployeeView() {
                 Nazwa Firmy
               </label>
               <div className="flex flex-row gap-[8px] items-center">
-                <MulticolorTitleTile title="Auto" color="blue" />
+                {employee.merchant.accountType === "View" ? (
+                  <MulticolorTitleTile title="View" color="blue" />
+                ) : (
+                  <MulticolorTitleTile title="Edit" color="orange" />
+                )}
                 <p className="text-xs text-zinc-600 font-normal">
-                  Salon urody Beauty
+                  {employee.merchant.merchantName}
                 </p>
               </div>
             </div>
@@ -151,46 +177,46 @@ export default function EmployeeView() {
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Imię pracownika
               </label>
-              <p className="text-xs text-zinc-600 font-normal">Jan</p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.firstName}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Nazwisko pracownika
               </label>
-              <p className="text-xs text-zinc-600 font-normal">Kowalski</p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.lastName}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Email
               </label>
-              <p className="text-xs text-zinc-600 font-normal">jan@gmail.com</p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.email}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Pesel
               </label>
-              <p className="text-xs text-zinc-600 font-normal">84051252487 </p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.pesel}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Numer telefonu
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                + 48 739 234 543
+                {employee.phone}
               </p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Dowód osobisty lub paszport
               </label>
-              <p className="text-xs text-zinc-600 font-normal">AWX 354940303</p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.idCard}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Numer konta
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                PL 4565464534535456575756756487458767775689843
+                {employee.accountNumber}
               </p>
             </div>
           </div>
@@ -207,7 +233,7 @@ export default function EmployeeView() {
                 Kraj
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchantData.invoiceAddressCountry}
+                {employee.country}
               </p>
             </div>
             <div>
@@ -215,7 +241,7 @@ export default function EmployeeView() {
                 Kod pocztowy
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchantData.invoiceAddressPostalCode}
+                {employee.postalCode}
               </p>
             </div>
             <div>
@@ -223,7 +249,7 @@ export default function EmployeeView() {
                 Miejscowość
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchantData.invoiceAddressCity}
+                {employee.city}
               </p>
             </div>
             <div>
@@ -231,7 +257,7 @@ export default function EmployeeView() {
                 Ulica
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchantData.invoiceAddressStreet}
+                {employee.street}
               </p>
             </div>
             <div>
@@ -239,7 +265,7 @@ export default function EmployeeView() {
                 Nr domu
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchantData.invoiceAddressHouseNumber}
+                {employee.houseNumber}
               </p>
             </div>
             <div>
@@ -247,8 +273,8 @@ export default function EmployeeView() {
                 Nr mieszkania
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchantData.invoiceAddressApartmentNumber.length > 0
-                  ? merchantData.invoiceAddressApartmentNumber
+                {employee.apartmentNumber.length > 0
+                  ? employee.apartmentNumber
                   : "-"}
               </p>
             </div>
@@ -256,7 +282,9 @@ export default function EmployeeView() {
         </div>
 
         <div className="flex gap-4">
-          <ButtonGreen title="Edytuj dane" />
+          <Link href={`/admin/employees/edit/${id}`}>
+            <ButtonGreen title="Edytuj dane" />
+          </Link>
           <ButtonGray title="Anuluj" />
         </div>
       </MainComponent>

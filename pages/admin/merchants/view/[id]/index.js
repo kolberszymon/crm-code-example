@@ -1,18 +1,21 @@
+"use client";
+
 import { MainComponent } from "@/components/MainComponent";
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
 import { MerchantType } from "@/components/Custom/MerchantType";
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { format } from "date-fns";
+import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 
 export default function MerchantView() {
   const { id } = useRouter().query;
   const router = useRouter();
 
-  const { data: merchant, isLoading } = useQuery({
+  const { data: merchant, isPending } = useQuery({
     queryKey: ['merchant', id],
     queryFn: async () => {
       const response = await fetch(`/api/merchant/fetch-one?id=${id}`);
@@ -23,10 +26,40 @@ export default function MerchantView() {
       console.log(data);
       return data;
     },
-    enabled: !!id, // Only run the query when id is available
+    enabled: !!id, 
   });
 
-  if (isLoading)   return (
+  // useMutation for sending invitation to merchant
+  const { mutate: sendInvitation, isPending: isSendingInvitation } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/send-invite-to-app", {
+        method: "POST",
+        body: JSON.stringify({ email: merchant.email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message);
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      showToastNotificationSuccess(
+        "Sukces",
+        `Wysłano zaproszenie do aplikacji na ${merchant.email}`
+      );
+    },
+    onError: (error) => {
+      showToastNotificationError(
+        "Błąd",
+        `Wystąpił błąd, spróbuj ponownie`
+      );
+    }
+  });
+
+  if (isPending)   return (
     <AdminLayout path={["Merchant", "Konto merchantów", "Nowe konto", "Szczegóły konta"]}>
       <MainComponent>
         <div className="mb-6">
@@ -41,16 +74,22 @@ export default function MerchantView() {
   return (
     <AdminLayout path={["Merchant", "Konto merchantów", "Nowe konto", "Szczegóły konta"]}>
       <MainComponent>
-        <div className="mb-6">
-          <h2 className="text-zinc-950 text-base font-semibold leading-normal">
-            Szczegóły konta: {merchant.merchantName}
-          </h2>
-          <p className="text-zinc-600 text-xs font-normal">
-            <span className="text-zinc-800 text-xs font-medium">
-              Data dodania:
-            </span>{" "}
-            {format( new Date(merchant.createdAt), "dd.MM.yyyy")}
-          </p>
+        <div className="mb-6 flex flex-row justify-between">
+          <div className="flex flex-col">
+            <h2 className="text-zinc-950 text-base font-semibold leading-normal">
+              Szczegóły konta: {merchant.merchantName}
+            </h2>
+            <p className="text-zinc-600 text-xs font-normal">
+              <span className="text-zinc-800 text-xs font-medium">
+                Data dodania:
+              </span>{" "}
+              {format(new Date(merchant.createdAt), 'dd.MM.yyyy')}
+            </p>
+          </div>
+          <ButtonGreen
+            title="Wyślij zaproszenie do aplikacji"
+            onPress={() => sendInvitation()}
+          />
         </div>
 
         {/* Merchant Details */}
@@ -247,7 +286,7 @@ export default function MerchantView() {
         )}
 
         <div className="flex gap-4">
-          <Link href="/admin/merchants/edit/1">
+          <Link href={`/admin/merchants/edit/${merchant.id}`}>
             <ButtonGreen title="Edytuj dane" />
           </Link>
           

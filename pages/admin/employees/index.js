@@ -29,6 +29,7 @@ export default function Home() {
 
       const employees = data.map(employee => {
         return {
+          id: employee.id,
           name: employee.employeeData.firstName + " " + employee.employeeData.lastName,
           automaticReturnOn: employee.employeeData.automaticReturnOn,
           merchantName: employee.employeeData.merchant.merchantName,
