@@ -21,7 +21,7 @@ export default function NewMerchantForm() {
   } = useForm();
   const billingAddress = watch("billingAddress", false);
 
-  const { data: merchant, isLoading } = useQuery({
+  const { data: merchant, isPending } = useQuery({
     queryKey: ['merchant', id],
     queryFn: async () => {
       const response = await fetch(`/api/merchant/fetch-one?id=${id}`);
@@ -36,7 +36,7 @@ export default function NewMerchantForm() {
   });
 
   // useMutation for updating merchant data
-  const { mutate: updateMerchant, isPending } = useMutation({
+  const { mutate: updateMerchant } = useMutation({
     mutationFn: async (formData) => {
       const response = await fetch(`/api/merchant/update-data`, {
         method: 'POST',
@@ -70,7 +70,7 @@ export default function NewMerchantForm() {
     updateMerchant(data);
   };
 
-  if (isLoading)   return (
+  if (isPending)   return (
     <AdminLayout path={["Merchant", "Konto merchantów", "Nowe konto", "Szczegóły konta"]}>
       <MainComponent>
         <div className="mb-6">

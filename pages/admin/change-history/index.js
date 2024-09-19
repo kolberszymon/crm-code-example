@@ -10,12 +10,14 @@ import { fetchLogs } from "@/lib/api-functions/fetch-logs";
 export default function Home() {
   const [searchValue, setSearchValue] = useState("");
 
-  const { data: logs, isLoading } = useQuery({
+  const { data: logs, isPending } = useQuery({
     queryKey: ["logs"],
     queryFn: () => fetchLogs(),
   });
 
-
+  if (isPending) {
+    return <p>Ładowanie...</p>
+  }
 
   return (
     <AdminLayout path={["Konto", "Historia zmian"]}>
@@ -33,7 +35,7 @@ export default function Home() {
           <DatePickerWithRange className="w-[235px] bg-white border border-zinc-400 rounded-md"/>
           </div>
 
-          {isLoading ? <p>Ładowanie...</p> : logs.map((log, index) => (
+          {isPending ? <p>Ładowanie...</p> : logs.map((log, index) => (
             <LogTile
               key={log.id}
               title={log.message}
