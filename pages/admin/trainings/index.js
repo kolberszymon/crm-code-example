@@ -101,9 +101,17 @@ export default function Home() {
           />
         </div>
         <div className="space-y-4">
-          {trainigs.map((training, i) => (
-            <TrainingTile key={i} training={training} onDelete={() => openDeleteModal(training.id)} onDuplicate={() => openDuplicateModal(training.id)} />
-          ))}
+          {trainigs.length === 0 ? (
+            <div className="flex h-full">
+              <p className="text-zinc-950 text-sm">
+                Nie znaleziono szkoleń, dodaj pierwsze szkolenie
+              </p>
+            </div>
+          ) : (
+            trainigs.map((training, i) => (
+              <TrainingTile key={i} training={training} onDelete={() => openDeleteModal(training.id)} onDuplicate={() => openDuplicateModal(training.id)} />
+            ))
+          )}
         </div>
         <div className="w-full flex flex-row justify-between text-sm mt-[32px] h-[50px] items-center">
           <div className="text-zinc-950 flex flex-row items-center gap-[16px]">

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import { ButtonWhiteWithBorder } from "@/components/Buttons/ButtonWhiteWithBorder";
+import Link from "next/link";
 
 const TrainingStoreTile = ({ training }) => {
   return (
@@ -40,7 +41,9 @@ export default function Trainings() {
   return (
     <AuthLayout>
       <div className="flex flex-col items-center">
-        <Image src="/logo.svg" width={241} height={62} alt="logo" />
+        <Link href="/login">
+          <Image src="/logo.svg" width={241} height={62} alt="logo" />
+        </Link>
         <div className="flex flex-col p-[16px] my-[40px] rounded-3xl overflow-hidden border border-main-green w-[1100px] min-h-screen bg-white">
           <p className="text-zinc-950 text-base font-semibold mb-[32px]">Lista do 99% taniej dla użytkowników naszej platformy</p>
           <p className="text-zinc-950 text-base font-semibold mb-[32px]">Lista szkoleń</p>
