@@ -34,12 +34,19 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   );
 }
 
-export const MerchantHistoryTable = ({ tableData }) => {
+export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchValue }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
   const [sorting, setSorting] = useState([])
+
+  const filteredData = useMemo(() => {
+    return data.filter(row => 
+      row.id.toLowerCase().includes(searchValue.toLowerCase()) ||
+      row.merchant.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, [data, searchValue]);
 
   const columns = useMemo(
     () => [
@@ -159,7 +166,7 @@ export const MerchantHistoryTable = ({ tableData }) => {
 
   const table = useReactTable({
     columns,
-    data,
+    data: filteredData,
     state: {
       rowSelection,
       pagination: { pageIndex, pageSize },
@@ -177,6 +184,14 @@ export const MerchantHistoryTable = ({ tableData }) => {
     },
     getSortedRowModel: getSortedRowModel(),
   });
+
+  useEffect(() => {
+    const selectedRowsWithData = Object.keys(rowSelection)
+      .filter((key) => rowSelection[key])
+      .map((key) => data[key]);
+
+    setSelectedRowValues(selectedRowsWithData);
+  }, [rowSelection]);
 
   useEffect(() => {
     setData(tableData);
@@ -209,8 +224,15 @@ export const MerchantHistoryTable = ({ tableData }) => {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+          {table.getRowModel().rows.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="text-sm text-center p-2">
+                Brak danych do wyświetlenia
+              </td>
+            </tr>
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
@@ -221,7 +243,8 @@ export const MerchantHistoryTable = ({ tableData }) => {
                 </td>
               ))}
             </tr>
-          ))}
+          ))
+          )}
         </tbody>
       </table>
 
@@ -253,8 +276,7 @@ export const MerchantHistoryTable = ({ tableData }) => {
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
-              table.previousPage();
-              setPageIndex(table.getState().pagination.pageIndex);
+              table.previousPage();              
             }}
             disabled={!table.getCanPreviousPage()}
           >
@@ -271,8 +293,7 @@ export const MerchantHistoryTable = ({ tableData }) => {
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
-              table.nextPage();
-              setPageIndex(table.getState().pagination.pageIndex);
+              table.nextPage();              
             }}
             disabled={!table.getCanNextPage()}
           >

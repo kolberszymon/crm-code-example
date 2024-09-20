@@ -8,6 +8,7 @@ import { format } from "date-fns";
 
 export default function Home() {
   const [tableSearch, setTableSearch] = useState("");
+  const [selectedRowValues, setSelectedRowValues] = useState({});
 
   const { data: transactionsRaw, isLoading } = useQuery({
     queryKey: ['transactions'],
@@ -17,8 +18,7 @@ export default function Home() {
         throw new Error('Network response was not ok');
       }
 
-      const data = await response.json();
-      console.log(data);
+      const data = await response.json();      
       return data;
     },
   });
@@ -49,8 +49,9 @@ export default function Home() {
           value={tableSearch}
           setValue={setTableSearch}
           extraCss="mb-[32px]"
+          placeholder="Szukaj po id, merchancie"
         />
-        <MerchantHistoryTable tableData={transactions} />
+        <MerchantHistoryTable tableData={transactions} searchValue={tableSearch} setSelectedRowValues={setSelectedRowValues} />
 
       </MainComponent>
     </AdminLayout>

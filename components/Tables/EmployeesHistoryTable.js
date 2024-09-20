@@ -16,6 +16,8 @@ import { MulticolorTitleTile } from "../Custom/MulticolorTitleTile";
 import { TransactionStatus } from "../Custom/TransactionStatus";
 import { TransferStatus } from "../Custom/TransferStatus";
 
+const truncate = (str) => str.length > 10 ? str.slice(0, 10) + '...' : str;
+
 function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   const ref = useRef(null);
 
@@ -37,11 +39,30 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   );
 }
 
-export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues }) => {
+export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchValue, selectedTransactionStatus, selectedTransferStatus }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
+
+  const filteredData = useMemo(() => {
+    let filteredData = data;
+  
+    if (selectedTransactionStatus &&selectedTransactionStatus !== "Status transakcji") {
+      filteredData = filteredData.filter(row => row.transactionStatus === selectedTransactionStatus)
+    }
+
+    if (selectedTransferStatus && selectedTransferStatus !== "Status przelewu") {
+      filteredData = filteredData.filter(row => row.transferStatus === selectedTransferStatus)
+    }
+
+    return filteredData.filter(row => 
+      row.id.toLowerCase().includes(searchValue.toLowerCase()) ||
+      row.recipent.toLowerCase().includes(searchValue.toLowerCase()) ||            
+      row.accountNumber.toLowerCase().includes(searchValue.toLowerCase())      
+    );
+  }, [data, searchValue, selectedTransactionStatus, selectedTransferStatus]);
+    
 
   const columns = useMemo(
     () => [
@@ -77,7 +98,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues }) => {
             <button onClick={() => navigator.clipboard.writeText(getValue())}>
               <Icons.CopyImage w={16} h={16} />
             </button>
-            {getValue()}
+            {truncate(getValue())}
           </div>
         ),
       },
@@ -101,7 +122,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues }) => {
             <button onClick={() => navigator.clipboard.writeText(getValue())}>
               <Icons.CopyImage w={16} h={16} />
             </button>
-            {getValue()}
+            {truncate(getValue())}
           </div>
         ),
       },
@@ -130,16 +151,6 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues }) => {
         accessorKey: "transferStatus",
         header: "Status przelewu",
         cell: ({ getValue }) => {
-          let status, title;
-
-          if (getValue() === true) {
-            status = "greenLight";
-            title = "Aktywna";
-          } else {
-            status = "redLight";
-            title = "Nieaktywna";
-          }
-
           return (
             <div className="flex items-center justify-start">
               <TransferStatus status={getValue()} />
@@ -153,8 +164,8 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues }) => {
         header: () => {
           <></>;
         },
-        cell: ({ getValue }) => (
-          <Link href={`/admin/employees/view/1`}>
+        cell: ({ row }) => (
+          <Link href={`/admin/employees/transaction/${row.original.id}`}>
             <button className="flex items-center justify-start gap-1 bg-[#f6f7f8] p-[4px] rounded-full hover:bg-gray-200 transition-colors">
               <Icons.EyeImage w={16} h={16} />
             </button>
@@ -167,7 +178,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues }) => {
 
   const table = useReactTable({
     columns,
-    data,
+    data: filteredData,
     state: {
       rowSelection,
       pagination: { pageIndex, pageSize },
@@ -187,8 +198,8 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues }) => {
   }, [rowSelection]);
 
   useEffect(() => {
-    console.log(data);
-  }, [data]);
+    setData(tableData);
+  }, [tableData]);
 
   return (
     <>
@@ -217,8 +228,15 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues }) => {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+          {table.getRowModel().rows.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="text-sm text-center p-2">
+                Brak danych do wyświetlenia
+              </td>
+            </tr>
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
@@ -229,7 +247,8 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues }) => {
                 </td>
               ))}
             </tr>
-          ))}
+          ))
+          )}
         </tbody>
       </table>
 

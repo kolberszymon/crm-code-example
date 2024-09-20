@@ -1,5 +1,8 @@
 import React from 'react';
 
+const toTitleCase = (str) => 
+  str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+
 export const TransferStatus = ({ status }) => {
   const getBackgroundColor = () => {
     if (status === null) return '';
@@ -16,7 +19,7 @@ export const TransferStatus = ({ status }) => {
 
   return (
     <div className={`px-3 py-1 rounded-full ${getBackgroundColor()}`}>
-      <span className="text-xs font-normal">{status ? status : "-"}</span>
+      <span className="text-xs font-normal">{status ? toTitleCase(status) : "-"}</span>
     </div>
   );
 };

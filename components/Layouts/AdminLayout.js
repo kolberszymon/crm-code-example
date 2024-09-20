@@ -33,15 +33,15 @@ const AdminLayout = ({ path = [], children }) => {
           {path.map((path, index) => {
             if (index === 0) {
               return (
-                <p className="text-[#015640] text-xs font-normal">
+                <p className="text-[#015640] text-xs font-normal" key={index}>
                   {path}
                 </p>
               );
             } else {
               return (
                 <>
-                  <Image src="/icons/arrow-right.svg" width={16} height={16} alt="arrow-right" />
-                  <p className="text-[#0e1726] text-xs font-normal">
+                  <Image src="/icons/arrow-right.svg" width={16} height={16} alt="arrow-right" key={`${index}-arrow`} />
+                  <p className="text-[#0e1726] text-xs font-normal" key={`${index}-path`}>
                     {path}
                   </p>
                 </>

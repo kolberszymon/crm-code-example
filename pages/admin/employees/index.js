@@ -15,14 +15,15 @@ import { useQuery } from "@tanstack/react-query";
 
 
 export default function Home() {
-  const [searchValue, setSearchValue] = useState(null);
-  const [merchantType, setMerchantType] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+  const [automaticReturnOn, setAutomaticReturnOn] = useState("");
+  const [isRecurrentPaymentOn, setIsRecurrentPaymentOn] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: employees, isLoading } = useQuery({
-    queryKey: ['employees'],
+    queryKey: ['employees-list'],
     queryFn: async () => {
       const res = await fetch("/api/employee/fetch-all")
       const data = await res.json()
@@ -59,11 +60,18 @@ export default function Home() {
               value={searchValue}
               setValue={setSearchValue}
               extraCss="my-[32px]"
+              placeholder="Szukaj po pracowniku, merchancie"
             />
             <SelectDropdown
-              value={merchantType}
-              setValue={setMerchantType}
-              options={["Merchant", "View", "Edit"]}
+              value={automaticReturnOn}
+              setValue={setAutomaticReturnOn}
+              options={["Zwrot", "Auto", "Manualny"]}
+              extraCss=""
+            />
+            <SelectDropdown
+              value={isRecurrentPaymentOn}
+              setValue={setIsRecurrentPaymentOn}
+              options={["Płatność cykliczna", "Aktywna", "Nieaktywna"]}
               extraCss=""
             />
           </div>
@@ -99,6 +107,9 @@ export default function Home() {
           <EmployeesAccountTable
             tableData={employees}
             setSelectedRowValues={setSelectedRowValues}
+            searchValue={searchValue}
+            automaticReturnOn={automaticReturnOn}
+            isRecurrentPaymentOn={isRecurrentPaymentOn}
           />
         )}
 

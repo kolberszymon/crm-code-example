@@ -11,14 +11,14 @@ export const MerchantCard = ({ item, openModal }) => (
       <div className="flex flex-row gap-3">
         <Link href={`/admin/merchants/view/${item.id}`}>
           <button className="p-[4px] rounded-full bg-main-gray flex items-center justify-center hover:bg-gray-200 transition-colors">
-            <Image src="/icons/eye.svg" width={16} height={16} />
+            <Image src="/icons/eye.svg" width={16} height={16} alt="eye" />
           </button>
         </Link>
         <button
           className="p-[4px] rounded-full bg-main-gray flex items-center justify-center hover:bg-gray-200 transition-colors"
           onClick={openModal}
         >
-          <Image src="/icons/trash.svg" width={14} height={16} />
+          <Image src="/icons/trash.svg" width={14} height={16} alt="trash" />
         </button>
       </div>
     </div>

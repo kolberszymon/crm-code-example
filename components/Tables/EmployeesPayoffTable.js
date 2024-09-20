@@ -55,6 +55,7 @@ const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onBlur={onBlur}
+        type="number"
       />
     </div>
   );
@@ -97,16 +98,26 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
         header: "Pracownik",
       },
       {
-        accessorKey: "payment",
+        accessorKey: "automaticReturnOn",
         header: "Zwrot",
-        cell: ({ getValue }) => (
-          <div className="flex items-center justify-start">
-            <MulticolorTitleTile title={getValue()} color="blue" />
-          </div>
-        ),
+        cell: ({ getValue }) => {
+          if (getValue() === true) {
+            return (
+              <div className="flex items-center justify-start">
+                <MulticolorTitleTile title="Auto" color="blue" />
+              </div>
+            )
+          } else {
+            return (
+              <div className="flex items-center justify-start">
+                <MulticolorTitleTile title="Manual" color="orange" />
+              </div>
+            )
+          }
+        },
       },
       {
-        accessorKey: "merchant",
+        accessorKey: "merchantName",
         header: "Merchant",
       },
       {
@@ -120,7 +131,7 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
         ),
       },
       {
-        accessorKey: "isPaymentRecurrent",
+        accessorKey: "recurrentPaymentOn",
         header: "Płatność cykliczna",
         cell: ({ getValue }) => {
           let status, title;
@@ -160,8 +171,8 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
         header: () => {
           <></>;
         },
-        cell: ({ getValue }) => (
-          <Link href={`/admin/employees/view/1`}>
+        cell: ({ row }) => (
+          <Link href={`/admin/employees/view/${row.original.id}`}>
             <button className="flex items-center justify-start gap-1 bg-[#f6f7f8] p-[4px] rounded-full hover:bg-gray-200 transition-colors">
               <Icons.EyeImage w={16} h={16} />
             </button>
@@ -183,6 +194,22 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    meta: {
+      updateData: (rowIndex, columnId, value) => {
+        const newData = data.map((row, index) => {
+          if (index === rowIndex) {
+            return {
+              ...row,
+              [columnId]: value,
+            };
+          }
+          return row;
+        });
+        
+        setData(newData);
+       
+      },
+    },
   });
 
   useEffect(() => {
@@ -191,7 +218,11 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
       .map((key) => data[key]);
 
     setSelectedRowValues(selectedRowsWithData);
-  }, [rowSelection]);
+  }, [rowSelection, data]);
+
+  useEffect(() => {
+    setData(tableData);
+  }, [tableData]);
 
   return (
     <>
@@ -235,20 +266,24 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
           ))}
         </tbody>
       </table>
+      {data.length === 0 && (
+        <div className="w-full flex items-center justify-center mt-10 text-xs font-semibold">
+          Nie ma jeszcze żadnych danych
+        </div>
+      )}
+
 
       {/* Pagination Controls */}
       <div className="w-full flex flex-row justify-between text-sm mt-[32px] h-[50px] items-center">
         <div className="text-zinc-950 flex flex-row items-center gap-[16px]">
           <p>
             Wyświetlono {table.getPaginationRowModel().rows.length} z{" "}
-            {data.length} elementów
+            {table.getRowModel().rows.length} elementów
           </p>
           <select
-            value={pageSize}
+            value={table.getState().pagination.pageSize}
             onChange={(e) => {
-              const newSize = Number(e.target.value);
-              table.setPageSize(newSize);
-              setPageSize(newSize);
+              table.setPageSize(Number(e.target.value));
             }}
             className="border border-main-gray rounded-md px-[16px] py-[6px]"
           >
@@ -263,10 +298,7 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
         <div className="flex flex-row gap-2 items-center text-black">
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
-            onClick={() => {
-              table.previousPage();
-              setPageIndex(table.getState().pagination.pageIndex);
-            }}
+            onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
             <Image
@@ -281,10 +313,7 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
           </p>
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
-            onClick={() => {
-              table.nextPage();
-              setPageIndex(table.getState().pagination.pageIndex);
-            }}
+            onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
             <Image

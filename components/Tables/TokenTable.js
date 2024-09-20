@@ -33,11 +33,17 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   );
 }
 
-export const TokenTable = ({ data, setSelectedRowValues }) => {
+export const TokenTable = ({ data, setSelectedRowValues, searchValue }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
   const [sorting, setSorting] = useState([])
+
+  const filteredData = useMemo(() => {
+    return data.filter(row => 
+      row.id.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, [data, searchValue]);
 
   const columns = useMemo(
     () => [
@@ -139,7 +145,7 @@ export const TokenTable = ({ data, setSelectedRowValues }) => {
 
   const table = useReactTable({
     columns,
-    data,
+    data: filteredData,
     state: {
       rowSelection,
       pagination: { pageIndex, pageSize },
@@ -193,8 +199,15 @@ export const TokenTable = ({ data, setSelectedRowValues }) => {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+          {table.getRowModel().rows.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="text-sm text-center p-2">
+                Brak danych do wyświetlenia
+              </td>
+            </tr>
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
@@ -205,7 +218,8 @@ export const TokenTable = ({ data, setSelectedRowValues }) => {
                 </td>
               ))}
             </tr>
-          ))}
+          ))
+          )}
         </tbody>
       </table>
 

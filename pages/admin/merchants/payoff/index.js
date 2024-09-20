@@ -15,7 +15,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 export default function MerchantPayoff() {  
   const queryClient = useQueryClient();
 
-  const [searchValue, setSearchValue] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
   const [merchantType, setMerchantType] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
 
@@ -129,6 +129,7 @@ export default function MerchantPayoff() {
         <MerchantPayoffTable
           tableData={merchants}
           setSelectedRowValues={setSelectedRowValues}
+          searchValue={searchValue}
         />
         )}
 

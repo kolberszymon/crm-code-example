@@ -15,13 +15,10 @@ import {
 } from "@/components/ui/popover"
 
 export function DatePickerWithRange({
+  date,
+  setDate,
   className,
 }) {
-  const [date, setDate] = React.useState({
-    from: new Date(),
-    to: addDays(new Date(), 7)
-  })
-
   return (
     <div className={cn("grid gap-2 border-none", className)}>
       <Popover>
@@ -45,7 +42,7 @@ export function DatePickerWithRange({
                 format(date.from, "dd.MM.yyyy")
               )
             ) : (
-              <span>Pick a date</span>
+              <span>Wybierz datę</span>
             )}
             <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
           </Button>

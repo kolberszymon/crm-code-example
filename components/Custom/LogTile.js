@@ -4,12 +4,12 @@ import { format } from "date-fns";
 const TypeCircles = {
   plus: (
     <div className="bg-[#e59148] p-[10px] rounded-full">
-      <Image src="/icons/plus-white-icon.svg" width={16} height={16} />
+      <Image src="/icons/plus-white-icon.svg" width={16} height={16} alt="plus-white-icon" />
     </div>
   ),
   coin: (
     <div className="bg-[#ebefee] p-[10px] rounded-full">
-      <Image src="/icons/coin.svg" width={16} height={16} />
+      <Image src="/icons/coin.svg" width={16} height={16} alt="coin-icon" />
     </div>
   ),
 };
@@ -20,12 +20,12 @@ export const LogTile = ({ title, date, type, bottomLine }) => {
       <div className="flex flex-col gap-[10px] items-center">
         {type === "plus" && (
           <div className="bg-[#e59148] p-[10px] rounded-full relative w-[36px] h-[36px]">
-            <Image src="/icons/plus-white-icon.svg" width={16} height={16} />
+            <Image src="/icons/plus-white-icon.svg" width={16} height={16} alt="plus-white-icon" />
           </div>
         )}
         {type === "coin" && (
           <div className="bg-[#ebefee] p-[10px] rounded-full relative w-[36px] h-[36px]">
-            <Image src="/icons/coin.svg" width={16} height={16} />
+            <Image src="/icons/coin.svg" width={16} height={16} alt="coin-icon" />
           </div>
         )}
       </div>

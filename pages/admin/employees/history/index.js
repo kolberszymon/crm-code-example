@@ -1,79 +1,168 @@
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { MainComponent } from "@/components/MainComponent";
 import { SearchBar } from "@/components/Inputs/SearchBar";
 import { Modal } from "@/components/Modal";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
-import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
+import { showToastNotificationError, showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
 import { EmployeesHistoryTable } from "@/components/Tables/EmployeesHistoryTable";
 import AdminLayout from "@/components/Layouts/AdminLayout";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { TransferStatus, TransactionStatus } from "@prisma/client";
+import { DatePickerWithRange } from "@/components/Custom/DatePickerRange";
+import SelectSearchBar from "@/components/Custom/SelectSearchBar";
+import { useRouter } from "next/router";
+
+const getRecipent = (transaction) => {
+  if (transaction.to.employeeData) {
+    return transaction.to.employeeData.firstName + " " + transaction.to.employeeData.lastName
+  } else if (transaction.to.merchantData) {
+    return transaction.to.merchantData.merchantName
+  } else {
+    return "Admin"
+  }
+}
+
+const getAccountNumber = (transaction) => {
+  if (transaction.to.employeeData) {
+    return transaction.to.employeeData.accountNumber
+  } else if (transaction.to.merchantData) {
+    return transaction.to.merchantData.accountNumber
+  } else {
+    return "Admin"
+  }
+}
 
 export default function Home() {
-  //push to another page once page loads
-  const [data, setData] = useState([
-      {
-        id: 5485,
-        recipent: "Jan Kowalski",
-        date: "20.06.2024",
-        hour: "12:00:00",
-        accountNumber: "1234567890",
-        amount: 2000,
-        transactionStatus: "Do rozliczenia",
-        transferStatus: "Nierozliczone",
-      },
-      {
-        id: 5485,
-        recipent: "Jan Kowalski",
-        date: "20.06.2024",
-        hour: "12:00:00",
-        accountNumber: "1234567890",
-        amount: 2000,
-        transactionStatus: "Pracownik-pracownik",
-        transferStatus: "Rozliczone",
-      },
-      {
-        id: 5485,
-        recipent: "Jan Kowalski",
-        date: "20.06.2024",
-        hour: "12:00:00",
-        accountNumber: "1234567890",
-        amount: 2000,
-        transactionStatus: "Zakup szkolenia",
-        transferStatus: null,
-      },
-      {
-        id: 5485,
-        recipent: "Jan Kowalski",
-        date: "20.06.2024",
-        hour: "12:00:00",
-        accountNumber: "1234567890",
-        amount: 2000,
-        transactionStatus: "Zasilono",
-        transferStatus: null,
-      },
-      {
-        id: 5485,
-        recipent: "Jan Kowalski",
-        date: "20.06.2024",
-        hour: "12:00:00",
-        accountNumber: "1234567890",
-        amount: 2000,
-        transactionStatus: "Zakończono",
-        transferStatus: "Rozliczone",
-    },
-  ]);
+  const router = useRouter()
+  const { merchantId, employeeId, transactionStatus, transferStatus } = router.query
 
-  const [searchValue, setSearchValue] = useState(null);
-  const [merchantType, setMerchantType] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [paymentType, setPaymentType] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
+  const [modalPayoffStatus, setModalPayoffStatus] = useState(TransferStatus.ROZLICZONE);
+  const queryClient = useQueryClient()
+  const [selectedMerchant, setSelectedMerchant] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedTransactionStatus, setSelectedTransactionStatus] = useState("Status transakcji");
+  const [selectedTransferStatus, setSelectedTransferStatus] = useState("Status przelewu");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const { data: transactions, isPending } = useQuery({
+    queryKey: ['transactions-fetch-history-all'],
+    queryFn: async () => {
+      console.log("Fetching transactions")
+
+      const res = await fetch("/api/employee/fetch-history-all")
+      const data = await res.json()
+
+      try {
+
+      const transactions = data.map(transaction => {
+        return {
+          id: transaction.id,
+          recipent: getRecipent(transaction),
+          date: format(new Date(transaction.createdAt), 'dd.MM.yyyy'),
+          hour: format(new Date(transaction.createdAt), 'HH:mm:ss'),
+          accountNumber: getAccountNumber(transaction),
+          amount: transaction.transactionAmount,
+          transactionStatus: transaction.transactionStatus,
+          transferStatus: transaction.transferStatus,
+        }
+      })
+
+      console.log(transactions)
+
+      return transactions
+    } catch (error) {
+      console.log(error)
+    }
+    },
+    onError: (error) => {
+      console.log(error)
+    }
+  })
+
+  // useMutation to change transaction status
+  const { mutate: changeTransactionStatus, isPending: isChangeTransactionStatusPending } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/transactions/change-transaction-status`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          transactions: selectedRowValues.map(transaction => transaction.id),
+          status: modalPayoffStatus
+        })
+      })
+      const data = await res.json()
+      
+      return data
+    },
+    onSuccess: (data) => {      
+      showToastNotificationSuccess("Sukces", data.message)
+      queryClient.invalidateQueries({ queryKey: ['transactions-fetch-history-all'] })
+    },
+    onError: (error) => {
+      showToastNotificationError("Wystąpił błąd", error.message)
+    }
+  })
+
+  const { data: merchantsOptions } = useQuery({
+    queryKey: ['merchants'],
+    queryFn: async () => {
+     const res = await fetch('/api/merchant/fetch-all');
+
+     const data = await res.json();
+
+     const merchantsOptions = data.map((merchant) => ({
+      value: merchant.id,
+      label: merchant.merchantName,
+     }));
+         
+     return merchantsOptions;
+    }
+  });
+
+  const { data: employeesOptions } = useQuery({
+    queryKey: ['employees'],
+    queryFn: async () => {
+     const res = await fetch('/api/employee/fetch-all');
+
+     const data = await res.json();
+
+     const employeesOptions = data.map((employee) => ({
+      value: employee.id,
+      label: employee.employeeData.firstName + " " + employee.employeeData.lastName,
+     }));
+         
+     return employeesOptions;
+    }
+  });
+
+
+  const updateTransactionsStatus = () => {
+    changeTransactionStatus()
+    setIsModalOpen(false)
+  }
+
+  useEffect(() => {
+    if (router.isReady) {
+      setSelectedMerchant(router.query.merchantId)
+      setSelectedEmployee(router.query.employeeId)
+      setSelectedTransactionStatus(router.query.transactionStatus)
+      setSelectedTransferStatus(router.query.transferStatus)
+    }
+  }, [router])
+  
+  if (isPending) {
+    return <div>Ładowanie...</div>
+  }
 
   return (
     <AdminLayout path={["Merchant", "Historia transakcji pracowników"]}>
@@ -85,29 +174,41 @@ export default function Home() {
 
           <ButtonGreen
             title="Zmień status"
-            onPress={openModal}
+            onPress={() => {
+              setModalPayoffStatus(TransferStatus.ROZLICZONE)
+              setIsModalOpen(true)              
+            }}
             disabled={selectedRowValues.length === 0}
           />
+
+           
         </div>
         <div className="flex flex-row items-center justify-between">
-          <div className="flex flex-row items-center gap-4 my-[32px]">
-            <SearchBar
-              value={searchValue}
-              setValue={setSearchValue}
-              extraCss="my-[32px]"
-            />
-            <SelectDropdown
-              value={merchantType}
-              setValue={setMerchantType}
-              options={["Merchant", "View", "Edit"]}
-              extraCss=""
-            />
-            <SelectDropdown
-              value={paymentType}
-              setValue={setPaymentType}
-              options={["Płatność", "Auto", "Manual"]}
-              extraCss=""
-            />
+          <div className="flex flex-col items-start my-[32px]">
+            <div className="flex flex-row items-center gap-[8px]">
+              <SearchBar
+                value={searchValue}
+                setValue={setSearchValue}
+                extraCss="my-[32px]"
+              />
+              <DatePickerWithRange className="w-[235px] bg-white border border-zinc-400 rounded-md"/>
+            </div>
+            <div className="flex flex-row items-start gap-[8px]">
+              {/* <SelectSearchBar options={merchantsOptions} placeholder={"Salon urody beauty"} onChange={(e) => setSelectedMerchant(e.value)}/>
+              <SelectSearchBar options={employeesOptions} placeholder={"Jan Kowalski"} onChange={(e) => setSelectedEmployee(e.value)}/>               */}
+              <SelectDropdown
+                value={selectedTransactionStatus}
+                setValue={setSelectedTransactionStatus}
+                options={["Status transakcji", TransactionStatus.ZASILONO, TransactionStatus.DO_ROZLICZENIA, TransactionStatus.ZAKONCZONO, TransactionStatus.PRACOWNIK_PRACOWNIK, TransactionStatus.ZAKUP_SZKOLENIA]}
+                extraCss=""
+              />
+              <SelectDropdown
+                value={selectedTransferStatus}
+                setValue={setSelectedTransferStatus}
+                options={["Status przelewu", TransferStatus.ROZLICZONE, TransferStatus.NIEROZLICZONE]}
+                extraCss=""
+              />
+            </div>
           </div>
           <div className="flex flex-row gap-[8px]">
             <button
@@ -124,31 +225,32 @@ export default function Home() {
           </div>
         </div>
         <EmployeesHistoryTable
-          tableData={data}
+          tableData={transactions || []}
           setSelectedRowValues={setSelectedRowValues}
+          searchValue={searchValue}
+          selectedTransactionStatus={selectedTransactionStatus}
+          selectedTransferStatus={selectedTransferStatus}
         />
 
         {/* Modal */}
         <Modal
           isOpen={isModalOpen}
-          closeModal={closeModal}
-          title="Czy na pewno chcesz przesłać tokeny?"
+          closeModal={() => setIsModalOpen(false)}
+          title="Zamiana statusu"
         >
-          <div className="text-sm text-gray-500 mb-4">
-            Zatwierdź, by potwierdzić
+          <div className="text-xs text-gray-500 mb-4">
+            Zamiana statusu będzie przeprowadzona na {selectedRowValues.length} zaznaczonym pracowniku
           </div>
+          <select className={`p-[8px] mb-[24px] rounded-md outline-none ${modalPayoffStatus === TransferStatus.ROZLICZONE ? "bg-[#d9fbe8] text-[#00a155]" : "bg-[#ef4444] text-red-50"}`} onChange={(e) => setModalPayoffStatus(e.target.value)}>
+            <option value={TransferStatus.ROZLICZONE}>Rozliczone</option>
+            <option value={TransferStatus.NIEROZLICZONE}>Nierozliczone</option>
+          </select>
           <div className="flex flex-row gap-[8px]">
             <ButtonGreen
               title="Zatwierdź"
-              onPress={() => {
-                closeModal();
-                showToastNotificationSuccess(
-                  "Sukces!",
-                  "Tokeny zostały przesłane"
-                );
-              }}
+              onPress={updateTransactionsStatus}
             />
-            <ButtonGray title="Anuluj" onPress={closeModal} />
+            <ButtonGray title="Anuluj" onPress={() => setIsModalOpen(false)} />
           </div>
         </Modal>
       </MainComponent>

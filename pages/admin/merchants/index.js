@@ -1,7 +1,5 @@
-"use client";
-
 import Image from "next/image";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { MainComponent } from "@/components/MainComponent";
 import { SearchBar } from "@/components/Inputs/SearchBar";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
@@ -12,34 +10,25 @@ import AdminLayout from "@/components/Layouts/AdminLayout";
 import { MerchantCard } from "@/components/Custom/MerchantCard";
 import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
-import { fetchMerchants } from "@/lib/api-functions/fetch-merchants";
 import { useQuery } from "@tanstack/react-query";
 
-const data = [
-  {
-    id: 1234,
-    merchantName: "KFC",
-    merchantCompany: "KFC Sp. z o.o.",
-    merchantType: "View",
-  }
-];
 
 export default function Home() {
-  //push to another page once page loads
   const [searchValue, setSearchValue] = useState(null);
   const [merchantType, setMerchantType] = useState("Merchant");
   const [tableSize, setTableSize] = useState(10);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: merchantsRaw, isLoading } = useQuery({
     queryKey: ["merchants-all"],
-    queryFn: () => fetchMerchants(),
+    queryFn: async () => {
+      const response = await fetch("/api/merchant/fetch-all");
+      const data = await response.json();
+      return data;
+    }
   });
 
   const merchants = useMemo(() => {
-    console.log(merchantsRaw);
-
     if (!merchantsRaw) return [];
     
     const merchants = merchantsRaw.map((merchant) => ({

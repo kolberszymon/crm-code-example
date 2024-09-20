@@ -41,7 +41,7 @@ export default function EditEmployee() {
       
       setAutomaticReturn(data.automaticReturnOn);
       setRecurrentPayment(data.recurrentPaymentOn);
-      setStartDate(data.startDate);      
+      setStartDate(data.startDate ? data.startDate : new Date());      
       setSelectedMerchant(data.merchant.merchantName);      
 
       return data;

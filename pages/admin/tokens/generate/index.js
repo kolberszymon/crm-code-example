@@ -1,6 +1,6 @@
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { TokenTable } from "@/components/Tables/TokenTable";
 import { MainComponent } from "@/components/MainComponent";
 import { SearchBar } from "@/components/Inputs/SearchBar";
@@ -12,27 +12,8 @@ import TokenBalance from "@/components/pages/tokens-generate/TokenBalance";
 import GenerateTokensInput from "@/components/pages/tokens-generate/GenerateTokensInput";
 import { useSession } from "next-auth/react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { fetchGenerateTokenTransactions } from "@/lib/api-functions/fetch-generate-token-transactions";
 import { format } from 'date-fns';
-
-
-
-const data = [
-  {
-    id: 5485,
-    date: "12.06.2024",
-    time: "12:54:00",
-    balance: 100000,
-    transactionAmount: 100000,
-  },
-  {
-    id: 5486,
-    date: "11.06.2024",
-    time: "12:54:00",
-    balance: 110000,
-    transactionAmount: 110000,
-  },
-];
+import { CSVLink } from "react-csv";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -41,7 +22,7 @@ export default function Home() {
   const [tokenNumber, setTokenNumber] = useState("");
   const [tableSearch, setTableSearch] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
-
+  const [csvData, setCsvData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const addTokensMutation = useMutation({
@@ -63,7 +44,11 @@ export default function Home() {
 
   const { data: rawTransactions } = useQuery({
     queryKey: ['fetch-generate-token-transactions'],
-    queryFn: fetchGenerateTokenTransactions
+    queryFn: async () => {
+      const res = await fetch('/api/transactions/generate-tokens');
+      const data = await res.json();
+      return data;
+    }
   });
 
   const transactions = useMemo(() => {
@@ -86,6 +71,25 @@ export default function Home() {
     setTokenNumber("");
   };
 
+  useEffect(() => {
+    const data = Object.values(selectedRowValues).map(row => ({
+      ID: row.id,
+      Data: row.date,
+      Czas: row.time,
+      "Saldo po transakcji": row.balance,
+      "Kwota transakcji": row.transactionAmount
+    }));
+    setCsvData(data);
+  }, [selectedRowValues]);
+
+  const csvHeaders = [
+    { label: "ID", key: "ID" },
+    { label: "Data", key: "Data" },
+    { label: "Czas", key: "Czas" },
+    { label: "Saldo po transakcji", key: "Saldo po transakcji" },
+    { label: "Kwota transakcji", key: "Kwota transakcji" }
+  ];
+
 
   return (
     <AdminLayout path={["Tokeny", "Generowanie nowych tokenów"]}>
@@ -102,11 +106,17 @@ export default function Home() {
           <SearchBar
             value={tableSearch}
             setValue={setTableSearch}
-          extraCss=""
+            extraCss=""
+            placeholder="Szukaj po ID"
           />
-          <button
-            className="p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors disabled:hover:bg-[#f6f7f8]"
-            disabled={selectedRowValues.length === 0}
+          <CSVLink
+            data={csvData}
+            headers={csvHeaders}
+            filename="wygenerowane_tokeny.csv"
+            className={`p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors ${
+              Object.keys(selectedRowValues).length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            target="_blank"
           >
             <Image
               src="/icons/download-icon.svg"
@@ -114,9 +124,9 @@ export default function Home() {
               height={16}
               alt="download icon"
             />
-          </button>
+          </CSVLink>
         </div>
-        <TokenTable data={transactions} setSelectedRowValues={setSelectedRowValues} />
+        <TokenTable data={transactions} setSelectedRowValues={setSelectedRowValues} searchValue={tableSearch} />
         {/* Modal */}
         <Modal
           isOpen={isModalOpen}

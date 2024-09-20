@@ -5,6 +5,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   flexRender,
+  getSortedRowModel
 } from "@tanstack/react-table";
 import Image from "next/image";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -60,11 +61,33 @@ const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
   );
 });
 
-export const EmployeesAccountTable = ({ tableData }) => {
+export const EmployeesAccountTable = ({ tableData, setSelectedRowValues, searchValue, automaticReturnOn, isRecurrentPaymentOn }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
+
+  const filteredData = useMemo(() => {
+    let filteredData = data;
+
+    if (automaticReturnOn === "Auto") {
+      filteredData = filteredData.filter(row => row.automaticReturnOn === true);
+    } else if (automaticReturnOn === "Manualny") {
+      filteredData = filteredData.filter(row => row.automaticReturnOn === false);
+    }
+
+    if (isRecurrentPaymentOn === "Aktywna") {
+      filteredData = filteredData.filter(row => row.recurrentPaymentOn === true);
+    } else if (isRecurrentPaymentOn === "Nieaktywna") {
+      filteredData = filteredData.filter(row => row.recurrentPaymentOn === false);
+    }
+
+    return filteredData.filter(row => 
+      row.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      row.merchantName.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, [data, searchValue, automaticReturnOn, isRecurrentPaymentOn]);
+
 
   const columns = useMemo(
     () => [
@@ -172,7 +195,7 @@ export const EmployeesAccountTable = ({ tableData }) => {
 
   const table = useReactTable({
     columns,
-    data,
+    data: filteredData,
     state: {
       rowSelection,
       pagination: { pageIndex, pageSize },
@@ -181,7 +204,25 @@ export const EmployeesAccountTable = ({ tableData }) => {
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: (updater) => {
+      const newPagination = updater(table.getState().pagination);
+      setPageIndex(newPagination.pageIndex);
+      setPageSize(newPagination.pageSize);
+    },
+    getSortedRowModel: getSortedRowModel(),
   });
+
+  useEffect(() => {
+    const selectedRowsWithData = Object.keys(rowSelection)
+      .filter((key) => rowSelection[key])
+      .map((key) => data[key]);
+
+    setSelectedRowValues(selectedRowsWithData);
+  }, [rowSelection]);
+
+  useEffect(() => {
+    setData(tableData);
+  }, [tableData]);
 
   return (
     <>
@@ -210,8 +251,15 @@ export const EmployeesAccountTable = ({ tableData }) => {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+        {table.getRowModel().rows.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="text-sm text-center p-2">
+                Brak danych do wyświetlenia
+              </td>
+            </tr>
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
@@ -222,7 +270,8 @@ export const EmployeesAccountTable = ({ tableData }) => {
                 </td>
               ))}
             </tr>
-          ))}
+          ))
+          )}
         </tbody>
       </table>
 

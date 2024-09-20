@@ -60,17 +60,24 @@ const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onBlur={onBlur}
+        type="number"
       />
     </div>
   );
 });
 
-export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
+export const MerchantPayoffTable = ({ tableData, setSelectedRowValues, searchValue }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
   const [data, setData] = useState(tableData);
   
+  const filteredData = useMemo(() => {
+    return data.filter(row =>       
+      row.merchantName.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, [data, searchValue]);
+
   const columns = useMemo(
     () => [
       {
@@ -163,7 +170,7 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
 
   const table = useReactTable({
     columns,
-    data,
+    data: filteredData,
     state: {
       rowSelection,
       pagination: { pageIndex, pageSize },
@@ -230,8 +237,15 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
         </thead>
 
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+          {table.getRowModel().rows.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="text-center text-sm p-2">
+                Brak danych do wyświetlenia
+              </td>
+            </tr>
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
@@ -242,14 +256,9 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
                 </td>
               ))}
             </tr>
-          ))}
+          )))}
         </tbody>
       </table>
-      {data.length === 0 && (
-        <div className="w-full flex items-center justify-center mt-10 text-xs font-semibold">
-          Nie ma jeszcze żadnych rozliczeń
-        </div>
-      )}
 
       {/* Pagination Controls */}
       <div className="w-full flex flex-row justify-between text-sm mt-[32px] h-[50px] items-center">
@@ -279,7 +288,7 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <Image src="/icons/arrow-left-black.svg" width={16} height={16} />
+            <Image src="/icons/arrow-left-black.svg" width={16} height={16} alt="arrow left" />
           </button>
           <p className="rounded-full bg-main-green text-white w-[30px] h-[30px] flex items-center justify-center">
             {table.getState().pagination.pageIndex + 1}
@@ -289,7 +298,7 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues }) => {
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <Image src="/icons/arrow-right-black.svg" width={16} height={16} />
+            <Image src="/icons/arrow-right-black.svg" width={16} height={16} alt="arrow right" />
           </button>
         </div>
       </div>
