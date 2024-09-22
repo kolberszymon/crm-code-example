@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { showToastNotificationError, showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Role } from "@prisma/client";
 
 
 export default function NewMerchantForm() {
@@ -51,7 +52,12 @@ export default function NewMerchantForm() {
   });
 
   const onSubmit = (data) => {
-    console.log(data);
+    if (data.accountType === 'View') {
+      data.role = Role.MERCHANT_VIEW;
+    } else if (data.accountType === 'Edit') {
+      data.role = Role.MERCHANT_EDIT;
+    }
+
     createMerchantMutation.mutate(data);
   };
 

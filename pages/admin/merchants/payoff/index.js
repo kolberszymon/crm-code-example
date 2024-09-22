@@ -1,6 +1,6 @@
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { MainComponent } from "@/components/MainComponent";
 import { SearchBar } from "@/components/Inputs/SearchBar";
 import { MerchantPayoffTable } from "@/components/Tables/MerchantPayoffTable";
@@ -10,7 +10,7 @@ import { showToastNotificationSuccess, showToastNotificationError } from "@/comp
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-
+import { CSVLink } from "react-csv";
 
 export default function MerchantPayoff() {  
   const queryClient = useQueryClient();
@@ -18,7 +18,7 @@ export default function MerchantPayoff() {
   const [searchValue, setSearchValue] = useState("");
   const [merchantType, setMerchantType] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
-
+  const [csvData, setCsvData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: merchantsRaw, isLoading } = useQuery({
@@ -84,6 +84,23 @@ export default function MerchantPayoff() {
     setIsModalOpen(false);
   }
 
+  useEffect(() => {
+    const data = Object.values(selectedRowValues).map(row => ({
+      merchantName: row.merchantName,
+      merchantType: row.merchantType,
+      merchantBalance: row.merchantBalance,      
+      topUpAmount: row.topUpAmount,
+    }));
+    setCsvData(data);
+  }, [selectedRowValues]);
+
+  const csvHeaders = [
+    { label: "Nazwa merchanta", key: "merchantName" },
+    { label: "Typ merchanta", key: "merchantType" },
+    { label: "Saldo merchanta", key: "merchantBalance" },
+    { label: "Wyskość ostatniego doładowania", key: "topUpAmount" },
+  ];
+
   return (
     <AdminLayout path={["Merchant", "Rozliczenia z Merchantami"]}>
       <MainComponent>
@@ -113,9 +130,19 @@ export default function MerchantPayoff() {
               extraCss=""
             />
           </div>
-          <button
-            className="p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors disabled:hover:bg-[#f6f7f8]"
-            disabled={selectedRowValues.length === 0}
+          <CSVLink
+            data={csvData}
+            headers={csvHeaders}
+            filename="rozliczenia_z_merchantami.csv"
+            className={`p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors ${
+              Object.keys(selectedRowValues).length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            target="_blank"
+            onClick={(event) => {
+              if (Object.keys(selectedRowValues).length === 0) {
+                event.preventDefault();
+              }
+            }}   
           >
             <Image
               src="/icons/download-icon.svg"
@@ -123,7 +150,7 @@ export default function MerchantPayoff() {
               height={16}
               alt="download icon"
             />
-          </button>
+          </CSVLink>
         </div>
         {isLoading ? <div>Ładowanie...</div> : (
         <MerchantPayoffTable

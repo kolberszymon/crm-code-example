@@ -18,7 +18,8 @@ export default async function handler(req, res) {
         gte: startOfMonth(startDate),
         lte: endOfMonth(endDate),
       },
-      role: 'MERCHANT_VIEW'
+      role: 'MERCHANT_VIEW',
+      isActive: true
     },
     _count: {
       id: true,
@@ -35,7 +36,8 @@ export default async function handler(req, res) {
         gte: startOfMonth(startDate),
         lte: endOfMonth(endDate),
       },
-      role: 'MERCHANT_EDIT'
+      role: 'MERCHANT_EDIT',
+      isActive: true
     },
     _count: {
       id: true,

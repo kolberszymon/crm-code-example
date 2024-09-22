@@ -303,8 +303,7 @@ export const EmployeesAccountTable = ({ tableData, setSelectedRowValues, searchV
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
-              table.previousPage();
-              setPageIndex(table.getState().pagination.pageIndex);
+              table.previousPage();              
             }}
             disabled={!table.getCanPreviousPage()}
           >
@@ -321,8 +320,7 @@ export const EmployeesAccountTable = ({ tableData, setSelectedRowValues, searchV
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
-              table.nextPage();
-              setPageIndex(table.getState().pagination.pageIndex);
+              table.nextPage();            
             }}
             disabled={!table.getCanNextPage()}
           >

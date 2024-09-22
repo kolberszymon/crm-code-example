@@ -65,7 +65,18 @@ export default async function handler(req, res) {
     }
 
     await prisma.$transaction(async (prisma) => {
-      const newMerchant = await prisma.merchantData.update({
+
+      await prisma.user.update({
+        where: {
+          id: existingMerchant.user.id,
+        },
+        data: {
+          email,
+          phone,
+        },
+      });
+
+      await prisma.merchantData.update({
         where: {
           id: existingMerchant.id,
         },
@@ -73,9 +84,7 @@ export default async function handler(req, res) {
           accountType,
           merchantName,
           firstName,
-          lastName,
-          email,
-          phone,
+          lastName,                    
           nip,
           accountNumber,
           country,
@@ -93,9 +102,9 @@ export default async function handler(req, res) {
           billingApartmentNumber,
         },
       });
-
-
     });
+
+    
 
     res.status(201).json({ success: true, message: 'Merchant został zaktualizowany' });
   } catch (error) {

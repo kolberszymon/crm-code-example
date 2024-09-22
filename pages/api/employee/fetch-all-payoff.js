@@ -26,7 +26,8 @@ export default async function handler(req, res) {
           merchant: {
             accountType: 'View'
           }
-        }
+        },
+        isActive: true
       }
     });
 

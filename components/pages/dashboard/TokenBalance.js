@@ -3,7 +3,6 @@ import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchUser } from "@/lib/api-functions/fetch-user";
 
 export default function TokenBalance() {
   const { data: session } = useSession();
@@ -11,7 +10,12 @@ export default function TokenBalance() {
 
   const { data: userData, isLoading } = useQuery({
     queryKey: ['user', userId],
-    queryFn: () => fetchUser(userId),
+    queryFn: async () => {
+      const res = await fetch(`/api/users/${userId}`);
+      const data = await res.json();
+    
+      return data;
+    },
     enabled: !!userId, // Only run query when userId is available
   });
 

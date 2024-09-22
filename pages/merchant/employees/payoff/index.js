@@ -7,7 +7,7 @@ import { Modal } from "@/components/Modal";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
 import { showToastNotificationError, showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
-import AdminLayout from "@/components/Layouts/AdminLayout";
+import MerchantLayout from "@/components/Layouts/MerchantLayout";
 import { EmployeesPayoffTable } from "@/components/Tables/EmployeesPayoffTable";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CSVLink } from "react-csv";
@@ -25,7 +25,7 @@ export default function Home() {
   const { data: employees, isPending } = useQuery({
     queryKey: ['employees-fetch-all-payoff'],
     queryFn: async () => {
-      const res = await fetch("/api/employee/fetch-all-payoff")
+      const res = await fetch("/api/employee/fetch-all-payoff-merchant")
       const data = await res.json()
 
       const employees = data.map(employee => {
@@ -99,7 +99,7 @@ export default function Home() {
 
 
   return (
-    <AdminLayout path={["Merchant", "Rozliczenia z pracownikami"]}>
+    <MerchantLayout path={["Merchant", "Rozliczenia z pracownikami"]}>
       <MainComponent>
         <div className="flex flex-row justify-between items-center">
           <p className="text-zinc-950 text-base font-semibold leading-normal">
@@ -181,6 +181,6 @@ export default function Home() {
           </div>
         </Modal>
       </MainComponent>
-    </AdminLayout>
+    </MerchantLayout>
   );
 }

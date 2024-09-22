@@ -26,6 +26,7 @@ model User {
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   payoffTransactions Transaction[]
+  isActive           Boolean           @default(true)
 }
 
 model Session {
@@ -41,8 +42,6 @@ model MerchantData {
   merchantName           String
   firstName              String
   lastName               String
-  email                  String         @unique
-  phone                  String
   lastTopupAmount        Int            @default(0)
   nip                    String
   accountNumber          String
@@ -70,8 +69,6 @@ model EmployeeData {
   id                 String            @id @default(uuid())
   firstName          String
   lastName           String
-  email              String            @unique
-  phone              String
   pesel              String
   idPassportNumber   String
   accountNumber      String
@@ -109,19 +106,20 @@ model Training {
 }
 
 model Transaction {
-  id                String             @id @default(uuid())
-  from              User               @relation("FromUser", fields: [fromId], references: [id], onDelete: Cascade)
-  fromId            String
-  to                User               @relation("ToUser", fields: [toId], references: [id], onDelete: Cascade)
-  toId              String
-  balanceAfter      Int?
-  transactionAmount Int?
-  createdAt         DateTime           @default(now())
-  type              TransactionType
-  transactionStatus TransactionStatus?
-  transferStatus    TransferStatus?
-  merchant          User?              @relation(fields: [merchantId], references: [id], onDelete: Cascade)
-  merchantId        String?
+  id                  String             @id @default(uuid())
+  from                User               @relation("FromUser", fields: [fromId], references: [id], onDelete: Cascade)
+  fromId              String
+  to                  User               @relation("ToUser", fields: [toId], references: [id], onDelete: Cascade)
+  toId                String
+  balanceAfter        Int?
+  transactionAmount   Int?
+  createdAt           DateTime           @default(now())
+  type                TransactionType
+  transactionStatus   TransactionStatus?
+  transferStatus      TransferStatus?
+  merchant            User?              @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  merchantId          String?
+  wasPaymentAutomatic Boolean?
 }
 
 model PasswordSetLink {

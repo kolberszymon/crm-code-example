@@ -58,6 +58,10 @@ export default async function handler(req, res) {
       }
 
       delete newEmployeeData.merchantId;
+      delete newEmployeeData.email;
+      delete newEmployeeData.phone;
+
+      console.log(newEmployeeData)
 
       const newEmployee = await prisma.employeeData.create({
         data: newEmployeeData,

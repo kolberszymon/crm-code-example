@@ -21,6 +21,11 @@ export default async function handler(req, res) {
       },
       from: {
         role: Role.ADMIN
+      },
+      to: {
+        role: {
+          not: Role.ADMIN
+        }
       }
     },
     _sum: {
@@ -39,7 +44,12 @@ export default async function handler(req, res) {
         lte: endOfMonth(endDate),
       },
       to: {
-        role: 'ADMIN'
+        role: Role.ADMIN
+      },
+      from: {
+        role: {
+          not: Role.ADMIN
+        }
       }
     },
     _sum: {

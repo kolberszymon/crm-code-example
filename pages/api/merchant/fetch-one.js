@@ -13,12 +13,17 @@ export default async function handler(req, res) {
 
   try {
     const merchant = await prisma.merchantData.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        user: true
+      }
     });
 
     if (!merchant) {
       return res.status(404).json({ message: 'Merchant not found' });
     }
+
+    
 
     res.status(200).json(merchant);
   } catch (error) {

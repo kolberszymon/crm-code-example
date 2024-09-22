@@ -5,14 +5,19 @@ import { useState } from "react";
 import { LogTile } from "@/components/Custom/LogTile";
 import { DatePickerWithRange } from "@/components/Custom/DatePickerRange";
 import { useQuery } from "@tanstack/react-query";
-import { fetchLogs } from "@/lib/api-functions/fetch-logs";
 
 export default function Home() {
   const [searchValue, setSearchValue] = useState("");
+  const [date, setDate] = useState(null)
 
   const { data: logs, isPending } = useQuery({
     queryKey: ["logs"],
-    queryFn: () => fetchLogs(),
+    queryFn: async () => {
+      const res = await fetch('/api/logs/fetch');
+      const data = await res.json();
+      
+      return data;
+    },
   });
 
   if (isPending) {
@@ -32,10 +37,22 @@ export default function Home() {
           setValue={setSearchValue}
             extraCss="my-[32px]"
           />
-          <DatePickerWithRange className="w-[235px] bg-white border border-zinc-400 rounded-md"/>
+          <DatePickerWithRange className="w-[235px] bg-white border border-zinc-400 rounded-md" date={date} setDate={setDate}/>
           </div>
 
-          {isPending ? <p>Ładowanie...</p> : logs.map((log, index) => (
+          {isPending ? <p>Ładowanie...</p> : logs.filter(log => {
+            const values = [];
+            
+            if (date) {
+              values.push(log.createdAt >= date.startDate && log.createdAt <= date.endDate);
+            }
+
+            if (searchValue) {
+              values.push(log.message.toLowerCase().includes(searchValue.toLowerCase()));
+            }
+
+            return values.every(value => value);
+          }).map((log, index) => (
             <LogTile
               key={log.id}
               title={log.message}

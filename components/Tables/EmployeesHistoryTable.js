@@ -11,10 +11,9 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Icons from "../../constants/icons";
 import { formatNumberWithSpaces } from "@/helpers/formatNumberWithSpaces";
 import Link from "next/link";
-import { StatusTile } from "../Custom/StatusTile";
-import { MulticolorTitleTile } from "../Custom/MulticolorTitleTile";
 import { TransactionStatus } from "../Custom/TransactionStatus";
 import { TransferStatus } from "../Custom/TransferStatus";
+import { parse } from "date-fns";
 
 const truncate = (str) => str.length > 10 ? str.slice(0, 10) + '...' : str;
 
@@ -39,7 +38,7 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   );
 }
 
-export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchValue, selectedTransactionStatus, selectedTransferStatus }) => {
+export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchValue, selectedTransactionStatus, selectedTransferStatus, date }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
@@ -47,6 +46,14 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
 
   const filteredData = useMemo(() => {
     let filteredData = data;
+
+    if (date && date.from && date.to) {
+      filteredData = filteredData.filter(row => {
+        const transactionDate = parse(row.date, 'dd.MM.yyyy', new Date());
+        
+        return transactionDate >= new Date(date.from) && transactionDate <= new Date(date.to);
+      });
+    }
   
     if (selectedTransactionStatus &&selectedTransactionStatus !== "Status transakcji") {
       filteredData = filteredData.filter(row => row.transactionStatus === selectedTransactionStatus)
@@ -61,7 +68,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
       row.recipent.toLowerCase().includes(searchValue.toLowerCase()) ||            
       row.accountNumber.toLowerCase().includes(searchValue.toLowerCase())      
     );
-  }, [data, searchValue, selectedTransactionStatus, selectedTransferStatus]);
+  }, [data, searchValue, selectedTransactionStatus, selectedTransferStatus, date]);
     
 
   const columns = useMemo(

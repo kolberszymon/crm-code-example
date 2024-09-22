@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Icons from "../../constants/icons";
 import { formatNumberWithSpaces } from "@/helpers/formatNumberWithSpaces";
 import Link from "next/link";
+import { parse } from "date-fns";
 
 function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   const ref = useRef(null);
@@ -34,7 +35,7 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   );
 }
 
-export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchValue }) => {
+export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchValue, date }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
@@ -42,11 +43,23 @@ export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchVa
   const [sorting, setSorting] = useState([])
 
   const filteredData = useMemo(() => {
-    return data.filter(row => 
-      row.id.toLowerCase().includes(searchValue.toLowerCase()) ||
+    let filteredData = data
+
+    if (date && date.from && date.to) {
+      filteredData = filteredData.filter(row => {
+        const transactionDate = parse(row.date, 'dd.MM.yyyy', new Date());
+        
+        return transactionDate >= new Date(date.from) && transactionDate <= new Date(date.to);
+      });
+    }
+
+    filteredData = filteredData.filter(row => {
+      return row.id.toLowerCase().includes(searchValue.toLowerCase()) ||
       row.merchant.toLowerCase().includes(searchValue.toLowerCase())
-    );
-  }, [data, searchValue]);
+    });
+
+    return filteredData;
+  }, [data, searchValue, date]);
 
   const columns = useMemo(
     () => [

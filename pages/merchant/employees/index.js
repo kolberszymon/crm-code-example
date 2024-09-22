@@ -14,15 +14,16 @@ import MerchantLayout from "@/components/Layouts/MerchantLayout";
 import { EmployeesAccountTableMerchant } from "@/components/Tables/EmployeesAccountTableMerchant";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
+
 export default function Home() {
-  const [searchValue, setSearchValue] = useState(null);
-  const [merchantType, setMerchantType] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+  const [isRecurrentPaymentOn, setIsRecurrentPaymentOn] = useState(null);
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const session = useSession();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: employees, isLoading } = useQuery({
+  const { data: employees, isPending } = useQuery({
     queryKey: ['employees'],
     queryFn: async () => {
       const res = await fetch("/api/employee/fetch-all-for-merchant")
@@ -64,9 +65,9 @@ export default function Home() {
               extraCss="my-[32px]"
             />
             <SelectDropdown
-              value={merchantType}
-              setValue={setMerchantType}
-              options={["Merchant", "View", "Edit"]}
+              value={isRecurrentPaymentOn}
+              setValue={setIsRecurrentPaymentOn}
+              options={["Płatność cykliczna", "Aktywna", "Nieaktywna"]}
               extraCss=""
             />
           </div>
@@ -98,10 +99,12 @@ export default function Home() {
             </button>
           </div>
         </div>
-        {isLoading ? <div>Ładowanie...</div> : (
+        {isPending ? <div>Ładowanie...</div> : (
           <EmployeesAccountTableMerchant
-            tableData={employees}
+            tableData={employees || []}
             setSelectedRowValues={setSelectedRowValues}
+            searchValue={searchValue}            
+            isRecurrentPaymentOn={isRecurrentPaymentOn}
           />
         )}
 

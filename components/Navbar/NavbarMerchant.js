@@ -53,7 +53,7 @@ export const NavbarMerchant = () => {
       <NavbarButton title="Rozliczenia z pracownikami" path="/merchant/employees/payoff" />
       <NavbarButton
         title="Historia transakcji pracowników"
-        path="/merchant/employees/transactions"
+        path="/merchant/employees/history"
       />
       <NavbarSection title="Szkolenia" />
       <NavbarButton title="Lista szkoleń" path="/merchant/trainings" />

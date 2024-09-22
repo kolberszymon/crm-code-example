@@ -3,16 +3,12 @@ import { sendEmail } from '@/lib/send-email';
 import crypto from 'crypto';
 import { prisma } from '@/lib/init/prisma';
 
-export function generateToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 
-  const { email } = JSON.parse(req.body);
+  const { email } = req.body;
 
   try {
 
@@ -26,7 +22,7 @@ export default async function handler(req, res) {
     return res.status(404).json({ success: true, message: 'User not found' });
   }
 
-  const token = generateToken();
+  const token = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
 
 

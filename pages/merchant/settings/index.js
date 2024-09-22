@@ -8,6 +8,9 @@ import { useSession } from "next-auth/react";
 import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import MerchantLayout from "@/components/Layouts/MerchantLayout";
+import Image from "next/image";
+import Link from "next/link";
+
 
 
 export default function Settings() {
@@ -75,21 +78,36 @@ export default function Settings() {
         <div className="mb-4">
           <h3 className="text-lg font-semibold">Ustawienia</h3>
         </div>
-        <div className="bg-white p-6 rounded-md border border-main-gray mb-[16px]">
+        <div className="flex flex-col bg-white p-6 rounded-md border border-main-gray w-full">
           <h4 className="text-base font-semibold mb-[24px]">Dane merchanta</h4>
-          <div className="mb-[16px]">
-            <p className="text-sm font-medium text-zinc-950">Nazwa merchanta</p>
-            <p className="text-sm font-normal text-zinc-600">{merchantData.merchantName}</p>
-          </div>
-          <div className="mb-[16px]">
-            <p className="text-sm font-medium text-zinc-950">Email</p>
-            <p className="text-sm font-normal text-zinc-600">
-              {merchantData.email}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-zinc-950">Hasło</p>
-            <p className="text-sm font-normal text-zinc-600">***********</p>
+          <div className="flex flex-row">
+            <div className=" mb-[16px] w-[50%]">
+              
+              <div className="mb-[16px]">
+                <p className="text-sm font-medium text-zinc-950">Nazwa merchanta</p>
+                <p className="text-sm font-normal text-zinc-600">{merchantData.merchantName}</p>
+              </div>
+              <div className="mb-[16px]">
+                <p className="text-sm font-medium text-zinc-950">Email</p>
+                <p className="text-sm font-normal text-zinc-600">
+                  {merchantData?.user?.email}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-zinc-950">Hasło</p>
+                <p className="text-sm font-normal text-zinc-600">***********</p>
+              </div>
+            </div>
+            <div className="w-[50%] flex flex-col gap-[16px]">              
+              <div className="flex items-center gap-[4px]">
+                <Link href="/" className="text-zinc-600 text-xs font-medium">Regulamin</Link>
+                <Image src="/icons/share-icon.svg" width={16} height={16} alt="external-link" />
+              </div>
+              <div className="flex items-center gap-[4px]">
+                <Link href="/" className="text-zinc-600 text-xs font-medium">Polityka prywatności</Link>
+                <Image src="/icons/share-icon.svg" width={16} height={16} alt="external-link" />
+              </div>
+            </div>
           </div>
         </div>
         <ButtonGreen title="Zmień hasło" onPress={() => {

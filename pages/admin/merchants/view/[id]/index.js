@@ -32,9 +32,12 @@ export default function MerchantView() {
   // useMutation for sending invitation to merchant
   const { mutate: sendInvitation, isPending: isSendingInvitation } = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/send-invite-to-app", {
+      const res = await fetch("/api/email/send-invite-to-app", {
         method: "POST",
-        body: JSON.stringify({ email: merchant.email }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: merchant.user.email }),
       });
 
       const data = await res.json();
@@ -130,7 +133,7 @@ export default function MerchantView() {
                 Email
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.email}
+                {merchant.user.email}
               </p>
             </div>
             <div>
@@ -138,7 +141,7 @@ export default function MerchantView() {
                 Numer telefonu
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.phone}
+                {merchant.user.phone}
               </p>
             </div>
           </div>

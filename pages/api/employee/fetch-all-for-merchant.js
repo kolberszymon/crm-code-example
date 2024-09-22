@@ -37,7 +37,8 @@ export default async function handler(req, res) {
         role: Role.EMPLOYEE,
         employeeData: {
           merchantId: user.merchantData.id
-        }
+        },
+        isActive: true
       }
     });
 

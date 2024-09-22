@@ -65,7 +65,7 @@ export default function CreateEmployee() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['employees']);
-      showToastNotificationSuccess("Sukces", "Merchant został dodany pomyślnie")
+      showToastNotificationSuccess("Sukces", "Pracownik został dodany pomyślnie")
       router.push("/admin/employees");
     },
     onError: (error) => {

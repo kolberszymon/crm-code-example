@@ -13,7 +13,10 @@ export default async function handler(req, res) {
 
   try {
     const merchant = await prisma.merchantData.findUnique({
-      where: { userId: id }
+      where: { userId: id },
+      include: {
+        user: true,        
+      }
     });
 
     if (!merchant) {

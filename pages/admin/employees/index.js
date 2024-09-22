@@ -1,25 +1,25 @@
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { MainComponent } from "@/components/MainComponent";
 import { SearchBar } from "@/components/Inputs/SearchBar";
 import { Modal } from "@/components/Modal";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
-import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
+import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 import { EmployeesAccountTable } from "@/components/Tables/EmployeesAccountTable";
 import Link from "next/link";
 import { ButtonRed } from "@/components/Buttons/ButtonRed";
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
-import { useQuery } from "@tanstack/react-query";
-
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { CSVLink } from "react-csv";
 
 export default function Home() {
   const [searchValue, setSearchValue] = useState("");
   const [automaticReturnOn, setAutomaticReturnOn] = useState("");
   const [isRecurrentPaymentOn, setIsRecurrentPaymentOn] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
-
+  const [csvData, setCsvData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: employees, isLoading } = useQuery({
@@ -42,6 +42,60 @@ export default function Home() {
       return employees
     },
   })
+
+  // useMutation for deactivating employees
+  const { mutate: deactivateEmployee } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/employee/deactivate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          employeeIds: selectedRowValues.map(employee => employee.id)
+        })
+      });
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.message)
+      }
+
+      return data
+    },
+    onSuccess: () => {
+      showToastNotificationSuccess("Sukces", "Pracownicy zostali pomyślnie dezaktywowani")
+      setIsModalOpen(false)
+    },
+    onError: (error) => {
+      showToastNotificationError("Błąd", error.message)
+      setIsModalOpen(false)
+    }
+  });
+
+  useEffect(() => {
+    const data = Object.values(selectedRowValues).map(row => ({
+      employeeName: row.name,
+      automaticReturnOn: row.automaticReturnOn,
+      merchantName: row.merchantName,
+      balance: row.balance,      
+      recurrentPaymentOn: row.recurrentPaymentOn,
+    }));
+    setCsvData(data);
+  }, [selectedRowValues]);
+
+  const csvHeaders = [
+    { label: "Nazwa pracownika", key: "employeeName" },
+    { label: "Automatyczny zwrot", key: "automaticReturnOn" },
+    { label: "Nazwa merchanta", key: "merchantName" },
+    { label: "Saldo pracownika", key: "balance" },
+    { label: "Płatność cykliczna", key: "recurrentPaymentOn" },
+  ];
+
+  const handleDeactivateEmployee = () => {
+    deactivateEmployee()
+  }
 
   return (
     <AdminLayout path={["Merchant", "Konta pracowników"]}>
@@ -77,7 +131,9 @@ export default function Home() {
           </div>
           <div className="flex flex-row gap-[8px]">
             <button
-              className="p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors disabled:hover:bg-[#f6f7f8]"
+              className={`p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors ${
+                Object.keys(selectedRowValues).length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
               disabled={selectedRowValues.length === 0}
               onClick={() => {
                 setIsModalOpen(true);
@@ -90,9 +146,19 @@ export default function Home() {
                 alt="download icon"
               />
             </button>
-            <button
-              className="p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors disabled:hover:bg-[#f6f7f8]"
-              disabled={selectedRowValues.length === 0}
+            <CSVLink
+              data={csvData}
+              headers={csvHeaders}
+              filename="konta_pracownikow.csv"
+              className={`p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors ${
+                Object.keys(selectedRowValues).length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              target="_blank"
+              onClick={(event) => {
+                if (Object.keys(selectedRowValues).length === 0) {
+                  event.preventDefault();
+                }
+              }}              
             >
               <Image
                 src="/icons/download-icon.svg"
@@ -100,7 +166,7 @@ export default function Home() {
                 height={16}
                 alt="download icon"
               />
-            </button>
+            </CSVLink>
           </div>
         </div>
         {isLoading ? <div>Ładowanie...</div> : (
@@ -125,13 +191,7 @@ export default function Home() {
           <div className="flex flex-row gap-[8px]">
             <ButtonRed
               title="Zatwierdź"
-              onPress={() => {
-                setIsModalOpen(false);
-                showToastNotificationSuccess(
-                  "Sukces!",
-                  "Pracownik został usunięty"
-                );
-              }}
+              onPress={handleDeactivateEmployee}
             />
             <ButtonGray title="Anuluj" onPress={() => setIsModalOpen(false)} />
           </div>

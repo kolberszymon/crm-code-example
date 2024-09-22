@@ -20,7 +20,10 @@ export default async function handler(req, res) {
         createdAt: 'desc',
       },
       where: {
-        accountType: "Edit"
+        accountType: "Edit",
+        user: {
+          isActive: true
+        }
       }
     });
 

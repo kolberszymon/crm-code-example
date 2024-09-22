@@ -3,7 +3,6 @@ import Image from "next/image";
 import { LogTile } from "../Custom/LogTile";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { fetchLogs } from "@/lib/api-functions/fetch-logs";
 
 export const NotificationBell = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

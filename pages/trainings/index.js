@@ -6,8 +6,11 @@ import { useQuery } from "@tanstack/react-query";
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import { ButtonWhiteWithBorder } from "@/components/Buttons/ButtonWhiteWithBorder";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const TrainingStoreTile = ({ training }) => {
+  const router = useRouter();
+  
   return (
     <div className="flex flex-row px-[16px] py-[8px] border border-zinc-200 rounded-md gap-[30px]">
       <div className="flex flex-col justify-between w-[80%]">
@@ -17,7 +20,9 @@ const TrainingStoreTile = ({ training }) => {
       </div>
       <div className="flex flex-col flex-1 justify-center gap-[8px]">
         <ButtonGreen title="Kupuję szkolenie" />
-        <ButtonWhiteWithBorder title="Zobacz opis" />
+        <ButtonWhiteWithBorder title="Zobacz opis" onPress={() => {
+          router.push(`/trainings/${training.id}`);
+        }}/>        
       </div>
     </div>
   );
@@ -45,10 +50,10 @@ export default function Trainings() {
           <Image src="/logo.svg" width={241} height={62} alt="logo" />
         </Link>
         <div className="flex flex-col p-[16px] my-[40px] rounded-3xl overflow-hidden border border-main-green w-[1100px] min-h-screen bg-white">
-          <p className="text-zinc-950 text-base font-semibold mb-[32px]">Lista do 99% taniej dla użytkowników naszej platformy</p>
+          <div className="text-white text-base font-normal mb-[32px] bg-[#015640] py-[6px] flex items-center justify-center"><p>Szkolenia do 97% taniej dla użytkowników naszej platformy <Link href="/" className="text-white text-base font-semibold underline">zobacz więcej</Link></p></div>
           <p className="text-zinc-950 text-base font-semibold mb-[32px]">Lista szkoleń</p>
           <SearchBar value={searchValue} setValue={setSearchValue} placeholder="Wpisz nazwę szkolenia" extraCss="mb-[32px]" />
-          {isPending ? <div>Ładowanie...</div> : <div className="flex flex-col gap-[16px]">{trainings.map((training) => <TrainingStoreTile key={training.id} training={training} />)}</div>}
+          {isPending ? <div>Ładowanie...</div> : <div className="flex flex-col gap-[16px]">{trainings.filter((training) => training.title.toLowerCase().includes(searchValue.toLowerCase())).map((training) => <TrainingStoreTile key={training.id} training={training} />)}</div>}
         </div>
       </div>
     </AuthLayout>

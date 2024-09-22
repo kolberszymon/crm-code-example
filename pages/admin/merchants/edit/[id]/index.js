@@ -201,7 +201,7 @@ export default function NewMerchantForm() {
                       },
                     })}
                     className="mt-1 block w-full border rounded-md p-2 text-sm"
-                    defaultValue={merchant?.email}
+                    defaultValue={merchant?.user?.email}
                   />
                   {errors.email && (
                     <span className="text-red-600 text-sm">
@@ -220,7 +220,7 @@ export default function NewMerchantForm() {
                       required: "Numer telefonu jest wymagany",
                     })}
                     className="mt-1 block w-full border rounded-md p-2 text-sm"
-                    defaultValue={merchant?.phone}
+                    defaultValue={merchant?.user?.phone}
                   />
                   {errors.phone && (
                     <span className="text-red-600 text-sm">

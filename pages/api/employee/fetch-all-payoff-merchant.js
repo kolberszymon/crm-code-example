@@ -1,9 +1,27 @@
 import {prisma} from '@/lib/init/prisma';
 import { Role } from '@prisma/client';
 
+// In payoff we should show only employees which merchant accountType is View
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  const userId = req.headers['x-user-id']
+
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId
+    }
+  })
+
+  if (!user) {
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
   try {
@@ -20,7 +38,12 @@ export default async function handler(req, res) {
       },
       where: {
         role: Role.EMPLOYEE,
-        isActive: true
+        employeeData: {
+          merchant: {
+            userId: userId
+          }
+        },
+        isActive: true,
       }
     });
 

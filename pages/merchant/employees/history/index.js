@@ -8,7 +8,7 @@ import { ButtonGray } from "@/components/Buttons/ButtonGray";
 import { showToastNotificationError, showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
 import { EmployeesHistoryTable } from "@/components/Tables/EmployeesHistoryTable";
-import AdminLayout from "@/components/Layouts/AdminLayout";
+import MerchantLayout from "@/components/Layouts/MerchantLayout";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { TransferStatus, TransactionStatus } from "@prisma/client";
@@ -55,7 +55,7 @@ export default function Home() {
   const { data: transactions, isPending } = useQuery({
     queryKey: ['transactions-fetch-history-all'],
     queryFn: async () => {
-      const res = await fetch("/api/employee/fetch-history-all")
+      const res = await fetch("/api/employee/fetch-history-all-merchant")
       const data = await res.json()
 
       try {
@@ -189,7 +189,7 @@ export default function Home() {
   }
 
   return (
-    <AdminLayout path={["Merchant", "Historia transakcji pracowników"]}>
+    <MerchantLayout path={["Merchant", "Historia transakcji pracowników"]}>
       <MainComponent>
         <div className="flex flex-row justify-between items-center">
           <p className="text-zinc-950 text-base font-semibold leading-normal">
@@ -287,6 +287,6 @@ export default function Home() {
           </div>
         </Modal>
       </MainComponent>
-    </AdminLayout>
+    </MerchantLayout>
   );
 }

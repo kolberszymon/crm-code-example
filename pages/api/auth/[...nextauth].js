@@ -31,6 +31,10 @@ export default NextAuth({
           throw new Error('Invalid email or password');
         }
 
+        if (!user.isActive) {
+          throw new Error('User is not active');
+        }
+
         return {
           id: user.id,
           email: user.email,
