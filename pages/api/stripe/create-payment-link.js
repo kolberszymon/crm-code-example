@@ -24,10 +24,13 @@ export default async function handler(req, res) {
           },
         ],
         mode: 'payment',
-        success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.headers.origin}/trainings/buy/${trainingId}`,
+        success_url: `${req.headers.origin}/trainings/buy/${trainingId}/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.headers.origin}/trainings/buy/${trainingId}/error`,
         customer_email: email,
         client_reference_id: trainingId,
+        metadata: {
+          trainingId: trainingId
+        }
       });
 
       res.status(200).json({ id: session.id });

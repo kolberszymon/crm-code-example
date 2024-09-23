@@ -68,6 +68,10 @@ export const EmployeesAccountTableMerchant = ({ tableData, setSelectedRowValues,
   const filteredData = useMemo(() => {
     let filteredData = data;
 
+    if (data.length === 0) {
+      return [];
+    }
+
 
     if (isRecurrentPaymentOn === "Aktywna") {
       filteredData = filteredData.filter(row => row.recurrentPaymentOn === true);

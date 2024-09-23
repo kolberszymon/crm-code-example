@@ -18,8 +18,10 @@ const TrainingStoreTile = ({ training }) => {
         <p className="text-zinc-600 text-xs font-normal">{training.introduction}</p>
         <p className="text-main-green text-sm font-semibold">Cena: {training.pricePln} zł</p>
       </div>
-      <div className="flex flex-col flex-1 justify-center gap-[8px]">
-        <ButtonGreen title="Kupuję szkolenie" />
+      <div className="flex flex-col flex-1 justify-center gap-[8px]">        
+        <ButtonGreen title="Kupuję szkolenie" onPress={() => {
+          router.push(`/trainings/buy/${training.id}`);
+        }}/>        
         <ButtonWhiteWithBorder title="Zobacz opis" onPress={() => {
           router.push(`/trainings/${training.id}`);
         }}/>        

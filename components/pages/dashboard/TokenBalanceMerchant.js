@@ -18,7 +18,7 @@ export default function TokenBalanceMerchant() {
   });
 
   return (
-    <div className="min-h-[150px] w-[350px] bg-white w-full flex flex-col py-[22px] pl-[16px] items-start justify-center rounded relative overflow-hidden border border-gray-100">
+    <div className="min-h-[150px] w-[360px] bg-white w-full flex flex-col py-[22px] pl-[16px] items-start justify-center rounded relative overflow-hidden border border-gray-100">
       <div className="flex flex-col z-10">
         <p className="text-zinc text-base font-normal">Saldo tokenów</p>
         <div className="flex flex-row gap-2">

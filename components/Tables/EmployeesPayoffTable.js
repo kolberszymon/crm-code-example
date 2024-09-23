@@ -251,8 +251,15 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+          {table.getRowModel().rows.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="text-sm text-center p-2">
+                Brak danych do wyświetlenia
+              </td>
+            </tr>
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
@@ -263,15 +270,10 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
                 </td>
               ))}
             </tr>
-          ))}
+          ))
+          )}
         </tbody>
       </table>
-      {data.length === 0 && (
-        <div className="w-full flex items-center justify-center mt-10 text-xs font-semibold">
-          Nie ma jeszcze żadnych danych
-        </div>
-      )}
-
 
       {/* Pagination Controls */}
       <div className="w-full flex flex-row justify-between text-sm mt-[32px] h-[50px] items-center">

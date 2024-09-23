@@ -6,6 +6,10 @@ export default async function handler(req, res) {
   try {
     const user = await prisma.user.findUnique({
       where: { id },
+      include: {
+        merchantData: true,
+        employeeData: true,
+      }
     });
 
     if (!user) {

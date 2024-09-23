@@ -19,7 +19,7 @@ export default function Home() {
   const [searchValue, setSearchValue] = useState("");
   const [isRecurrentPaymentOn, setIsRecurrentPaymentOn] = useState(null);
   const [selectedRowValues, setSelectedRowValues] = useState({});
-  const session = useSession();
+  const { data: session} = useSession();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 

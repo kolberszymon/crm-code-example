@@ -20,6 +20,8 @@ export default function Home() {
   const [isModalDuplicateOpen, setIsModalDuplicateOpen] = useState(false);
   const [trainingIdToDelete, setTrainingIdToDelete] = useState(null);
   const [trainingIdToDuplicate, setTrainingIdToDuplicate] = useState(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const queryClient = useQueryClient();
   
   // useQuery for fetching all trainings
@@ -115,10 +117,12 @@ export default function Home() {
         </div>
         <div className="w-full flex flex-row justify-between text-sm mt-[32px] h-[50px] items-center">
           <div className="text-zinc-950 flex flex-row items-center gap-[16px]">
-            <p>Wyświetlono 11 z 11 elementów</p>
+            <p>Wyświetlono {trainigs.length > pageSize ? pageSize : trainigs.length} z {trainigs.length} elementów</p>
             <select
-              value={10}
-              onChange={(e) => {}}
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(e.target.value);
+              }}
               className="border border-main-gray rounded-md px-[16px] py-[6px]"
             >
               {[10, 20, 30, 40, 50].map((size) => (
@@ -130,13 +134,13 @@ export default function Home() {
           </div>
 
           <div className="flex flex-row gap-2 items-center justify-stretch text-black">
-            <button className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center">
+            <button className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center" onClick={() => setPage(page - 1)} disabled={page === 1}>
               <Image src="/icons/arrow-left-black.svg" width={16} height={16} />
             </button>
             <p className="rounded-full bg-main-green text-white w-[30px] h-[30px] flex items-center justify-center">
-              1
+              {page}
             </p>
-            <button className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center">
+            <button className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center" onClick={() => setPage(page + 1)} disabled={page === Math.ceil(trainigs.length / pageSize)}>
               <Image
                 src="/icons/arrow-right-black.svg"
                 width={16}
