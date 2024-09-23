@@ -107,7 +107,7 @@ export const TokenFlowChart = () => {
           />
         </AreaChart>
         </ResponsiveContainer>
-      ) : <div className="h-[200px] w-full bg-gray-100 animate-pulse mt-[30px]" />}
+      ) : <div className="h-[200px] w-[98%] bg-gray-100 animate-pulse mt-[30px]" />}
     </div>
   );
 };
