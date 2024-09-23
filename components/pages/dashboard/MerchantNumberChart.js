@@ -28,9 +28,7 @@ export const MerchantNumberChart = () => {
       console.log("Error", error);
     }
   })
-
-  if (isPending) return null;
-
+  
   return (
     <div className="bg-white p-6 pr-0 rounded-md shadow-md">
       <h3 className="text-lg font-semibold mb-2">Liczba merchantów</h3>
@@ -38,10 +36,10 @@ export const MerchantNumberChart = () => {
         <div className="flex flex-col">
           <p className="text-sm">
             Liczba kont view{" "}
-            <span className="text-main-orange">{data.reduce((acc, curr) => acc + curr.view, 0)}</span>{" "}
+            <span className="text-main-orange">{isPending ? 0 : data.reduce((acc, curr) => acc + curr.view, 0)}</span>{" "}
           </p>
           <p className="text-sm">
-            Liczba kont edit <span className="text-main-green">{data.reduce((acc, curr) => acc + curr.edit, 0)}</span>
+            Liczba kont edit <span className="text-main-green">{isPending ? 0 : data.reduce((acc, curr) => acc + curr.edit, 0)}</span>
           </p>
         </div>
         <div className="flex flex-col">
@@ -55,6 +53,7 @@ export const MerchantNumberChart = () => {
           </div>         
         </div>
       </div>
+      {!isPending ? (
       <ResponsiveContainer width="100%" height={200} className="mt-6">
         <AreaChart
           width={730}
@@ -101,7 +100,8 @@ export const MerchantNumberChart = () => {
             fill="url(#colorPv)"
           />
         </AreaChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      ) : <div className="h-[200px] w-full bg-gray-100 animate-pulse mt-[30px]" />}
     </div>
   );
 };

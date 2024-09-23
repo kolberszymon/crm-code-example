@@ -35,18 +35,16 @@ export const TokenFlowChart = () => {
     return tickItem >= 1000 ? `${Math.round(tickItem / 1000)}k` : tickItem;
   };
 
-  if (isPending) return null;
-
   return (
     <div className="bg-white p-6 pr-0 rounded-md shadow-md">
       <h3 className="text-lg font-semibold mb-2">Obrót tokenów</h3>
       <div className="flex flex-row items-center justify-between pr-8">
-        <div className="flex flex-col">
+        <div className="flex flex-col">          
           <p className="text-sm">
-            Wysłanych <span className="text-main-orange">{data.reduce((acc, curr) => acc + curr.wyslane, 0)}</span>{" "}
-          </p>
+            Wysłanych <span className="text-main-orange">{isPending ? 0 : data.reduce((acc, curr) => acc + curr.wyslane, 0)}</span>{" "}
+          </p> 
           <p className="text-sm">
-            Zwróconych <span className="text-main-green">{data.reduce((acc, curr) => acc + curr.zwrocone, 0)}</span>
+            Zwróconych <span className="text-main-green">{isPending ? 0 : data.reduce((acc, curr) => acc + curr.zwrocone, 0)}</span>
           </p>
         </div>
         <div className="flex flex-col">
@@ -60,6 +58,7 @@ export const TokenFlowChart = () => {
           </div>          
         </div>
       </div>
+      {!isPending ? (
       <ResponsiveContainer width="100%" height={200} className="mt-6">
         <AreaChart
           width={730}
@@ -107,7 +106,8 @@ export const TokenFlowChart = () => {
             fill="url(#colorPv)"
           />
         </AreaChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      ) : <div className="h-[200px] w-full bg-gray-100 animate-pulse mt-[30px]" />}
     </div>
   );
 };
