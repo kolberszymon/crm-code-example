@@ -10,18 +10,39 @@ import { ButtonGray } from "@/components/Buttons/ButtonGray";
 import Link from "next/link";
 import { TrainingsBoughtTable } from "@/components/Tables/TrainingsBoughtTable";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
+import { useQuery } from "@tanstack/react-query";
+
+const data = [{id: '5435', buyer: "Pracownik", price: 500, name: "Marketing internetowy", category: "Marketing"}]
 
 export default function Settings() {
   const [searchValue, setSearchValue] = useState("");
   const [merchantType, setMerchantType] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [data, setData] = useState([{id: '5435', buyer: "Pracownik", price: 500, name: "Marketing internetowy", category: "Marketing"}]);
+  
+  // useQuery for fetching all purchases
+  const { data: trainigsPurchased, isPending } = useQuery({
+    queryKey: ['trainings-bought'],
+    queryFn: async () => {
+      const response = await fetch("/api/trainings/fetch-all-purchases-admin");
+      const data = await response.json();
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-  const closeModal = () => setIsModalOpen(false); 
+      const trainigsPurchased = data.map((training) => ({
+        id: training.id,
+        buyer: training.email,
+        price: training.price,
+        name: training.training.title,
+        category: training.training.category,
+        currency: training.currency,
+      }));
+
+      console.log(trainigsPurchased);
+      
+      return trainigsPurchased;
+    },    
+  });
+
+
 
   return (
     <AdminLayout path={["Szkolenia", "Lista szkoleń", "Kupione szkolenia"]}>
@@ -52,20 +73,6 @@ export default function Settings() {
             <button
               className="p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors disabled:hover:bg-[#f6f7f8]"
               disabled={selectedRowValues.length === 0}
-              onClick={() => {
-                openModal();
-              }}
-            >
-              <Image
-                src="/icons/trash.svg"
-                width={16}
-                height={16}
-                alt="download icon"
-              />
-            </button>
-            <button
-              className="p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors disabled:hover:bg-[#f6f7f8]"
-              disabled={selectedRowValues.length === 0}
             >
               <Image
                 src="/icons/download-icon.svg"
@@ -76,12 +83,12 @@ export default function Settings() {
             </button>
           </div>
         </div>
-        <TrainingsBoughtTable tableData={data} setSelectedRowValues={setSelectedRowValues} />
+        {isPending ? <p>Ładowanie...</p> : <TrainingsBoughtTable tableData={trainigsPurchased} setSelectedRowValues={setSelectedRowValues} searchValue={searchValue} />}
 
         {/* Modal */}
         <Modal
           isOpen={isModalOpen}
-          closeModal={closeModal}
+          closeModal={() => setIsModalOpen(false)}
           title="Czy na pewno chcesz usunąć Pracownika?"
         >
           <div className="text-sm text-gray-500 mb-4">
@@ -91,14 +98,14 @@ export default function Settings() {
             <ButtonRed
               title="Zatwierdź"
               onPress={() => {
-                closeModal();
+                setIsModalOpen(false);
                 showToastNotificationSuccess(
                   "Sukces!",
                   "Pracownik został usunięty"
                 );
               }}
             />
-            <ButtonGray title="Anuluj" onPress={closeModal} />
+            <ButtonGray title="Anuluj" onPress={() => setIsModalOpen(false)} />
           </div>
         </Modal>
       </MainComponent>

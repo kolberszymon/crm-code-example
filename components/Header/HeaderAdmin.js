@@ -12,18 +12,12 @@ import { showToastNotificationSuccess } from "../Custom/ToastNotification";
 export const HeaderAdmin = () => {
   const [searchValue, setSearchValue] = useState("");
 
-  const displayMsg = () => {
-    showToastNotificationSuccess(
-      "Nowe szkolenie",
-      "Szkolenie zostało dodane do listy szkoleń"
-    );
-  };
-
   return (
     <header className="w-full bg-white shadow h-[56px] flex flex-row justify-between items-center px-[32px]">
       {/* Top bar content (e.g., search, buttons) */}
 
-      <SearchBar value={searchValue} setValue={setSearchValue} />
+      {/* <SearchBar value={searchValue} setValue={setSearchValue} /> */}
+      <div />
       <div className="flex flex-row gap-[16px] items-center">
         <Link href="/admin/merchants/create">
           <ButtonGray title={"Dodaj merchanta"} />

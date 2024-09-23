@@ -1,8 +1,4 @@
 import {prisma} from '@/lib/init/prisma';
-import { sendEmail } from '@/lib/send-email';
-import { LogIcon, Role } from "@prisma/client";
-import crypto from 'crypto';
-import { Argon2id } from "oslo/password";
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

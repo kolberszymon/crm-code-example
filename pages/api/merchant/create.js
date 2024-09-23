@@ -148,11 +148,15 @@ export default async function handler(req, res) {
         },
       });
 
+      const protocol = req.headers['x-forwarded-proto'] || 'http';
+      const host = req.headers.host;
+      const inviteUrl = `${protocol}://${host}/set-new-password/${token}`;
+
       await sendEmail({
         to: email,
         subject: 'Stwórz swoje hasło do serwisu monlib',
         text: `Dobrze Cię widzieć. Kliknij w link aby stworzyć swoje hasło do serwisu monlib.`,
-        html: `<p>Kliknij <a href="http://localhost:3000/set-new-password/${token}">tutaj</a> aby stworzyć swoje hasło do serwisu monlib.</p>`,
+        html: `<p>Kliknij <a href="${inviteUrl}">tutaj</a> aby stworzyć swoje hasło do serwisu monlib.</p>`,
       });
     });
 

@@ -8,6 +8,8 @@ import { ButtonMustard } from "../Buttons/ButtonMustard";
 import { ButtonGray } from "../Buttons/ButtonGray";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
+import { Role } from "@prisma/client";
+import { useSession } from "next-auth/react";
 
 const NavbarSection = ({ title }) => {
   return (
@@ -34,6 +36,7 @@ const NavbarButton = ({ title, path }) => {
 
 export const NavbarMerchant = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data: session } = useSession();
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -49,8 +52,10 @@ export const NavbarMerchant = () => {
       <NavbarButton
         title="Konta pracowników"
         path="/merchant/employees"
-      />      
-      <NavbarButton title="Rozliczenia z pracownikami" path="/merchant/employees/payoff" />
+      />
+      {session?.user?.role === Role.MERCHANT_EDIT && 
+        <NavbarButton title="Rozliczenia z pracownikami" path="/merchant/employees/payoff" />
+      }
       <NavbarButton
         title="Historia transakcji pracowników"
         path="/merchant/employees/history"

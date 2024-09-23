@@ -72,7 +72,8 @@ export default function Home() {
             />
           </div>
           <div className="flex flex-row gap-[8px]">
-            <button
+            {session?.user?.role === Role.MERCHANT_EDIT ? (
+              <button
               className="p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors disabled:hover:bg-[#f6f7f8]"
               disabled={selectedRowValues.length === 0}
               onClick={() => {
@@ -86,6 +87,8 @@ export default function Home() {
                 alt="download icon"
               />
             </button>
+            ) : null}
+            
             <button
               className="p-[8px] bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors disabled:hover:bg-[#f6f7f8]"
               disabled={selectedRowValues.length === 0}

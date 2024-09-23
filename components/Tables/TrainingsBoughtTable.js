@@ -1,18 +1,17 @@
-"use client";
-
 import {
   useReactTable,
   getCoreRowModel,
   getPaginationRowModel,
   flexRender,
+  getSortedRowModel
 } from "@tanstack/react-table";
 import Image from "next/image";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Icons from "../../constants/icons";
 import { formatNumberWithSpaces } from "@/helpers/formatNumberWithSpaces";
 import Link from "next/link";
-import { StatusTile } from "../Custom/StatusTile";
 import { MulticolorTitleTile } from "../Custom/MulticolorTitleTile";
+import { Currency } from "@prisma/client";
 
 function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   const ref = useRef(null);
@@ -35,36 +34,17 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   );
 }
 
-const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
-  const initialValue = getValue();
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  const onBlur = () => {
-    table.options.meta?.updateData(row.index, column.id, value);
-  };
-
-  return (
-    <div className="w-40 h-7 bg-white rounded-md border border-zinc-400 justify-center items-center flex flex-row gap-[8px] p-[13px]">
-      <Icons.CoinImage w={16} h={16} />
-      <input
-        className="text-xs font-normal text-zinc-950 outline-none border-none"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={onBlur}
-      />
-    </div>
-  );
-});
-
-export const TrainingsBoughtTable = ({ tableData }) => {
+export const TrainingsBoughtTable = ({ tableData, setSelectedRowValues, searchValue }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
+
+  const filteredData = useMemo(() => {
+    return data.filter(row => 
+      row.id.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, [data, searchValue]);
 
   const columns = useMemo(
     () => [
@@ -119,12 +99,16 @@ export const TrainingsBoughtTable = ({ tableData }) => {
       {
         accessorKey: "price",
         header: "Cena szkolenia",
-        cell: ({ getValue }) => (
-          <div className="flex items-center justify-start gap-1">
-            <Icons.CoinImage w={16} h={16} />
-            <span>{formatNumberWithSpaces(getValue())}</span>
-          </div>
-        ),
+        cell: ({ getValue, row }) => {
+          
+          return (
+            <div className="flex items-center justify-start gap-1">
+              {row.original.currency === Currency.TOKENS && <Icons.CoinImage w={16} h={16} />}          
+              <span>{formatNumberWithSpaces(getValue())}</span>
+              {row.original.currency === Currency.PLN && <p>PLN</p>}
+            </div>
+          )
+        },
       },
       {
         accessorKey: "name",
@@ -158,16 +142,30 @@ export const TrainingsBoughtTable = ({ tableData }) => {
 
   const table = useReactTable({
     columns,
-    data,
+    data: filteredData,
     state: {
       rowSelection,
       pagination: { pageIndex, pageSize },
     },
     enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange: setRowSelection,    
+    onPaginationChange: (updater) => {
+      const newPagination = updater(table.getState().pagination);
+      setPageIndex(newPagination.pageIndex);
+      setPageSize(newPagination.pageSize);
+    },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
+
+  useEffect(() => {
+    const selectedRowsWithData = Object.keys(rowSelection)
+      .filter((key) => rowSelection[key])
+      .map((key) => data[key]);
+
+    setSelectedRowValues(selectedRowsWithData);
+  }, [rowSelection]);
 
   return (
     <>
@@ -196,19 +194,27 @@ export const TrainingsBoughtTable = ({ tableData }) => {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td
-                  key={cell.id}
-                  className="border-b px-[16px] py-[16px] text-xs"
-                  style={{ textAlign: "left" }}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          {table.getRowModel().rows.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="text-sm text-center p-2">
+                  Brak danych do wyświetlenia
                 </td>
-              ))}
-            </tr>
-          ))}
+              </tr>
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="border-b px-[16px] py-[16px] text-xs"
+                    style={{ textAlign: "left" }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))
+            )}
         </tbody>
       </table>
 
@@ -240,8 +246,7 @@ export const TrainingsBoughtTable = ({ tableData }) => {
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
-              table.previousPage();
-              setPageIndex(table.getState().pagination.pageIndex);
+              table.previousPage();              
             }}
             disabled={!table.getCanPreviousPage()}
           >
@@ -259,7 +264,6 @@ export const TrainingsBoughtTable = ({ tableData }) => {
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
               table.nextPage();
-              setPageIndex(table.getState().pagination.pageIndex);
             }}
             disabled={!table.getCanNextPage()}
           >

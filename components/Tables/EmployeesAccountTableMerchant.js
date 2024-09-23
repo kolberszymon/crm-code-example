@@ -80,8 +80,8 @@ export const EmployeesAccountTableMerchant = ({ tableData, setSelectedRowValues,
     }
 
     return filteredData.filter(row => 
-      row.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      row.merchantName.toLowerCase().includes(searchValue.toLowerCase())
+      (row.name?.toLowerCase().includes(searchValue?.toLowerCase() || '') || false) ||
+      (row.merchantName?.toLowerCase().includes(searchValue?.toLowerCase() || '') || false)
     );
   }, [data, searchValue, isRecurrentPaymentOn]);
 

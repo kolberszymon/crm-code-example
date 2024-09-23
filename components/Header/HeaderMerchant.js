@@ -20,7 +20,8 @@ export const HeaderMerchant = () => {
     <header className="w-full bg-white shadow h-[56px] flex flex-row justify-between items-center px-[32px]">
       {/* Top bar content (e.g., search, buttons) */}
 
-      <SearchBar value={searchValue} setValue={setSearchValue} />
+      {/* <SearchBar value={searchValue} setValue={setSearchValue} /> */}
+      <div />
       <div className="flex flex-row gap-[16px] items-center">
         {session.user.role === Role.MERCHANT_EDIT && (     
         <Link href="/merchant/employees/create">

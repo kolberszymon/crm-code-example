@@ -15,7 +15,8 @@ export default async function handler(req, res) {
     const employee = await prisma.employeeData.findUnique({
       where: { userId: id },
       include: {
-        merchant: true
+        merchant: true,
+        user: true
       }
     });
 
