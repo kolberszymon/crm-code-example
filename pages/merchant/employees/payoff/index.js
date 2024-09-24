@@ -47,7 +47,7 @@ export default function Home() {
 
   const updateEmployeeTokenBalancesMutation = useMutation({
     mutationFn: async (selectedEmployees) => {
-      const response = await fetch('/api/employee/send-payoff-from-admin', {
+      const response = await fetch('/api/employee/send-payoff-from-merchant', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

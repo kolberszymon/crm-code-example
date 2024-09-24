@@ -51,20 +51,6 @@ export default async function handler(req, res) {
   } = req.body;
 
   try {
-    // Check if a merchant with the same email or phone already exists
-    const existingMerchant = await prisma.merchantData.findFirst({
-      where: {
-        OR: [
-          { email },
-          { phone },
-        ],
-      },
-    });
-
-    if (existingMerchant) {
-      return res.status(400).json({ success: false, message: 'Merchant z tym emailem lub telefonem już istnieje' });
-    }
-
     // Check if a user with the same email or phone already exists
     const existingUser = await prisma.user.findFirst({
       where: {
@@ -101,8 +87,6 @@ export default async function handler(req, res) {
           merchantName,
           firstName,
           lastName,
-          email,
-          phone,
           nip,
           accountNumber,
           country,
