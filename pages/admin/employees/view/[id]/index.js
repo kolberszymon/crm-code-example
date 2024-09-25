@@ -189,34 +189,34 @@ export default function EmployeeView() {
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Email
               </label>
-              <p className="text-xs text-zinc-600 font-normal">{employee.email}</p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.user.email.length > 0 ? employee.user.email : "-"}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Pesel
               </label>
-              <p className="text-xs text-zinc-600 font-normal">{employee.pesel}</p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.pesel.length > 0 ? employee.pesel : "-"}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Numer telefonu
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.phone}
+                {employee.user.phone.length > 0 ? employee.user.phone : "-"}
               </p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Dowód osobisty lub paszport
               </label>
-              <p className="text-xs text-zinc-600 font-normal">{employee.idCard}</p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.idPassportNumber.length > 0 ? employee.idPassportNumber : "-"}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Numer konta
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.accountNumber}
+                {employee.accountNumber.length > 0 ? employee.accountNumber : "-"}
               </p>
             </div>
           </div>
@@ -233,7 +233,7 @@ export default function EmployeeView() {
                 Kraj
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.country}
+                {employee.country.length > 0 ? employee.country : "-"}
               </p>
             </div>
             <div>
@@ -241,7 +241,7 @@ export default function EmployeeView() {
                 Kod pocztowy
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.postalCode}
+                {employee.postalCode.length > 0 ? employee.postalCode : "-"}
               </p>
             </div>
             <div>
@@ -249,7 +249,7 @@ export default function EmployeeView() {
                 Miejscowość
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.city}
+                {employee.city.length > 0 ? employee.city : "-"}
               </p>
             </div>
             <div>
@@ -257,7 +257,7 @@ export default function EmployeeView() {
                 Ulica
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.street}
+                {employee.street.length > 0 ? employee.street : "-"}
               </p>
             </div>
             <div>
@@ -265,7 +265,7 @@ export default function EmployeeView() {
                 Nr domu
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.houseNumber}
+                {employee.houseNumber.length > 0 ? employee.houseNumber : "-"}
               </p>
             </div>
             <div>

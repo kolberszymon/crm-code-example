@@ -52,7 +52,7 @@ export default function Home() {
             Konta pracowników
           </p>
           {session?.user?.role === Role.MERCHANT_EDIT ? (
-            <Link href="/admin/employees/create">
+            <Link href="/merchant/employees/create">
               <ButtonGreen title="Dodaj pracownika" />
             </Link>
           ) : null}

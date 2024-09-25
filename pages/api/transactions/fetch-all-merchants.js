@@ -23,22 +23,36 @@ export default async function handler(req, res) {
         }
       },
       where: {
-        to: {
-          role: {
-            in: ["MERCHANT_VIEW", "MERCHANT_EDIT"]
+        AND: [
+          {
+            OR: [
+              { to: { role: { in: ["MERCHANT_VIEW", "MERCHANT_EDIT"] } } },
+              { 
+                AND: [
+                  { to: { role: "ADMIN" } },
+                  { from: { role: { not: "ADMIN" } } }
+                ]
+              }
+            ]
+          },
+          {
+            OR: [
+              { from: { role: { in: ["MERCHANT_VIEW", "MERCHANT_EDIT"] } } },
+              { 
+                AND: [
+                  { from: { role: "ADMIN" } },
+                  { to: { role: { not: "ADMIN" } } }
+                ]
+              }
+            ]
           }
-        },
-        from: {
-          role: {
-            in: ["ADMIN"]
-          }
-        }
+        ]
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
-
+    
     res.status(200).json(transactions);
   } catch (error) {
     console.error('Error fetching merchants:', error);

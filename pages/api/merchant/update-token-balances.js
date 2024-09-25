@@ -34,8 +34,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: "Nie masz wystarczającej ilości tokenów (doładuj je w Konta merchantów)" });
     }
 
-    console.log("admin");
-    console.log(admin);
+    console.log("merchants");
+    console.log(merchants);
 
     await prisma.$transaction(async (prisma) => {
       // Decrement admin's token balance

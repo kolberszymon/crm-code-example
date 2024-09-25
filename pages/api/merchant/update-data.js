@@ -1,4 +1,5 @@
 import {prisma} from '@/lib/init/prisma';
+import { Role } from '@prisma/client';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -69,6 +70,7 @@ export default async function handler(req, res) {
         data: {
           email,
           phone,
+          role: accountType === 'Edit' ? Role.MERCHANT_EDIT : Role.MERCHANT_VIEW,
         },
       });
 

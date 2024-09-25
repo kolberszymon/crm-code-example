@@ -7,23 +7,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const merchants = await prisma.merchantData.findMany({
+    const merchants = await prisma.user.findMany({
+      where: {
+        role: {
+          in: [Role.MERCHANT_EDIT, Role.MERCHANT_VIEW]
+        },
+        isActive: true
+      },
       include: {
-        user: {
-          select: {            
-            tokens: true,
-            id: true,
-          }
-        }
+        merchantData: true
       },
       orderBy: {
         createdAt: 'desc',
       },
-      where: {
-        user: {
-          isActive: true
-        }
-      }
     });
 
     res.status(200).json(merchants);

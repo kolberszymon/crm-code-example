@@ -97,7 +97,9 @@ export default function EditEmployee() {
     updateEmployeeMutation.mutate(body);
   };
 
-  if (isPending) return <div>Ładowanie...</div>
+  if (isPending) {
+    return <div className="flex justify-center items-center h-screen">Ładowanie...</div>
+  }
 
   return (
     <AdminLayout path={["Merchant", "Konto pracownika", "Edycja"]}>
@@ -135,7 +137,7 @@ export default function EditEmployee() {
                 <>
               <div className="w-1/4">
                 <label className="block text-sm font-medium mb-2">
-                  Wartość kwoty przesyłanej cyklicznie
+                  Wartość kwoty przesyłanej cyklicznie brutto
                 </label>
                 <div className="flex flex-row border border-gray-300 rounded-md pl-[8px] items-center">
                   <Image
@@ -166,6 +168,36 @@ export default function EditEmployee() {
                 {errors.paymentAmount && (
                   <p className="text-red-500 text-xs mt-1">
                     {errors.paymentAmount.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="w-1/4">
+                <label className="block text-sm font-medium mb-2">
+                  Wartość kwoty przesyłanej cyklicznie PIT-4
+                </label>
+                <div className="flex flex-row border border-gray-300 rounded-md pl-[8px] items-center">
+                  <Image
+                    src="/icons/coin.svg"
+                    width={16}
+                    height={16}
+                    alt="coin"
+                  />
+                  <input
+                    type="text"
+                    className="text-sm p-[8px] flex-1 outline-none rounded-md"                                                 
+                    {...register("paymentAmountPit", {
+                      required: recurrentPayment ?  "Wartość kwoty jest wymagana" : false,
+                      pattern: {
+                        value: /^[0-9]+$/,
+                        message: "Wartość musi być liczbą",
+                      },
+                    })}
+                  />
+                </div>
+                {errors.paymentAmountPit && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.paymentAmountPit.message}
                   </p>
                 )}
               </div>
@@ -233,8 +265,7 @@ export default function EditEmployee() {
                 </label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Jan"
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
                   {...register("firstName", {
                     required: "Imię jest wymagane",
                   })}
@@ -252,8 +283,7 @@ export default function EditEmployee() {
                 </label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Kowalski"
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
                   {...register("lastName", {
                     required: "Nazwisko jest wymagane",
                   })}
@@ -269,10 +299,8 @@ export default function EditEmployee() {
                 <label className="block text-sm font-medium mb-2">Email</label>
                 <input
                   type="email"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="jan.kowalski@gmail.com"
-                  {...register("email", {
-                    required: "Email jest wymagany",
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
+                  {...register("email", {                   
                     pattern: {
                       value: /^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/,
                       message: "Nieprawidłowy email",
@@ -290,11 +318,8 @@ export default function EditEmployee() {
                 <label className="block text-sm font-medium mb-2">Pesel</label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="84051252487"
-                  {...register("pesel", {
-                    required: "Pesel jest wymagany",
-                  })}
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
+                  {...register("pesel")}
                   defaultValue={employee.pesel}
                 />
                 {errors.pesel && (
@@ -307,11 +332,8 @@ export default function EditEmployee() {
                 <label className="block text-sm font-medium mb-2">Dowód osobisty lub paszport</label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="84051252487"
-                  {...register("idPassportNumber", {
-                    required: "Dowód osobisty lub paszport jest wymagany",
-                  })}
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
+                  {...register("idPassportNumber")}
                   defaultValue={employee.idPassportNumber}
                 />
                 {errors.idPassportNumber && (
@@ -326,16 +348,11 @@ export default function EditEmployee() {
                 </label>
                 <input
                   type="tel"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="+48 123 456 789"
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
                   {...register("phone", {
                     required: "Numer telefonu jest wymagany",
-                    pattern: {
-                      value: /^[0-9]{9}$/,
-                      message: "Numer telefonu musi składać się z 9 cyfr",
-                    },
                   })}
-                  defaultValue={employee.phone}
+                  defaultValue={employee.user.phone}
                 />
                 {errors.phone && (
                   <p className="text-red-500 text-xs mt-1">
@@ -349,11 +366,8 @@ export default function EditEmployee() {
                 </label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="PL 12 1234 1234 1234 1234 1234 1234"
-                  {...register("accountNumber", {
-                    required: "Numer konta jest wymagany",
-                  })}
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
+                  {...register("accountNumber")}
                   defaultValue={employee.accountNumber}
                 />
                 {errors.accountNumber && (
@@ -375,11 +389,8 @@ export default function EditEmployee() {
                 <label className="block text-sm font-medium mb-2">Kraj</label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Polska"
-                  {...register("country", {
-                    required: "Kraj jest wymagany",
-                  })}
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
+                  {...register("country")}
                   defaultValue={employee.country}
                 />
                 {errors.country && (
@@ -394,11 +405,8 @@ export default function EditEmployee() {
                 </label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="32-652"
-                  {...register("postalCode", {
-                    required: "Kod pocztowy jest wymagany",
-                  })}
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
+                  {...register("postalCode")}
                   defaultValue={employee.postalCode}
                 />
                 {errors.postalCode && (
@@ -413,11 +421,8 @@ export default function EditEmployee() {
                 </label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Warszawa"
-                  {...register("city", {
-                    required: "Miejscowość jest wymagana",
-                  })}
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
+                  {...register("city")}
                   defaultValue={employee.city}
                 />
                 {errors.city && (
@@ -430,11 +435,8 @@ export default function EditEmployee() {
                 <label className="block text-sm font-medium mb-2">Ulica</label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="Ogrodowa"
-                  {...register("street", {
-                    required: "Ulica jest wymagana",
-                  })}
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
+                  {...register("street")}
                   defaultValue={employee.street}
                 />
                 {errors.street && (
@@ -450,11 +452,8 @@ export default function EditEmployee() {
                 </label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="3"
-                  {...register("houseNumber", {
-                    required: "Nr domu jest wymagany",
-                  })}
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
+                  {...register("houseNumber")}
                   defaultValue={employee.houseNumber}
                 />
                 {errors.houseNumber && (
@@ -469,8 +468,7 @@ export default function EditEmployee() {
                 </label>
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                  placeholder="3"
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
                   {...register("apartmentNumber")}
                   defaultValue={employee.apartmentNumber}
                 />
@@ -479,7 +477,7 @@ export default function EditEmployee() {
           </div>
 
           <div className="flex flex-row gap-[8px]">
-            <ButtonGreen title="Zatwierdź zmiany" type="submit" disabled={!isValid} />
+            <ButtonGreen title="Zatwierdź zmiany" type="submit" disabled={isPending} />
             <ButtonGray title="Anuluj" onPress={() => router.back()}/>            
           </div>
         </form>

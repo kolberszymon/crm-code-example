@@ -13,7 +13,7 @@ datasource db {
 model User {
   id                 String            @id @default(uuid())
   sessions           Session[]
-  email              String            @unique
+  email              String?           @unique
   hashedPassword     String
   phone              String?           @unique
   role               Role              @default(MERCHANT_VIEW)
@@ -44,13 +44,13 @@ model MerchantData {
   lastName               String
   lastTopupAmount        Int            @default(0)
   nip                    String
-  accountNumber          String
-  country                String
-  city                   String
-  street                 String
-  houseNumber            String
+  accountNumber          String?
+  country                String?
+  city                   String?
+  street                 String?
+  houseNumber            String?
   apartmentNumber        String?
-  postalCode             String
+  postalCode             String?
   billingAddress         Boolean        @default(false)
   billingCountry         String?
   billingPostalCode      String?
@@ -69,19 +69,20 @@ model EmployeeData {
   id                 String            @id @default(uuid())
   firstName          String
   lastName           String
-  pesel              String
-  idPassportNumber   String
-  accountNumber      String
-  country            String
-  city               String
-  street             String
-  houseNumber        String
+  pesel              String?
+  idPassportNumber   String?
+  accountNumber      String?
+  country            String?
+  city               String?
+  street             String?
+  houseNumber        String?
   lastTopupAmount    Int               @default(0)
   apartmentNumber    String?
-  postalCode         String
+  postalCode         String?
   paymentFrequency   PaymentFrequency?
   startDate          DateTime?
   paymentAmount      Int?
+  paymentAmountPit   Int?
   automaticReturnOn  Boolean           @default(false)
   recurrentPaymentOn Boolean           @default(false)
   createdAt          DateTime          @default(now())
@@ -114,6 +115,7 @@ model Transaction {
   toId                String
   balanceAfter        Int?
   transactionAmount   Int?
+  pit4Amount          Int?
   createdAt           DateTime           @default(now())
   type                TransactionType
   transactionStatus   TransactionStatus?
@@ -166,6 +168,7 @@ enum Currency {
 enum TransactionType {
   GENERATE_TOKENS
   TRANSFER_TOKENS
+  TRANSFER_TOKENS_PIT
 }
 
 enum TransactionStatus {

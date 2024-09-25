@@ -110,7 +110,7 @@ export default function SetNewPassword() {
                       })}
                       type="password"
                       placeholder="Hasło"
-                      className="px-[16px] py-[10px] text-sm font-semibold flex-1 outline-none rounded-md"
+                      className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                     />
                   </div>
                   {errors.password && (
@@ -142,7 +142,7 @@ export default function SetNewPassword() {
                       })}
                       type="password"
                       placeholder="Powtórz hasło"
-                      className="px-[16px] py-[10px] text-sm font-semibold flex-1 outline-none rounded-md"
+                      className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                     />
                   </div>
                   {errors.passwordConfirmation && (

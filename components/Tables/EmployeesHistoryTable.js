@@ -65,7 +65,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
 
     return filteredData.filter(row => 
       row.id.toLowerCase().includes(searchValue.toLowerCase()) ||
-      row.recipent.toLowerCase().includes(searchValue.toLowerCase()) ||            
+      row.employee.toLowerCase().includes(searchValue.toLowerCase()) ||            
       row.accountNumber.toLowerCase().includes(searchValue.toLowerCase())      
     );
   }, [data, searchValue, selectedTransactionStatus, selectedTransferStatus, date]);
@@ -110,8 +110,8 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
         ),
       },
       {
-        accessorKey: "recipent",
-        header: "Odbiorca",
+        accessorKey: "employee",
+        header: "Pracownik",
       },
       {
         accessorKey: "date",

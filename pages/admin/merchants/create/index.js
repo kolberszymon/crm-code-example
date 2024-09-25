@@ -85,7 +85,7 @@ export default function NewMerchantForm() {
                     {...register("accountType", {
                       required: "Rodzaj konta jest wymagany",
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   >
                     <option value="View">View</option>
                     <option value="Edit">Edit</option>
@@ -109,7 +109,7 @@ export default function NewMerchantForm() {
                     {...register("merchantName", {
                       required: "Nazwa merchanta jest wymagana",
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   />
                   {errors.merchantName && (
                     <span className="text-red-600 text-sm">
@@ -130,7 +130,7 @@ export default function NewMerchantForm() {
                     {...register("firstName", {
                       required: "Imię jest wymagane",
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   />
                   {errors.firstName && (
                     <span className="text-red-600 text-sm">
@@ -151,7 +151,7 @@ export default function NewMerchantForm() {
                     {...register("lastName", {
                       required: "Nazwisko jest wymagane",
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   />
                   {errors.lastName && (
                     <span className="text-red-600 text-sm">
@@ -173,7 +173,7 @@ export default function NewMerchantForm() {
                         message: "Niepoprawny adres email",
                       },
                     })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   />
                   {errors.email && (
                     <span className="text-red-600 text-sm">
@@ -188,10 +188,8 @@ export default function NewMerchantForm() {
                   <input
                     type="text"
                     id="phone"
-                    {...register("phone", {
-                      required: "Numer telefonu jest wymagany",
-                    })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    {...register("phone")}
+                    className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   />
                   {errors.phone && (
                     <span className="text-red-600 text-sm">
@@ -214,7 +212,7 @@ export default function NewMerchantForm() {
                     type="text"
                     id="nip"
                     {...register("nip", { required: "NIP jest wymagany" })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   />
                   {errors.nip && (
                     <span className="text-red-600 text-sm">
@@ -232,10 +230,8 @@ export default function NewMerchantForm() {
                   <input
                     type="text"
                     id="accountNumber"
-                    {...register("accountNumber", {
-                      required: "Numer konta jest wymagany",
-                    })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    {...register("accountNumber")}
+                    className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   />
                   {errors.accountNumber && (
                     <span className="text-red-600 text-sm">
@@ -260,8 +256,8 @@ export default function NewMerchantForm() {
                   <input
                     type="text"
                     id="country"
-                    {...register("country", { required: "Kraj jest wymagany" })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    {...register("country")}
+                    className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   />
                   {errors.country && (
                     <span className="text-red-600 text-sm">
@@ -281,11 +277,8 @@ export default function NewMerchantForm() {
                     <input
                       type="text"
                       id="postalCode"
-                      {...register("postalCode", {
-                        required:
-                          "Kod pocztowy jest wymagany",
-                      })}
-                      className="mt-1 block w-full border rounded-md p-2"
+                      {...register("postalCode")}
+                      className="w-full border border-gray-300 rounded-md p-2 text-sm"
                     />
                     {errors.postalCode && (
                       <span className="text-red-600 text-sm">
@@ -300,10 +293,8 @@ export default function NewMerchantForm() {
                     <input
                       type="text"
                       id="city"
-                      {...register("city", {
-                        required: "Miejscowość jest jest wymagana",
-                      })}
-                      className="mt-1 block w-full border rounded-md p-2"
+                      {...register("city")}
+                      className="w-full border border-gray-300 rounded-md p-2 text-sm"
                     />
                     {errors.city && (
                       <span className="text-red-600 text-sm">
@@ -320,8 +311,8 @@ export default function NewMerchantForm() {
                   <input
                     type="text"
                     id="street"
-                    {...register("street", { required: "Ulica jest wymagana" })}
-                    className="mt-1 block w-full border rounded-md p-2"
+                    {...register("street")}
+                    className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   />
                   {errors.street && (
                     <span className="text-red-600 text-sm">
@@ -340,10 +331,8 @@ export default function NewMerchantForm() {
                     <input
                       type="text"
                       id="houseNumber"
-                      {...register("houseNumber", {
-                        required: "Nr domu jest wymagany",
-                      })}
-                      className="mt-1 block w-full border rounded-md p-2"
+                      {...register("houseNumber")}
+                      className="w-full border border-gray-300 rounded-md p-2 text-sm"
                     />
                     {errors.houseNumber && (
                       <span className="text-red-600 text-sm">
@@ -362,7 +351,7 @@ export default function NewMerchantForm() {
                       type="text"
                       id="apartmentNumber"
                       {...register("apartmentNumber")}
-                      className="mt-1 block w-full border rounded-md p-2"
+                      className="w-full border border-gray-300 rounded-md p-2 text-sm"
                     />
                     {errors.apartmentNumber && (
                       <span className="text-red-600 text-sm">
@@ -404,10 +393,8 @@ export default function NewMerchantForm() {
                       <input
                         type="text"
                         id="billingCountry"
-                        {...register("billingCountry", {
-                          required: billingAddress && "Kraj jest wymagany",
-                        })}
-                        className="mt-1 block w-full border rounded-md p-2"
+                        {...register("billingCountry")}
+                        className="w-full border border-gray-300 rounded-md p-2 text-sm"
                       />
                       {errors.billingCountry && (
                         <span className="text-red-600 text-sm">
@@ -426,11 +413,8 @@ export default function NewMerchantForm() {
                         <input
                           type="text"
                           id="billingPostalCode"
-                          {...register("billingPostalCode", {
-                            required:
-                              billingAddress && "Kod pocztowy jest wymagany",
-                          })}
-                          className="mt-1 block w-full border rounded-md p-2"
+                          {...register("billingPostalCode")}
+                          className="w-full border border-gray-300 rounded-md p-2 text-sm"
                         />
                         {errors.billingPostalCode && (
                           <span className="text-red-600 text-sm">
@@ -448,10 +432,8 @@ export default function NewMerchantForm() {
                         <input
                           type="text"
                           id="billingCity"
-                          {...register("billingCity", {
-                            required: "Mijescowość jest jest wymagana",
-                          })}
-                          className="mt-1 block w-full border rounded-md p-2"
+                          {...register("billingCity")}
+                          className="w-full border border-gray-300 rounded-md p-2 text-sm"
                         />
                         {errors.billingCity && (
                           <span className="text-red-600 text-sm">
@@ -470,10 +452,8 @@ export default function NewMerchantForm() {
                       <input
                         type="text"
                         id="billingStreet"
-                        {...register("billingStreet", {
-                          required: billingAddress && "Ulica jest wymagana",
-                        })}
-                        className="mt-1 block w-full border rounded-md p-2"
+                        {...register("billingStreet")}
+                        className="w-full border border-gray-300 rounded-md p-2 text-sm"
                       />
                       {errors.billingStreet && (
                         <span className="text-red-600 text-sm">
@@ -492,10 +472,8 @@ export default function NewMerchantForm() {
                         <input
                           type="text"
                           id="billingHouseNumber"
-                          {...register("billingHouseNumber", {
-                            required: billingAddress && "Nr domu jest wymagany",
-                          })}
-                          className="mt-1 block w-full border rounded-md p-2"
+                          {...register("billingHouseNumber")}
+                          className="w-full border border-gray-300 rounded-md p-2 text-sm"
                         />
                         {errors.billingHouseNumber && (
                           <span className="text-red-600 text-sm">
@@ -514,7 +492,7 @@ export default function NewMerchantForm() {
                           type="text"
                           id="billingApartmentNumber"
                           {...register("billingApartmentNumber")}
-                          className="mt-1 block w-full border rounded-md p-2"
+                          className="w-full border border-gray-300 rounded-md p-2 text-sm"
                         />
                         {errors.billingApartmentNumber && (
                           <span className="text-red-600 text-sm">
@@ -530,7 +508,7 @@ export default function NewMerchantForm() {
 
             {/* Buttons */}
             <div className="flex justify-start space-x-4">
-              <ButtonGreen title="Dodaj Merchanta" type="submit" disabled={!isValid} />
+              <ButtonGreen title="Dodaj Merchanta" type="submit" disabled={createMerchantMutation.isPending} />
               <Link href="/admin/merchants">
                 <ButtonWhiteWithBorder
                   title="Anuluj"

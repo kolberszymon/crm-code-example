@@ -156,7 +156,7 @@ export const MerchantPayoffTable = ({ tableData, setSelectedRowValues, searchVal
         },
         cell: ({ getValue, row }) => {          
           return (
-          <Link href={`/admin/merchants/view/${row.original.id}`}>
+          <Link href={`/admin/merchants/view/${row.original.merchantId}`}>
           <button className="flex items-center justify-center gap-1 bg-[#f6f7f8] rounded-full hover:bg-gray-200 transition-colors p-[4px]">
             <Icons.EyeImage w={16} h={16} />
           </button>

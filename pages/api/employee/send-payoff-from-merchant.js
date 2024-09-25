@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/init/prisma";
 import { Role, TransactionType, TransactionStatus, TransferStatus } from "@prisma/client";
+import { addSeconds } from "date-fns";
 
 // This endpoint is used to send payoff to employees from admin
 // It means that transaction needs to go from admin to merchant and from merchant to employee
@@ -29,7 +30,8 @@ export default async function handler(req, res) {
 
     employees = employees.filter(employee => employee.merchantId === merchant.merchantData.id).map(employee => ({
       ...employee,
-      topUpAmount: Number(employee.topUpAmount)
+      topUpAmount: Number(employee.topUpAmount),
+      pit4Amount: Number(employee.pit4Amount)
     }));
 
     const totalTokensToSend = employees.reduce((total, employee) => total + employee.topUpAmount, 0);
@@ -40,22 +42,41 @@ export default async function handler(req, res) {
 
     const admin = await prisma.user.findFirst({
       where: {
-        role: Role.ADMIN
+        role: Role.ADMIN,
+        merchantData: {
+          isNot: null
+        }
       }
     })
 
     for (const employee of employees) {
+      console.log(employee)
+
       await prisma.$transaction(async (prisma) => {
         // Create transaction from merchant to employee
         await prisma.transaction.create({
           data: {
             type: TransactionType.TRANSFER_TOKENS,
-            balanceAfter: employee.balance + employee.topUpAmount,
-            transactionAmount: employee.topUpAmount,
+            balanceAfter: employee.balance + employee.topUpAmount - employee.pit4Amount,
+            transactionAmount: employee.topUpAmount - employee.pit4Amount,
+            pit4Amount: employee.pit4Amount,
             fromId: merchant.id,
             toId: employee.id,
             merchantId: merchant.id,
             transactionStatus: TransactionStatus.ZASILONO,
+          }
+        })
+
+        // Create transaction from merchant to admin for pit4Amount
+        await prisma.transaction.create({
+          data: {
+            type: TransactionType.TRANSFER_TOKENS_PIT,
+            transactionAmount: employee.pit4Amount,
+            fromId: employee.merchantUserId,
+            toId: admin.id,
+            merchantId: employee.merchantUserId,
+            pit4Amount: employee.pit4Amount,
+            createdAt: addSeconds(new Date(), 1)
           }
         })
 
@@ -70,19 +91,21 @@ export default async function handler(req, res) {
           await prisma.transaction.create({
             data: {
               type: TransactionType.TRANSFER_TOKENS,
-              transactionAmount: employee.topUpAmount - 1,              
+              transactionAmount: employee.topUpAmount - employee.pit4Amount,              
+              pit4Amount: employee.pit4Amount,
               fromId: employee.id,
               toId: admin.id,
               merchantId: employee.merchantUserId,
               transactionStatus: TransactionStatus.DO_ROZLICZENIA,
-              transferStatus: TransferStatus.NIEROZLICZONE
+              transferStatus: TransferStatus.NIEROZLICZONE,
+              createdAt: addSeconds(new Date(), 2)
             }
           })
         } else {
           // If there's no automatic return on, increment employee tokens
           await prisma.user.update({
             where: { id: employee.id },
-            data: { tokens: { increment: employee.topUpAmount } }
+            data: { tokens: { increment: employee.topUpAmount - employee.pit4Amount } }
           })
         }
       })

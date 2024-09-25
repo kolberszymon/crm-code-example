@@ -24,43 +24,30 @@ export default async function handler(req, res) {
   try {
     const transactions = await prisma.transaction.findMany({
       include: {
-        from: {
-          include: {
-            employeeData: true,
-            merchantData: true
-          }
-        },
+        from: true,
         to: {
           include: {
-            employeeData: true,
-            merchantData: true
+            employeeData: true
           }
-        },
+        }
       },
       orderBy: {
         createdAt: 'desc',
       },
       where: {
         from: {
-          merchantId: user.merchantId
+          id: user.id,
+          role: {
+            in: ['MERCHANT_VIEW', 'MERCHANT_EDIT', 'ADMIN']
+          }
         },
         to: {
-          merchantId: user.merchantId
-        },
-        OR: [
-          {
-            transactionStatus: {
-              not: null
-            },
-          },
-          {
-            transferStatus: {
-              not: null
-            },
-          }
-        ]
+          role: 'EMPLOYEE'
+        }
       },      
     });
+
+
 
     res.status(200).json(transactions);
   } catch (error) {

@@ -8,20 +8,18 @@ import { Modal } from "@/components/Modal";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
 import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 import AdminLayout from "@/components/Layouts/AdminLayout";
-import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { CSVLink } from "react-csv";
 
 export default function MerchantPayoff() {  
   const queryClient = useQueryClient();
 
-  const [searchValue, setSearchValue] = useState("");
-  const [merchantType, setMerchantType] = useState("");
+  const [searchValue, setSearchValue] = useState("");  
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const [csvData, setCsvData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: merchantsRaw, isLoading } = useQuery({
+  const { data: merchantsRaw, isPending } = useQuery({
     queryKey: ['merchants-edit'],
     queryFn: async () => {
       const response = await fetch('/api/merchant/fetch-all-edit');
@@ -68,12 +66,12 @@ export default function MerchantPayoff() {
 
     return merchantsRaw.map((merchant) => {
       return {
-        merchantId: merchant.id,
-        userId: merchant.user.id,
-        merchantName: merchant.merchantName,
-        merchantType: merchant.accountType,
-        merchantBalance: merchant.user.tokens,
-        topUpAmount: merchant.lastTopupAmount,
+        merchantId: merchant.merchantData.id,
+        userId: merchant.id,
+        merchantName: merchant.merchantData.merchantName,
+        merchantType: merchant.merchantData.accountType,
+        merchantBalance: merchant.tokens,
+        topUpAmount: merchant.merchantData.lastTopupAmount,
       };
     });
   }, [merchantsRaw]);
@@ -101,6 +99,10 @@ export default function MerchantPayoff() {
     { label: "Wyskość ostatniego doładowania", key: "topUpAmount" },
   ];
 
+  if (isPending) {
+    return <div className="flex justify-center items-center h-screen">Ładowanie...</div>
+  }
+
   return (
     <AdminLayout path={["Merchant", "Rozliczenia z Merchantami"]}>
       <MainComponent>
@@ -122,12 +124,6 @@ export default function MerchantPayoff() {
               value={searchValue}
               setValue={setSearchValue}
               extraCss="my-[32px]"
-            />
-               <SelectDropdown
-              value={merchantType}
-              setValue={setMerchantType}
-              options={["Merchant", "View", "Edit"]}
-              extraCss=""
             />
           </div>
           <CSVLink
@@ -152,13 +148,13 @@ export default function MerchantPayoff() {
             />
           </CSVLink>
         </div>
-        {isLoading ? <div>Ładowanie...</div> : (
+        
         <MerchantPayoffTable
           tableData={merchants}
           setSelectedRowValues={setSelectedRowValues}
           searchValue={searchValue}
         />
-        )}
+        
 
         {/* Modal */}
         <Modal

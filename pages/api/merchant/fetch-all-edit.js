@@ -7,23 +7,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const merchants = await prisma.merchantData.findMany({
+    const merchants = await prisma.user.findMany({
       include: {
-        user: {
-          select: {            
-            tokens: true,
-            id: true,
-          }
-        }
+        merchantData: true
       },
       orderBy: {
         createdAt: 'desc',
       },
       where: {
-        accountType: "Edit",
-        user: {
-          isActive: true
-        }
+        role: { in: [Role.MERCHANT_EDIT] },
+        isActive: true
       }
     });
 

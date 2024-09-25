@@ -88,7 +88,7 @@ export default function Login() {
                     })}
                     type="text"
                     placeholder="Email"
-                    className="px-[16px] py-[10px] text-sm font-semibold flex-1 outline-none rounded-md"
+                    className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                   />
                 </div>
                 {errors.email && (
@@ -117,7 +117,7 @@ export default function Login() {
                     })}
                     type="password"
                     placeholder="Hasło"
-                    className="px-[16px] py-[10px] text-sm font-semibold flex-1 outline-none rounded-md"
+                    className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                   />
                 </div>
                 {errors.password && (
@@ -131,14 +131,15 @@ export default function Login() {
                   {errorMessage}
                 </div>
               )}
-              <Link
-                href="/forgot-password"
-                className="flex items-center justify-end w-full"
-              >
-                <p className="text-sm font-semibold text-[#888ea8]">
-                  Nie pamiętasz hasła?
-                </p>
-              </Link>
+              <div className="flex items-center justify-end w-full">
+                <Link
+                  href="/forgot-password"                  
+                >
+                  <p className="text-sm font-semibold text-[#888ea8]">
+                    Nie pamiętasz hasła?
+                  </p>
+                </Link>
+              </div>
               
               <button
                 className={`bg-main-green text-white text-base font-semibold rounded-md py-[10px] mt-[8px] flex items-center justify-center ${isSubmitting ? 'opacity-70' : ''}`}
@@ -153,7 +154,7 @@ export default function Login() {
               </button>
               <Link
                 href="/trainings"
-                className={`bg-white text-main-green border border-main-green hover:bg-gray-100 transition-colors text-base font-semibold rounded-md py-[10px] mt-[8px] flex items-center justify-center ${isSubmitting ? 'opacity-70' : ''}`}                             
+                className={`bg-white text-main-green border border-main-green hover:bg-gray-100 transition-colors text-base font-semibold rounded-md py-[10px] flex items-center justify-center ${isSubmitting ? 'opacity-70' : ''}`}                             
               >
                 Zobacz szkolenia
               </Link>

@@ -11,9 +11,9 @@ import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 
 export default function MerchantView() {
   const { id } = useRouter().query;
-  const router = useRouter();
+  const router = useRouter();  
 
-  const { data: transaction, isLoading } = useQuery({
+  const { data: transaction, isPending } = useQuery({
     queryKey: ["transaction", id],
     queryFn: async () => {
       const res = await fetch(`/api/transactions/fetch-one?id=${id}`);
@@ -24,7 +24,7 @@ export default function MerchantView() {
     },
   });
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <AdminLayout path={["Merchant", "Rozliczenia z merchantami", "Szczegóły transakcji"]}>
         <MainComponent><p>Ładowanie...</p></MainComponent>
@@ -133,7 +133,7 @@ export default function MerchantView() {
               Email:
             </p>
             <p className="text-zinc-600 text-xs font-normal">
-              {transaction?.to.merchantData?.email}
+              {transaction?.to.merchantData?.user?.email}
             </p>
           </div>
 

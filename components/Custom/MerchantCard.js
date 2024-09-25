@@ -27,7 +27,9 @@ export const MerchantCard = ({ item, openModal }) => (
       <p className="text-xs text-zinc-600 font-normal">{item.merchantCompany}</p>
     </div>
     <div className="mt-4 flex justify-start gap-[8px]">
-      <ButtonGray title="Pracownicy" onPress={() => {}} />
+      <Link href={`/admin/employees?searchValue=${item.merchantCompany}`}>
+        <ButtonGray title="Pracownicy" />
+      </Link>
       <ButtonWhiteWithBorder title="Rozlicz pracowników" onPress={() => {}} />
     </div>
   </div>

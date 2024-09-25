@@ -62,11 +62,13 @@ export default function Home() {
   const merchants = useMemo(() => {
     if (!merchantsRaw) return [];
     
+    console.log(merchantsRaw)
+
     const merchants = merchantsRaw.map((merchant) => ({
-      id: merchant.id,
-      merchantName: merchant.firstName + " " + merchant.lastName,
-      merchantCompany: merchant.merchantName,
-      accountType: merchant.accountType,
+      id: merchant.merchantData.id,
+      merchantName: merchant.merchantData.firstName + " " + merchant.merchantData.lastName,
+      merchantCompany: merchant.merchantData.merchantName,
+      accountType: merchant.merchantData.accountType,
     }));
 
     return merchants;
@@ -96,6 +98,10 @@ export default function Home() {
     if (selectedMerchantId) {
       deactivateMerchant(selectedMerchantId);
     }
+  }
+
+  if (isPending) {
+    return <div className="flex justify-center items-center h-screen">Ładowanie...</div>
   }
 
   return (

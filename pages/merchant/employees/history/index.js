@@ -15,25 +15,29 @@ import { TransferStatus, TransactionStatus } from "@prisma/client";
 import { DatePickerWithRange } from "@/components/Custom/DatePickerRange";
 import { useRouter } from "next/router";
 import { CSVLink } from "react-csv";
+import { Role } from "@prisma/client";
 
-const getRecipent = (transaction) => {
-  if (transaction.to.employeeData) {
-    return transaction.to.employeeData.firstName + " " + transaction.to.employeeData.lastName
-  } else if (transaction.to.merchantData) {
-    return transaction.to.merchantData.merchantName
-  } else {
-    return "Admin"
+const formatTransaction = (transaction) => {
+  const transactionData = {
+    id: transaction.id,
+    employee: "",
+    date: format(new Date(transaction.createdAt), 'dd.MM.yyyy'),
+    hour: format(new Date(transaction.createdAt), 'HH:mm:ss'),
+    accountNumber: "",
+    amount: transaction.transactionAmount,
+    transactionStatus: transaction.transactionStatus,
+    transferStatus: transaction.transferStatus,
   }
-}
+  
+  if (transaction.from.role === Role.EMPLOYEE) {
+    transactionData.employee = transaction.from.employeeData.firstName + " " + transaction.from.employeeData.lastName
+    transactionData.accountNumber = transaction.from.employeeData.accountNumber
+  } else if (transaction.to.role === Role.EMPLOYEE) {
+    transactionData.employee = transaction.to.employeeData.firstName + " " + transaction.to.employeeData.lastName
+    transactionData.accountNumber = transaction.to.employeeData.accountNumber
+  }
 
-const getAccountNumber = (transaction) => {
-  if (transaction.to.employeeData) {
-    return transaction.to.employeeData.accountNumber
-  } else if (transaction.to.merchantData) {
-    return transaction.to.merchantData.accountNumber
-  } else {
-    return "Admin"
-  }
+  return transactionData
 }
 
 export default function Home() {
@@ -53,26 +57,16 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: transactions, isPending } = useQuery({
-    queryKey: ['transactions-fetch-history-all'],
+    queryKey: ['transactions-fetch-history-all-merchant'],
     queryFn: async () => {
       const res = await fetch("/api/employee/fetch-history-all-merchant")
       const data = await res.json()
 
       try {
 
-      const transactions = data.map(transaction => {
-        return {
-          id: transaction.id,
-          recipent: getRecipent(transaction),
-          date: format(new Date(transaction.createdAt), 'dd.MM.yyyy'),
-          hour: format(new Date(transaction.createdAt), 'HH:mm:ss'),
-          accountNumber: getAccountNumber(transaction),
-          amount: transaction.transactionAmount,
-          transactionStatus: transaction.transactionStatus,
-          transferStatus: transaction.transferStatus,
-        }
-      })
-      
+      const transactions = data.map(transaction => formatTransaction(transaction))
+
+      console.log(transactions)
 
       return transactions
     } catch (error) {
@@ -126,23 +120,6 @@ export default function Home() {
     }
   });
 
-  const { data: employeesOptions } = useQuery({
-    queryKey: ['employees'],
-    queryFn: async () => {
-     const res = await fetch('/api/employee/fetch-all');
-
-     const data = await res.json();
-
-     const employeesOptions = data.map((employee) => ({
-      value: employee.id,
-      label: employee.employeeData.firstName + " " + employee.employeeData.lastName,
-     }));
-         
-     return employeesOptions;
-    }
-  });
-
-
   const updateTransactionsStatus = () => {
     changeTransactionStatus()
     setIsModalOpen(false)
@@ -185,7 +162,7 @@ export default function Home() {
 
   
   if (isPending) {
-    return <div>Ładowanie...</div>
+    return <div className="flex items-center justify-center h-screen">Ładowanie...</div>
   }
 
   return (
@@ -194,18 +171,7 @@ export default function Home() {
         <div className="flex flex-row justify-between items-center">
           <p className="text-zinc-950 text-base font-semibold leading-normal">
             Historia transkacji pracowników
-          </p>
-
-          <ButtonGreen
-            title="Zmień status"
-            onPress={() => {
-              setModalPayoffStatus(TransferStatus.ROZLICZONE)
-              setIsModalOpen(true)              
-            }}
-            disabled={selectedRowValues.length === 0}
-          />
-
-           
+          </p>           
         </div>
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-col items-start my-[32px]">

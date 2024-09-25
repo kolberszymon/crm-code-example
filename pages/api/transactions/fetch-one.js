@@ -16,7 +16,11 @@ export default async function handler(req, res) {
       include: {
         to: {
           select: {
-            merchantData: true
+            merchantData: {
+              include: {
+                user: true
+              }
+            }            
           }
         }                
       },

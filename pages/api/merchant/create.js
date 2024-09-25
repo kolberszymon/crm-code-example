@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [
-          { email },
+          { email },          
           { phone },
         ],
       },
@@ -74,8 +74,8 @@ export default async function handler(req, res) {
     
       const newUser = await prisma.user.create({
         data: {
-          email,
-          phone,
+          email: email.length > 0 ? email : null,
+          phone: phone.length > 0 ? phone : null,
           role,
           hashedPassword
         },

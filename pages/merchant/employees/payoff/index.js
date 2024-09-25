@@ -13,8 +13,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CSVLink } from "react-csv";
 
 export default function Home() {
-  const [searchValue, setSearchValue] = useState(null);
-  const [merchantType, setMerchantType] = useState("");
+  const [searchValue, setSearchValue] = useState(null);  
   const [paymentType, setPaymentType] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -97,6 +96,9 @@ export default function Home() {
     { label: "Powtarzalna płatność", key: "recurrentPaymentOn" },
   ];
 
+  if (isPending) {
+    return <div className="flex items-center justify-center h-screen">Ładowanie...</div>
+  }
 
   return (
     <MerchantLayout path={["Merchant", "Rozliczenia z pracownikami"]}>
@@ -118,12 +120,6 @@ export default function Home() {
               value={searchValue}
               setValue={setSearchValue}
               extraCss="my-[32px]"
-            />
-            <SelectDropdown
-              value={merchantType}
-              setValue={setMerchantType}
-              options={["Merchant", "View", "Edit"]}
-              extraCss=""
             />
             <SelectDropdown
               value={paymentType}

@@ -11,29 +11,32 @@ import { EmployeesHistoryTable } from "@/components/Tables/EmployeesHistoryTable
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { TransferStatus, TransactionStatus } from "@prisma/client";
+import { TransferStatus, TransactionStatus, Role } from "@prisma/client";
 import { DatePickerWithRange } from "@/components/Custom/DatePickerRange";
 import { useRouter } from "next/router";
 import { CSVLink } from "react-csv";
 
-const getRecipent = (transaction) => {
-  if (transaction.to.employeeData) {
-    return transaction.to.employeeData.firstName + " " + transaction.to.employeeData.lastName
-  } else if (transaction.to.merchantData) {
-    return transaction.to.merchantData.merchantName
-  } else {
-    return "Admin"
+const formatTransaction = (transaction) => {
+  const transactionData = {
+    id: transaction.id,
+    employee: null,
+    date: format(new Date(transaction.createdAt), 'dd.MM.yyyy'),
+    hour: format(new Date(transaction.createdAt), 'HH:mm:ss'),
+    accountNumber: null,
+    amount: transaction.transactionAmount,
+    transactionStatus: transaction.transactionStatus,
+    transferStatus: transaction.transferStatus,
   }
-}
+  
+  if (transaction.from.role === Role.EMPLOYEE) {
+    transactionData.employee = transaction.from.employeeData.firstName + " " + transaction.from.employeeData.lastName
+    transactionData.accountNumber = transaction.from.employeeData.accountNumber
+  } else if (transaction.to.role === Role.EMPLOYEE) {
+    transactionData.employee = transaction.to.employeeData.firstName + " " + transaction.to.employeeData.lastName
+    transactionData.accountNumber = transaction.to.employeeData.accountNumber
+  }
 
-const getAccountNumber = (transaction) => {
-  if (transaction.to.employeeData) {
-    return transaction.to.employeeData.accountNumber
-  } else if (transaction.to.merchantData) {
-    return transaction.to.merchantData.accountNumber
-  } else {
-    return "Admin"
-  }
+  return transactionData
 }
 
 export default function Home() {
@@ -60,28 +63,16 @@ export default function Home() {
 
       try {
 
-      const transactions = data.map(transaction => {
-        return {
-          id: transaction.id,
-          recipent: getRecipent(transaction),
-          date: format(new Date(transaction.createdAt), 'dd.MM.yyyy'),
-          hour: format(new Date(transaction.createdAt), 'HH:mm:ss'),
-          accountNumber: getAccountNumber(transaction),
-          amount: transaction.transactionAmount,
-          transactionStatus: transaction.transactionStatus,
-          transferStatus: transaction.transferStatus,
-        }
-      })
-      
-
-      return transactions
-    } catch (error) {
-      console.log(error)
-    }
-    },
-    onError: (error) => {
-      console.log(error)
-    }
+        const transactions = data.map(transaction => formatTransaction(transaction))
+        
+        return transactions
+      } catch (error) {
+        console.log(error)
+      }
+      },
+      onError: (error) => {
+        console.log(error)
+      }
   })
 
   // useMutation to change transaction status
@@ -110,39 +101,6 @@ export default function Home() {
     }
   })
 
-  const { data: merchantsOptions } = useQuery({
-    queryKey: ['merchants'],
-    queryFn: async () => {
-     const res = await fetch('/api/merchant/fetch-all');
-
-     const data = await res.json();
-
-     const merchantsOptions = data.map((merchant) => ({
-      value: merchant.id,
-      label: merchant.merchantName,
-     }));
-         
-     return merchantsOptions;
-    }
-  });
-
-  const { data: employeesOptions } = useQuery({
-    queryKey: ['employees'],
-    queryFn: async () => {
-     const res = await fetch('/api/employee/fetch-all');
-
-     const data = await res.json();
-
-     const employeesOptions = data.map((employee) => ({
-      value: employee.id,
-      label: employee.employeeData.firstName + " " + employee.employeeData.lastName,
-     }));
-         
-     return employeesOptions;
-    }
-  });
-
-
   const updateTransactionsStatus = () => {
     changeTransactionStatus()
     setIsModalOpen(false)
@@ -161,7 +119,7 @@ export default function Home() {
   useEffect(() => {
     const data = Object.values(selectedRowValues).map(row => ({
       id: row.id,
-      recipent: row.recipent,
+      employee: row.employee,
       date: row.date,
       hour: row.hour,
       accountNumber: row.accountNumber,
@@ -174,7 +132,7 @@ export default function Home() {
 
   const csvHeaders = [
     { label: "ID Doładowania", key: "id" },
-    { label: "Odbiorca", key: "recipent" },
+    { label: "Pracownik", key: "recipent" },
     { label: "Data", key: "date" },
     { label: "Godzina", key: "hour" },
     { label: "Numer konta", key: "accountNumber" },
@@ -185,7 +143,7 @@ export default function Home() {
 
   
   if (isPending) {
-    return <div>Ładowanie...</div>
+    return <div className="flex justify-center items-center h-screen">Ładowanie...</div>
   }
 
   return (

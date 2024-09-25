@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/init/prisma";
 import { Role, TransactionType, TransactionStatus, TransferStatus } from "@prisma/client";
+import { addSeconds } from 'date-fns';
 
 // This endpoint is used to send payoff to employees from admin
 // It means that transaction needs to go from admin to merchant and from merchant to employee
@@ -20,9 +21,10 @@ export default async function handler(req, res) {
       },
     });
 
-    employees = employees.map(employee => ({
+    employees = employees.filter(employee => employee.pit4Amount && employee.topUpAmount).map(employee => ({
       ...employee,
-      topUpAmount: Number(employee.topUpAmount)
+      topUpAmount: Number(employee.topUpAmount),
+      pit4Amount: Number(employee.pit4Amount)
     }));
 
     console.log(employees)
@@ -36,54 +38,71 @@ export default async function handler(req, res) {
     if (admin.tokens < totalTokensToSend) {
       return res.status(400).json({ success: false, message: "Nie masz wystarczającej ilości tokenów (doładuj je w Konta merchantów)" });
     }
-
+    
     for (const employee of employees) {
       await prisma.$transaction(async (prisma) => {
         // Create transaction from admin to merchant ALWAYS
         await prisma.transaction.create({
-        data: {
-          type: TransactionType.TRANSFER_TOKENS,
-          transactionAmount: employee.topUpAmount,
-          fromId: admin.id,
-          toId: employee.merchantUserId,
-        }
+          data: {
+            type: TransactionType.TRANSFER_TOKENS,
+            transactionAmount: employee.topUpAmount,
+            fromId: admin.id,
+            toId: employee.merchantUserId,
+          }
+        })
+
+        // Create transaction from merchant to admin for pit4Amount
+        await prisma.transaction.create({
+          data: {
+            type: TransactionType.TRANSFER_TOKENS_PIT,
+            transactionAmount: employee.pit4Amount,
+            fromId: employee.merchantUserId,
+            toId: admin.id,
+            merchantId: employee.merchantUserId,
+            pit4Amount: employee.pit4Amount,
+            createdAt: addSeconds(new Date(), 1)
+          }
         })
 
         // Create transaction from merchant to employee ALWAYS
         await prisma.transaction.create({
           data: {
             type: TransactionType.TRANSFER_TOKENS,
-            transactionAmount: employee.topUpAmount,
+            transactionAmount: employee.topUpAmount - employee.pit4Amount,
+            pit4Amount: employee.pit4Amount,
             fromId: employee.merchantUserId,
             toId: employee.id,
             merchantId: employee.merchantUserId,
-            transactionStatus: TransactionStatus.ZASILONO,            
+            transactionStatus: TransactionStatus.ZASILONO, 
+            createdAt: addSeconds(new Date(), 2)           
           }
         })
-
+        
         if (employee.automaticReturnOn) {         
           // Create transaction from employee to admin
           await prisma.transaction.create({
             data: {
               type: TransactionType.TRANSFER_TOKENS,
-              transactionAmount: employee.topUpAmount - 1,
+              transactionAmount: employee.topUpAmount - employee.pit4Amount,
+              pit4Amount: employee.pit4Amount,
               fromId: employee.id,
               toId: admin.id,
               merchantId: employee.merchantUserId,
               transactionStatus: TransactionStatus.DO_ROZLICZENIA,
-              transferStatus: TransferStatus.NIEROZLICZONE
+              transferStatus: TransferStatus.NIEROZLICZONE,
+              createdAt: addSeconds(new Date(), 3)
             }
           })
         } else {
           // Decrement admin tokens
           await prisma.user.update({
             where: { id: admin.id },
-            data: { tokens: { decrement: employee.topUpAmount } }
+            data: { tokens: { decrement: employee.topUpAmount - employee.pit4Amount} }
           });
 
           await prisma.user.update({
             where: { id: employee.id },
-            data: { tokens: { increment: employee.topUpAmount } }
+            data: { tokens: { increment: employee.topUpAmount - employee.pit4Amount } }
           })
         }
       })

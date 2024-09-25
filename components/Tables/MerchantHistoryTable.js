@@ -101,7 +101,7 @@ export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchVa
       },
       {
         accessorKey: "merchant",
-        header: "Merchant",
+        header: "Odbiorca",
       },
       {
         accessorKey: "date",

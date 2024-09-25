@@ -13,8 +13,11 @@ import AdminLayout from "@/components/Layouts/AdminLayout";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { CSVLink } from "react-csv";
+import { useRouter } from "next/router";
 
 export default function Home() {
+  const router = useRouter()
+
   const [searchValue, setSearchValue] = useState("");
   const [automaticReturnOn, setAutomaticReturnOn] = useState("");
   const [isRecurrentPaymentOn, setIsRecurrentPaymentOn] = useState("");
@@ -84,6 +87,12 @@ export default function Home() {
     }));
     setCsvData(data);
   }, [selectedRowValues]);
+
+  useEffect(() => {
+    if (router.isReady) {
+      setSearchValue(router.query.searchValue ?? "")
+    }
+  }, [router])
 
   const csvHeaders = [
     { label: "Nazwa pracownika", key: "employeeName" },

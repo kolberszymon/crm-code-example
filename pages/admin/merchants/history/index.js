@@ -16,7 +16,7 @@ export default function Home() {
   const [date, setDate] = useState(null);
 
 
-  const { data: transactionsRaw, isLoading } = useQuery({
+  const { data: transactionsRaw, isPending } = useQuery({
     queryKey: ['transactions'],
     queryFn: async () => {
       const response = await fetch('/api/transactions/fetch-all-merchants');
@@ -32,14 +32,26 @@ export default function Home() {
   const transactions = useMemo(() => {
     if (!transactionsRaw) return [];
 
-    const transactions = transactionsRaw.map((transaction) => ({
-      id: transaction.id,
-      merchant: transaction.to.merchantData.merchantName,
-      date: format(new Date(transaction.createdAt), 'dd.MM.yyyy'),
-      time: format(new Date(transaction.createdAt), 'HH:mm:ss'),
-      balance: transaction.balanceAfter,
-      transactionAmount: transaction.transactionAmount,
-    }));
+    console.log(transactionsRaw)
+
+    const transactions = transactionsRaw.map((transaction) => {
+        try {
+          const transactionData = {
+            id: transaction.id,
+            merchant: transaction.to.merchantData.merchantName,
+            date: format(new Date(transaction.createdAt), 'dd.MM.yyyy'),
+            time: format(new Date(transaction.createdAt), 'HH:mm:ss'),
+            balance: transaction.balanceAfter,
+            transactionAmount: transaction.transactionAmount,
+          }
+
+          return transactionData;
+        } catch (error) {
+          console.log(transaction)
+          console.error('Error parsing transaction:', error);
+          return null;
+        }
+    });
 
     return transactions;
   }, [transactionsRaw]);
@@ -64,6 +76,10 @@ export default function Home() {
     { label: "Saldo po transakcji", key: "balance" },
     { label: "Kwota transakcji", key: "transactionAmount" },
   ];
+
+  if (isPending) {
+    return <div className="flex justify-center items-center h-screen">Ładowanie...</div>
+  }
 
   return (
     <AdminLayout path={["Merchant", "Historia transakcji merchantów"]}>

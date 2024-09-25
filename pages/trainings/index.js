@@ -52,7 +52,7 @@ export default function Trainings() {
           <Image src="/logo.svg" width={241} height={62} alt="logo" />
         </Link>
         <div className="flex flex-col p-[16px] my-[40px] rounded-3xl overflow-hidden border border-main-green w-[1100px] min-h-screen bg-white">
-          <div className="text-white text-base font-normal mb-[32px] bg-[#015640] py-[6px] flex items-center justify-center"><p>Szkolenia do 97% taniej dla użytkowników naszej platformy <Link href="/" className="text-white text-base font-semibold underline">zobacz więcej</Link></p></div>
+          <div className="text-white text-base font-normal mb-[32px] bg-[#015640] py-[6px] flex items-center justify-center rounded-[6px]"><p>Szkolenia do 97% taniej dla użytkowników naszej platformy <Link href="/" className="text-white text-base font-semibold underline">zobacz więcej</Link></p></div>
           <p className="text-zinc-950 text-base font-semibold mb-[32px]">Lista szkoleń</p>
           <SearchBar value={searchValue} setValue={setSearchValue} placeholder="Wpisz nazwę szkolenia" extraCss="mb-[32px]" />
           {isPending ? <div>Ładowanie...</div> : <div className="flex flex-col gap-[16px]">{trainings.filter((training) => training.title.toLowerCase().includes(searchValue.toLowerCase())).map((training) => <TrainingStoreTile key={training.id} training={training} />)}</div>}

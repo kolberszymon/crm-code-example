@@ -153,7 +153,21 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
       },
       {
         accessorKey: "topUpAmount",
-        header: "Kwota zasilenia",
+        header: "Zasilenie brutto",
+        cell: ({ getValue, row, column, table }) => (
+          <div className="flex items-center justify-start">
+            <TopUpAmountCell
+              getValue={getValue}
+              row={row}
+              column={column}
+              table={table}
+            />
+          </div>
+        ),
+      },
+      {
+        accessorKey: "pit4Amount",
+        header: "PIT-4",
         cell: ({ getValue, row, column, table }) => (
           <div className="flex items-center justify-start">
             <TopUpAmountCell

@@ -97,6 +97,9 @@ export default function Home() {
     { label: "Powtarzalna płatność", key: "recurrentPaymentOn" },
   ];
 
+  if (isPending) {
+    return <div className="flex justify-center items-center h-screen">Ładowanie...</div>
+  }
 
   return (
     <AdminLayout path={["Merchant", "Rozliczenia z pracownikami"]}>

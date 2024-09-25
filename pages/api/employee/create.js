@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         ],
       },
     });
-
+    
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Pracownik z tym emailem lub telefonem już istnieje' });
     }
@@ -43,8 +43,8 @@ export default async function handler(req, res) {
 
       const newUser = await prisma.user.create({
         data: {
-          email,
-          phone,
+          email: email.length > 0 ? email : null,
+          phone: phone.length > 0 ? phone : null,
           role: Role.EMPLOYEE,
           hashedPassword
         },

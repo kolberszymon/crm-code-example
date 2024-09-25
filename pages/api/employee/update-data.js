@@ -43,13 +43,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: 'Pracownik z tym id nie istnieje' });
     }
 
-    const existingUser = await prisma.user.findFirst({
+    const existingUser = await prisma.user.findUnique({
       where: {
-        OR: [
-          { email: email },
-          { phone: phone },
-        ],
-      },
+        id: existingEmployee.user.id
+      }
     });
 
     if (existingUser && existingUser.id !== existingEmployee.user.id) {
@@ -57,17 +54,25 @@ export default async function handler(req, res) {
     }
 
     await prisma.$transaction(async (prisma) => {
+      await prisma.user.update({
+        where: {
+          id: existingEmployee.user.id,
+        },
+        data: {
+          email,
+          phone,
+        },
+      });
+
       const newEmployee = await prisma.employeeData.update({
         where: {
           id: existingEmployee.id,
         },
         data: {
           firstName,
-          lastName,
-          email,
+          lastName,          
           pesel,
-          idPassportNumber,
-          phone,
+          idPassportNumber,          
           accountNumber,
           country,
           postalCode,

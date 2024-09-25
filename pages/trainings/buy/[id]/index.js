@@ -123,7 +123,7 @@ export default function Trainings() {
                     })}
                     type="text"
                     placeholder="Imię"
-                    className="px-[16px] py-[10px] text-sm font-semibold flex-1 outline-none rounded-md"
+                    className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                   />
                 </div>
               </div>
@@ -143,7 +143,7 @@ export default function Trainings() {
                     })}
                     type="text"
                     placeholder="Email"
-                    className="px-[16px] py-[10px] text-sm font-semibold flex-1 outline-none rounded-md"
+                    className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                   />
                 </div>
               </div>
@@ -159,7 +159,7 @@ export default function Trainings() {
                     })}
                     type="text"
                     placeholder="Powtórz adres email"
-                    className="px-[16px] py-[10px] text-sm font-semibold flex-1 outline-none rounded-md"
+                    className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                   />
                 </div>
               </div>
