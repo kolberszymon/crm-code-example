@@ -20,9 +20,28 @@ export default async function handler(req, res) {
               include: {
                 user: true
               }
+            },
+            employeeData: {
+              include: {
+                user: true
+              }
+            }        
+          }
+        },
+        from: {
+          select: {
+            merchantData: {
+              include: {
+                user: true
+              }
+            },
+            employeeData: {
+              include: {
+                user: true
+              }
             }            
           }
-        }                
+        }                     
       },
       where: { id }
     });

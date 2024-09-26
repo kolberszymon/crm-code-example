@@ -45,7 +45,7 @@ export default async function handler(req, res) {
         await prisma.transaction.create({
           data: {
             type: TransactionType.TRANSFER_TOKENS,
-            transactionAmount: employee.topUpAmount,
+            transactionAmount: employee.topUpAmount + employee.pit4Amount,
             fromId: admin.id,
             toId: employee.merchantUserId,
           }
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
         await prisma.transaction.create({
           data: {
             type: TransactionType.TRANSFER_TOKENS,
-            transactionAmount: employee.topUpAmount - employee.pit4Amount,
+            transactionAmount: employee.topUpAmount,
             pit4Amount: employee.pit4Amount,
             fromId: employee.merchantUserId,
             toId: employee.id,
@@ -83,26 +83,27 @@ export default async function handler(req, res) {
           await prisma.transaction.create({
             data: {
               type: TransactionType.TRANSFER_TOKENS,
-              transactionAmount: employee.topUpAmount - employee.pit4Amount,
+              transactionAmount: employee.topUpAmount,
               pit4Amount: employee.pit4Amount,
               fromId: employee.id,
               toId: admin.id,
               merchantId: employee.merchantUserId,
               transactionStatus: TransactionStatus.DO_ROZLICZENIA,
               transferStatus: TransferStatus.NIEROZLICZONE,
-              createdAt: addSeconds(new Date(), 3)
+              createdAt: addSeconds(new Date(), 3),
+              wasPaymentAutomatic: true
             }
           })
         } else {
           // Decrement admin tokens
           await prisma.user.update({
             where: { id: admin.id },
-            data: { tokens: { decrement: employee.topUpAmount - employee.pit4Amount} }
+            data: { tokens: { decrement: employee.topUpAmount} }
           });
 
           await prisma.user.update({
             where: { id: employee.id },
-            data: { tokens: { increment: employee.topUpAmount - employee.pit4Amount } }
+            data: { tokens: { increment: employee.topUpAmount } }
           })
         }
       })

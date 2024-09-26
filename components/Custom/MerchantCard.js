@@ -30,7 +30,9 @@ export const MerchantCard = ({ item, openModal }) => (
       <Link href={`/admin/employees?searchValue=${item.merchantCompany}`}>
         <ButtonGray title="Pracownicy" />
       </Link>
-      <ButtonWhiteWithBorder title="Rozlicz pracowników" onPress={() => {}} />
+      <Link href={`/admin/employees/payoff?searchValue=${item.merchantCompany}`}>
+        <ButtonWhiteWithBorder title="Rozlicz pracowników"/>
+      </Link>
     </div>
   </div>
 );

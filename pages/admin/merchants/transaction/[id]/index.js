@@ -121,7 +121,7 @@ export default function MerchantView() {
               Nazwa merchanta:
             </p>
             <div className="flex flex-row items-center gap-[4px]">
-              <MerchantType type={"View"} />
+              <MerchantType type={transaction?.to.merchantData?.accountType} />
               <p className="text-zinc-600 text-xs font-normal">
                 {transaction?.to.merchantData?.merchantName}
               </p>
@@ -142,7 +142,54 @@ export default function MerchantView() {
               Numer konta:
             </p>
             <p className="text-zinc-600 text-xs font-normal">
-              {transaction?.to.merchantData?.accountNumber}
+              {transaction?.to.merchantData?.accountNumber?.length > 0 ? transaction?.to.merchantData?.accountNumber : "-"}
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 border rounded-md mb-[16px]">
+          <h4 className="text-zinc-800 text-sm font-semibold leading-[21px]">
+            Nadawca
+          </h4>
+          <Link href={`/admin/merchants/view/${transaction?.from?.merchantData?.id}`} className="flex flex-row mb-[24px]">
+            <p className="text-zinc-600 text-xs font-normal">
+              zobacz szczegóły nadawcy
+            </p>
+            <Image
+              src="/icons/forward-icon.svg"
+              width={16}
+              height={16}
+              alt="forward icon"
+            />
+          </Link>
+
+          <div className="flex flex-col mb-[16px]">
+            <p className="text-zinc-800 text-xs font-medium leading-normal">
+              Nazwa merchanta:
+            </p>
+            <div className="flex flex-row items-center gap-[4px]">
+              <MerchantType type={transaction?.from.merchantData?.accountType} />
+              <p className="text-zinc-600 text-xs font-normal">
+                {transaction?.from.merchantData?.merchantName}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col mb-[16px]">
+            <p className="text-zinc-800 text-xs font-medium leading-normal">
+              Email:
+            </p>
+            <p className="text-zinc-600 text-xs font-normal">
+              {transaction?.from.merchantData?.user?.email}
+            </p>
+          </div>
+
+          <div className="flex flex-col mb-[16px]">
+            <p className="text-zinc-800 text-xs font-medium leading-normal">
+              Numer konta:
+            </p>
+            <p className="text-zinc-600 text-xs font-normal">
+              {transaction?.from.merchantData?.accountNumber?.length > 0 ? transaction?.from.merchantData?.accountNumber : "-"}
             </p>
           </div>
         </div>

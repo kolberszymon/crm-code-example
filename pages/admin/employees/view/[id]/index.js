@@ -2,7 +2,6 @@ import { MainComponent } from "@/components/MainComponent";
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
 import { StatusTile } from "@/components/Custom/StatusTile";
-import { MulticolorTitleTile } from "@/components/Custom/MulticolorTitleTile";
 import Image from "next/image";
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
@@ -10,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { format } from "date-fns";
 import Link from "next/link";
+import { MerchantType } from "@/components/Custom/MerchantType";
 
 const getPaymentFrequency = (frequency) => {
   switch (frequency) {
@@ -97,8 +97,8 @@ export default function EmployeeView() {
             {employee.recurrentPaymentOn && (
             <>
             <div>
-                  <label className="text-zinc-800 text-xs font-medium leading-normal">
-                Wartość kwoty przesyłanej cyklicznie
+              <label className="text-zinc-800 text-xs font-medium leading-normal">
+                Wartość kwoty przesyłanej cyklicznie netto
               </label>
               <div className="flex flex-row gap-[8px] items-center">
                 <Image
@@ -108,6 +108,20 @@ export default function EmployeeView() {
                   alt="Coin"
                 />
                 <p className="text-xs text-zinc-600 font-normal">{employee.paymentAmount}</p>
+              </div>
+            </div>
+            <div>
+              <label className="text-zinc-800 text-xs font-medium leading-normal">
+                Wartość PIT-4
+              </label>
+              <div className="flex flex-row gap-[8px] items-center">
+                <Image
+                  src="/icons/coin.svg"
+                  width={16}
+                  height={16}
+                  alt="Coin"
+                />
+                <p className="text-xs text-zinc-600 font-normal">{employee.paymentAmountPit}</p>
               </div>
             </div>
             <div>
@@ -154,11 +168,7 @@ export default function EmployeeView() {
                 Nazwa Firmy
               </label>
               <div className="flex flex-row gap-[8px] items-center">
-                {employee.merchant.accountType === "View" ? (
-                  <MulticolorTitleTile title="View" color="blue" />
-                ) : (
-                  <MulticolorTitleTile title="Edit" color="orange" />
-                )}
+                <MerchantType type={employee.merchant.accountType} />
                 <p className="text-xs text-zinc-600 font-normal">
                   {employee.merchant.merchantName}
                 </p>
@@ -189,13 +199,13 @@ export default function EmployeeView() {
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Email
               </label>
-              <p className="text-xs text-zinc-600 font-normal">{employee.user.email.length > 0 ? employee.user.email : "-"}</p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.user?.email?.length > 0 ? employee.user.email : "-"}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Pesel
               </label>
-              <p className="text-xs text-zinc-600 font-normal">{employee.pesel.length > 0 ? employee.pesel : "-"}</p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.pesel?.length > 0 ? employee.pesel : "-"}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
@@ -209,14 +219,14 @@ export default function EmployeeView() {
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Dowód osobisty lub paszport
               </label>
-              <p className="text-xs text-zinc-600 font-normal">{employee.idPassportNumber.length > 0 ? employee.idPassportNumber : "-"}</p>
+              <p className="text-xs text-zinc-600 font-normal">{employee.idPassportNumber?.length > 0 ? employee.idPassportNumber : "-"}</p>
             </div>
             <div>
               <label className="text-zinc-800 text-xs font-medium leading-normal">
                 Numer konta
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.accountNumber.length > 0 ? employee.accountNumber : "-"}
+                {employee.accountNumber?.length > 0 ? employee.accountNumber : "-"}
               </p>
             </div>
           </div>
@@ -233,7 +243,7 @@ export default function EmployeeView() {
                 Kraj
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.country.length > 0 ? employee.country : "-"}
+                {employee.country?.length > 0 ? employee.country : "-"}
               </p>
             </div>
             <div>
@@ -241,7 +251,7 @@ export default function EmployeeView() {
                 Kod pocztowy
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.postalCode.length > 0 ? employee.postalCode : "-"}
+                {employee.postalCode?.length > 0 ? employee.postalCode : "-"}
               </p>
             </div>
             <div>
@@ -249,7 +259,7 @@ export default function EmployeeView() {
                 Miejscowość
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.city.length > 0 ? employee.city : "-"}
+                {employee.city?.length > 0 ? employee.city : "-"}
               </p>
             </div>
             <div>
@@ -257,7 +267,7 @@ export default function EmployeeView() {
                 Ulica
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.street.length > 0 ? employee.street : "-"}
+                {employee.street?.length > 0 ? employee.street : "-"}
               </p>
             </div>
             <div>
@@ -265,7 +275,7 @@ export default function EmployeeView() {
                 Nr domu
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.houseNumber.length > 0 ? employee.houseNumber : "-"}
+                {employee.houseNumber?.length > 0 ? employee.houseNumber : "-"}
               </p>
             </div>
             <div>
@@ -273,7 +283,7 @@ export default function EmployeeView() {
                 Nr mieszkania
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.apartmentNumber.length > 0
+                {employee.apartmentNumber?.length > 0
                   ? employee.apartmentNumber
                   : "-"}
               </p>

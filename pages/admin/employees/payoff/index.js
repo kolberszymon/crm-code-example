@@ -11,9 +11,11 @@ import AdminLayout from "@/components/Layouts/AdminLayout";
 import { EmployeesPayoffTable } from "@/components/Tables/EmployeesPayoffTable";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CSVLink } from "react-csv";
+import { useRouter } from "next/router";
 
 export default function Home() {
-  const [searchValue, setSearchValue] = useState(null);
+  const router = useRouter()
+  const [searchValue, setSearchValue] = useState("");
   const [merchantType, setMerchantType] = useState("");
   const [paymentType, setPaymentType] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
@@ -88,6 +90,12 @@ export default function Home() {
     }));
     setCsvData(data);
   }, [selectedRowValues]);
+
+  useEffect(() => {
+    if (router.isReady) {
+      setSearchValue(router.query.searchValue ?? "")
+    }
+  }, [router])
 
   const csvHeaders = [
     { label: "Imię i nazwisko pracownika", key: "employeeName" },

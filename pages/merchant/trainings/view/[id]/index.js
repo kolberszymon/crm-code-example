@@ -75,24 +75,7 @@ export default function Home() {
             {training.description}
           </p>
         </div>
-
-        {/* File Download Section */}
-        <Link href={training.fileUrl} download target="_blank">
-        <div className="flex flex-col items-start mt-6">
-          <label
-            htmlFor="file-upload"
-            className="flex flex-row items-center border border-main-gray rounded-md px-[12px] py-[8px] gap-2 hover:bg-main-gray cursor-pointer"
-          >
-            <Image src="/icons/download-file-icon.svg" width={24} height={24} />
-            <div>
-              <p className="text-dark-green text-xs font-semibold">
-                Plik szkolenia
-              </p>
-              <p className="text-xs text-gray-400">Pobierz pdf</p>
-            </div>            
-          </label>
-        </div>
-        </Link>
+        
       </MainComponent>
     </MerchantLayout>
   );

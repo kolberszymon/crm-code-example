@@ -57,8 +57,8 @@ export default async function handler(req, res) {
         await prisma.transaction.create({
           data: {
             type: TransactionType.TRANSFER_TOKENS,
-            balanceAfter: employee.balance + employee.topUpAmount - employee.pit4Amount,
-            transactionAmount: employee.topUpAmount - employee.pit4Amount,
+            balanceAfter: employee.balance + employee.topUpAmount,
+            transactionAmount: employee.topUpAmount,
             pit4Amount: employee.pit4Amount,
             fromId: merchant.id,
             toId: employee.id,
@@ -91,21 +91,22 @@ export default async function handler(req, res) {
           await prisma.transaction.create({
             data: {
               type: TransactionType.TRANSFER_TOKENS,
-              transactionAmount: employee.topUpAmount - employee.pit4Amount,              
+              transactionAmount: employee.topUpAmount,              
               pit4Amount: employee.pit4Amount,
               fromId: employee.id,
               toId: admin.id,
               merchantId: employee.merchantUserId,
               transactionStatus: TransactionStatus.DO_ROZLICZENIA,
               transferStatus: TransferStatus.NIEROZLICZONE,
-              createdAt: addSeconds(new Date(), 2)
+              createdAt: addSeconds(new Date(), 2),
+              wasPaymentAutomatic: true
             }
           })
         } else {
           // If there's no automatic return on, increment employee tokens
           await prisma.user.update({
             where: { id: employee.id },
-            data: { tokens: { increment: employee.topUpAmount - employee.pit4Amount } }
+            data: { tokens: { increment: employee.topUpAmount } }
           })
         }
       })

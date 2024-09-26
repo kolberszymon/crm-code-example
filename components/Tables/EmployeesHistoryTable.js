@@ -38,7 +38,7 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   );
 }
 
-export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchValue, selectedTransactionStatus, selectedTransferStatus, date }) => {
+export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchValue, selectedTransactionStatus, selectedTransferStatus, date, role = "admin" }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
@@ -126,16 +126,21 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
         header: "Numer konta",
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
-            <button onClick={() => navigator.clipboard.writeText(getValue())}>
-              <Icons.CopyImage w={16} h={16} />
-            </button>
-            {truncate(getValue())}
+            {getValue().length > 0 ? (
+              <>
+                <button onClick={() => navigator.clipboard.writeText(getValue())}>
+                  <Icons.CopyImage w={16} h={16} />
+                </button>
+                {truncate(getValue())}
+              </>
+            ): '-'}
+            
           </div>
         ),
       },
       {
         accessorKey: "amount",
-        header: "Tokeny",
+        header: "Wartość netto",
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
@@ -172,7 +177,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
           <></>;
         },
         cell: ({ row }) => (
-          <Link href={`/admin/employees/transaction/${row.original.id}`}>
+          <Link href={`/${role}/employees/transaction/${row.original.id}`}>
             <button className="flex items-center justify-start gap-1 bg-[#f6f7f8] p-[4px] rounded-full hover:bg-gray-200 transition-colors">
               <Icons.EyeImage w={16} h={16} />
             </button>

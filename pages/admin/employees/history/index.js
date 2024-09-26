@@ -174,8 +174,6 @@ export default function Home() {
                 extraCss="my-[32px]"
               />
               <DatePickerWithRange className="w-[235px] bg-white border border-zinc-400 rounded-md" date={date} setDate={setDate}/>
-            </div>
-            <div className="flex flex-row items-start gap-[8px]">
               <SelectDropdown
                 value={selectedTransactionStatus}
                 setValue={setSelectedTransactionStatus}

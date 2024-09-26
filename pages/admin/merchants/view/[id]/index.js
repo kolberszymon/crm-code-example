@@ -141,7 +141,7 @@ export default function MerchantView() {
                 Numer telefonu
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.user.phone.length > 0 ? merchant.user.phone : "-"}
+                {merchant.user?.phone?.length > 0 ? merchant.user.phone : "-"}
               </p>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function MerchantView() {
                 Numer konta
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.accountNumber.length > 0 ? merchant.accountNumber : "-"}
+                {merchant.accountNumber?.length > 0 ? merchant.accountNumber : "-"}
               </p>
             </div>
           </div>
@@ -183,7 +183,7 @@ export default function MerchantView() {
                 Kraj
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.country.length > 0 ? merchant.country : "-"}
+                {merchant.country?.length > 0 ? merchant.country : "-"}
               </p>
             </div>
             <div>
@@ -191,7 +191,7 @@ export default function MerchantView() {
                 Kod pocztowy
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.postalCode.length > 0 ? merchant.postalCode : "-"}
+                {merchant.postalCode?.length > 0 ? merchant.postalCode : "-"}
               </p>
             </div>
             <div>
@@ -199,7 +199,7 @@ export default function MerchantView() {
                 Miejscowość
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.city.length > 0 ? merchant.city : "-"}
+                {merchant.city?.length > 0 ? merchant.city : "-"}
               </p>
             </div>
             <div>
@@ -207,7 +207,7 @@ export default function MerchantView() {
                 Ulica
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.street.length > 0 ? merchant.street : "-"}
+                {merchant.street?.length > 0 ? merchant.street : "-"}
               </p>
             </div>
             <div>
@@ -215,7 +215,7 @@ export default function MerchantView() {
                 Nr domu
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.houseNumber.length > 0 ? merchant.houseNumber : "-"}
+                {merchant.houseNumber?.length > 0 ? merchant.houseNumber : "-"}
               </p>
             </div>
             <div>
@@ -223,7 +223,7 @@ export default function MerchantView() {
                 Nr mieszkania
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.apartmentNumber.length > 0 ? merchant.apartmentNumber : "-"}
+                {merchant.apartmentNumber?.length > 0 ? merchant.apartmentNumber : "-"}
               </p>
             </div>
           </div>
@@ -241,7 +241,7 @@ export default function MerchantView() {
                 Kraj
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.billingCountry.length > 0 ? merchant.billingCountry : "-"}
+                {merchant.billingCountry?.length > 0 ? merchant.billingCountry : "-"}
               </p>
             </div>
             <div>
@@ -249,7 +249,7 @@ export default function MerchantView() {
                 Kod pocztowy
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.billingPostalCode.length > 0 ? merchant.billingPostalCode : "-"}
+                {merchant.billingPostalCode?.length > 0 ? merchant.billingPostalCode : "-"}
               </p>
             </div>
             <div>
@@ -257,7 +257,7 @@ export default function MerchantView() {
                 Miejscowość
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.billingCity.length > 0 ? merchant.billingCity : "-"}
+                {merchant.billingCity?.length > 0 ? merchant.billingCity : "-"}
               </p>
             </div>
             <div>
@@ -265,7 +265,7 @@ export default function MerchantView() {
                 Ulica
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.billingStreet.length > 0 ? merchant.billingStreet : "-"}
+                {merchant.billingStreet?.length > 0 ? merchant.billingStreet : "-"}
               </p>
             </div>
             <div>
@@ -273,7 +273,7 @@ export default function MerchantView() {
                 Nr domu
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.billingHouseNumber.length > 0 ? merchant.billingHouseNumber : "-"}
+                {merchant.billingHouseNumber?.length > 0 ? merchant.billingHouseNumber : "-"}
               </p>
             </div>
             <div>
@@ -281,7 +281,7 @@ export default function MerchantView() {
                 Nr mieszkania
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.billingApartmentNumber.length > 0 ? merchant.billingApartmentNumber : "-"}
+                {merchant.billingApartmentNumber?.length > 0 ? merchant.billingApartmentNumber : "-"}
               </p>
             </div>
             </div>

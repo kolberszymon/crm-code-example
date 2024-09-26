@@ -24,7 +24,7 @@ export default function EditEmployee() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm();
 
   const { data: employee, isPending } = useQuery({
@@ -92,8 +92,6 @@ export default function EditEmployee() {
       body.startDate = null;
     }
 
-    console.log(body)
-
     updateEmployeeMutation.mutate(body);
   };
 
@@ -137,7 +135,7 @@ export default function EditEmployee() {
                 <>
               <div className="w-1/4">
                 <label className="block text-sm font-medium mb-2">
-                  Wartość kwoty przesyłanej cyklicznie brutto
+                  Wartość kwoty przesyłanej cyklicznie netto
                 </label>
                 <div className="flex flex-row border border-gray-300 rounded-md pl-[8px] items-center">
                   <Image
@@ -148,9 +146,8 @@ export default function EditEmployee() {
                   />
                   <input
                     type="text"
-                    className="text-sm p-[8px] flex-1 outline-none rounded-md"
-                    placeholder="10000"
-                    defaultValue={employee.paymentAmount}
+                    className="text-sm p-[8px] flex-1 outline-none rounded-md"                    
+                    defaultValue={employee.paymentAmount ? employee.paymentAmount : 0}
                     {...register("paymentAmount", {
                       validate: (value) => {
                         if (recurrentPayment && !value) {
@@ -186,12 +183,14 @@ export default function EditEmployee() {
                   <input
                     type="text"
                     className="text-sm p-[8px] flex-1 outline-none rounded-md"                                                 
+                    defaultValue={employee.paymentAmountPit ? employee.paymentAmountPit : 0}
                     {...register("paymentAmountPit", {
                       required: recurrentPayment ?  "Wartość kwoty jest wymagana" : false,
                       pattern: {
                         value: /^[0-9]+$/,
                         message: "Wartość musi być liczbą",
                       },
+                      valueAsNumber: true,
                     })}
                   />
                 </div>

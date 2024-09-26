@@ -13,6 +13,7 @@ import { TransferStatus } from "@/components/Custom/TransferStatus";
 import { MulticolorTitleTile } from "@/components/Custom/MulticolorTitleTile";
 import { EmployeeTransactionSender } from "@/components/Custom/EmployeeTransactionSender";
 import { EmployeeTransactionRecipient } from "@/components/Custom/EmployeeTransactionRecipient";
+import MerchantLayout from "@/components/Layouts/MerchantLayout";
 
 
 const formatTransaction = (transaction) => {
@@ -91,14 +92,14 @@ export default function MerchantView() {
 
   if (isPending) {
     return (
-      <AdminLayout path={["Merchant", "Rozliczenia z merchantami", "Szczegóły transakcji"]}>
-        <MainComponent><p>Ładowanie...</p></MainComponent>
-      </AdminLayout>
+      <div className="flex items-center justify-center h-screen">
+        <p>Ładowanie...</p>
+      </div>
     )
   }  
 
   return (
-    <AdminLayout path={["Merchant", "Rozliczenia z merchantami", "Szczegóły transakcji"]}>
+    <MerchantLayout path={["Merchant", "Rozliczenia z merchantami", "Szczegóły transakcji"]}>
       <MainComponent>
         <h3 className="text-zinc-950 text-base font-semibold leading-normal mb-[32px]">
           Szczegóły transakcji
@@ -229,6 +230,6 @@ export default function MerchantView() {
         
     
       </MainComponent>
-    </AdminLayout>
+    </MerchantLayout>
   );
 }

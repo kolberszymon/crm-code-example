@@ -78,7 +78,7 @@ export default function Settings() {
         <div className="mb-4">
           <h3 className="text-lg font-semibold">Ustawienia</h3>
         </div>
-        <div className="flex flex-col bg-white p-6 rounded-md border border-main-gray w-full">
+        <div className="flex flex-col bg-white p-6 rounded-md border border-main-gray w-full mb-[10px]">
           <h4 className="text-base font-semibold mb-[24px]">Dane merchanta</h4>
           <div className="flex flex-row">
             <div className=" mb-[16px] w-[50%]">

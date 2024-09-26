@@ -23,6 +23,7 @@ export default async function handler(req, res) {
     recurrentPaymentOn,
     startDate,
     paymentAmount,
+    paymentAmountPit,
     paymentFrequency,
     id
   } = req.body;
@@ -43,26 +44,42 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: 'Pracownik z tym id nie istnieje' });
     }
 
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findFirst({
       where: {
-        id: existingEmployee.user.id
-      }
+        OR: [
+          { email },
+          { phone },
+        ],
+      },
     });
-
+    
     if (existingUser && existingUser.id !== existingEmployee.user.id) {
-      return res.status(400).json({ success: false, message: 'Użytkownik z tym emailem lub telefonem już istnieje' });
+      return res.status(400).json({ success: false, message: 'Pracownik z tym emailem lub telefonem już istnieje' });
     }
 
     await prisma.$transaction(async (prisma) => {
-      await prisma.user.update({
-        where: {
+      if (email && email.length > 0) {
+        await prisma.user.update({
+          where: {
           id: existingEmployee.user.id,
         },
         data: {
-          email,
-          phone,
+          email,          
+          },
+        });
+      }
+
+      if (phone && phone.length > 0) {
+        await prisma.user.update({
+          where: {
+          id: existingEmployee.user.id,
         },
-      });
+        data: {
+          phone,          
+          },
+        });
+      }
+
 
       const newEmployee = await prisma.employeeData.update({
         where: {
@@ -84,6 +101,7 @@ export default async function handler(req, res) {
           recurrentPaymentOn,
           startDate,
           paymentAmount,
+          paymentAmountPit,
           paymentFrequency
         },
       });

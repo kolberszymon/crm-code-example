@@ -8,8 +8,8 @@ export default function Home() {
   return (
     <main className={`flex flex-col items-center justify-center h-screen w-full ${colorTheme === 'light' ? 'bg-[#fafdfc]' : 'bg-[#002d21]'}`}>
       <Image src={colorTheme === 'dark' ? 'logo-white.svg' : 'logo.svg'} alt="logo" width={296} height={74} className='mb-[80px]'/>
-      <p className={`text-[120px] mb-[32px] font-bold ${colorTheme === 'light' ? 'text-[#002d21]' : 'text-white'}`}>NADCHODZIMY</p>
-      <p className={`text-[28px] mb-[120px] text-center font-medium ${colorTheme === 'light' ? 'text-[#002d21]' : 'text-white'}`}>
+      <p className={`text-[40px] md:text-[60px] lg:text-[120px] mb-[32px] font-bold ${colorTheme === 'light' ? 'text-[#002d21]' : 'text-white'}`}>NADCHODZIMY</p>
+      <p className={`text-[15px] md:text-[28px] mb-[120px] text-center font-medium ${colorTheme === 'light' ? 'text-[#002d21]' : 'text-white'}`}>
         Jesteśmy w trakcie tworzenia czegoś niesamowitego <br />
         System będzie wkrótce dostępny.
       </p>

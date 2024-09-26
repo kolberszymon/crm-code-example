@@ -52,7 +52,8 @@ export default async function handler(req, res) {
 
       const newEmployeeData = {
         ...req.body,
-        paymentAmount: Number(req.body.paymentAmount),
+        paymentAmount: req.body.paymentAmount ? req.body.paymentAmount : null,
+        paymentAmountPit: req.body.paymentAmountPit ? req.body.paymentAmountPit : null,
         merchant: { connect: { id: merchantId } },
         user: { connect: { id: newUser.id } }
       }

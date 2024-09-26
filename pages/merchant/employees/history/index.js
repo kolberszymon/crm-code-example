@@ -222,13 +222,14 @@ export default function Home() {
             </CSVLink>
           </div>
         </div>
-        <EmployeesHistoryTable
+        <EmployeesHistoryTable          
           tableData={transactions || []}
           setSelectedRowValues={setSelectedRowValues}
           searchValue={searchValue}
           selectedTransactionStatus={selectedTransactionStatus}
           selectedTransferStatus={selectedTransferStatus}
           date={date}
+          role="merchant"
         />
 
         {/* Modal */}

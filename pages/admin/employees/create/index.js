@@ -26,7 +26,7 @@ export default function CreateEmployee() {
     register,
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm();
 
   const { data: merchantsOptions, isPending} = useQuery({
@@ -120,7 +120,7 @@ export default function CreateEmployee() {
                 <>
               <div className="w-1/4">
                 <label className="block text-sm font-medium mb-2">
-                  Wartość kwoty przesyłanej cyklicznie brutto
+                  Wartość kwoty przesyłanej cyklicznie netto
                 </label>
                 <div className="flex flex-row border border-gray-300 rounded-md pl-[8px] items-center">
                   <Image
@@ -138,7 +138,8 @@ export default function CreateEmployee() {
                         value: /^[0-9]+$/,
                         message: "Wartość musi być liczbą",
                       },
-                    })}
+                      valueAsNumber: true,
+                    })}                    
                   />
                 </div>
                 {errors.paymentAmount && (
@@ -168,6 +169,7 @@ export default function CreateEmployee() {
                         value: /^[0-9]+$/,
                         message: "Wartość musi być liczbą",
                       },
+                      valueAsNumber: true,
                     })}
                   />
                 </div>
