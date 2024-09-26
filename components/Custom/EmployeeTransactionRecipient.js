@@ -48,7 +48,7 @@ export const EmployeeTransactionRecipient = ({ to }) => {
               Numer konta:
             </p>
             <p className="text-zinc-600 text-xs font-normal">
-              {to.merchantData.accountNumber.length > 0 ? to.merchantData.accountNumber : '-'}
+              {to.merchantData.accountNumber?.length > 0 ? to.merchantData.accountNumber : '-'}
             </p>
           </div>
         </div>

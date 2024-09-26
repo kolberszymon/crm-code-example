@@ -57,7 +57,7 @@ export default async function handler(req, res) {
         await prisma.transaction.create({
           data: {
             type: TransactionType.TRANSFER_TOKENS,
-            balanceAfter: employee.balance + employee.topUpAmount,
+            balanceAfter: employee.balance + employee.topUpAmount, // to ma sens bo balance przesyłamy z componentu, nie z bazy danych
             transactionAmount: employee.topUpAmount,
             pit4Amount: employee.pit4Amount,
             fromId: merchant.id,

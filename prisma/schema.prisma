@@ -169,6 +169,7 @@ enum TransactionType {
   GENERATE_TOKENS
   TRANSFER_TOKENS
   TRANSFER_TOKENS_PIT
+  TRANSFER_TOKENS_RECURRENT
 }
 
 enum TransactionStatus {

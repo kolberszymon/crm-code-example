@@ -48,7 +48,7 @@ export const EmployeeTransactionSender = ({ from }) => {
               Numer konta:
             </p>
             <p className="text-zinc-600 text-xs font-normal">
-              {from.merchantData.accountNumber.length > 0 ? from.merchantData.accountNumber : '-'}
+              {from.merchantData.accountNumber?.length > 0 ? from.merchantData.accountNumber : '-'}
             </p>
           </div>
         </div>
@@ -113,7 +113,7 @@ export const EmployeeTransactionSender = ({ from }) => {
           </p>
           <div className="flex flex-row items-center gap-[4px]">              
             <p className="text-zinc-600 text-xs font-normal">
-              {from.employeeData.email.length > 0 ? from.employeeData.email : '-'}
+              {from.employeeData.email?.length > 0 ? from.employeeData.email : '-'}
             </p>
           </div>
         </div>
@@ -124,7 +124,7 @@ export const EmployeeTransactionSender = ({ from }) => {
           </p>
           <div className="flex flex-row items-center gap-[4px]">              
             <p className="text-zinc-600 text-xs font-normal">
-              {from.employeeData.accountNumber.length > 0 ? from.employeeData.accountNumber : 'Nie podano'}
+              {from.employeeData.accountNumber?.length > 0 ? from.employeeData.accountNumber : 'Nie podano'}
             </p>
           </div>
         </div>
