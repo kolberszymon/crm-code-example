@@ -1,5 +1,3 @@
-"use client";
-
 import { MainComponent } from "@/components/MainComponent";
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";

@@ -1,5 +1,3 @@
-"use client";
-
 import { AuthLayout } from "@/components/Layouts/AuthLayout";
 import Image from "next/image";
 import { useState } from "react";

@@ -1,10 +1,7 @@
-"use client";
-
 import { useState } from "react";
 import { ButtonGreen } from "../Buttons/ButtonGreen";
 import { SearchBar } from "../Inputs/SearchBar";
 import Link from "next/link";
-import { NotificationBell } from "./NotificationBell";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
 

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { ButtonGray } from "../Buttons/ButtonGray";
 import { ButtonGreen } from "../Buttons/ButtonGreen";
@@ -7,7 +5,6 @@ import { SearchBar } from "../Inputs/SearchBar";
 
 import Link from "next/link";
 import { NotificationBell } from "./NotificationBell";
-import { showToastNotificationSuccess } from "../Custom/ToastNotification";
 
 export const HeaderAdmin = () => {
   const [searchValue, setSearchValue] = useState("");

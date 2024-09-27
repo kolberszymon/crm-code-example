@@ -1,5 +1,3 @@
-"use client";
-
 export const ButtonRed = ({ title, onPress }) => {
   return (
     <button

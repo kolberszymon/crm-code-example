@@ -1,5 +1,3 @@
-"use client";
-
 export const ButtonMustard = ({ title, onPress }) => {
   return (
     <button

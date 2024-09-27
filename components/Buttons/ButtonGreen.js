@@ -1,5 +1,3 @@
-"use client";
-
 export const ButtonGreen = ({ title, onPress, disabled = false, type = "button" }) => {
   return (
     <button

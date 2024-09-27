@@ -1,5 +1,3 @@
-"use client";
-
 export const ButtonWhiteWithBorder = ({ title, onPress, type }) => {
   return (
     <button
