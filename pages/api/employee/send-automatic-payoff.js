@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/init/prisma';
 import { TransactionType } from '@prisma/client';
-import { addDays, differenceInDays, isSameDay, startOfDay } from 'date-fns';
+import { addDays, differenceInCalendarDays, isSameDay, startOfDay } from 'date-fns';
 import { sendAutomaticMerchantEdit } from '@/lib/api-functions/sendAutomaticMerchantEdit';
 import { sendAutomaticMerchantView } from '@/lib/api-functions/sendAutomaticMerchantView';
 
@@ -8,14 +8,16 @@ function isPaymentDay(startDate, frequency) {
   const today = new Date();
   const start = new Date(startDate);
 
+  const daysDiff = differenceInCalendarDays(today, start);
+
+  console.log("daysDiff", daysDiff)
+
   if (frequency === 'WEEKLY') {
-    const daysDiff = differenceInDays(today, start);
     return daysDiff % 7 === 0;
   } else if (frequency === 'BIWEEKLY') {
-    const daysDiff = differenceInDays(today, start);
     return daysDiff % 14 === 0;
   } else if (frequency === 'MONTHLY') {
-    return today.getDate() === start.getDate();
+    return isSameDay(today, new Date(today.getFullYear(), today.getMonth(), start.getDate()));
   }
   return false;
 }
@@ -47,12 +49,16 @@ export default async function handler(req, res) {
       isPaymentDay(employee.startDate, employee.paymentFrequency)
     );
 
+    console.log("filteredEmployees", filteredEmployees)
+
     for (const employee of filteredEmployees) {
-      // 1. Check if transaction TRANSFER_TOKENS_RECURRENT exists for this employee today
+      // 1. Check if transaction TRANSFER_TOKENS_RECURRENT or TRANSFER_TOKENS_UNSUCCESSFUL exists for this employee today
 
       const existingTransaction = await prisma.transaction.findFirst({
         where: {
-          type: TransactionType.TRANSFER_TOKENS_RECURRENT,
+          type: {
+            in: [TransactionType.TRANSFER_TOKENS_RECURRENT, TransactionType.TRANSFER_TOKENS_UNSUCCESSFUL],
+          },
           toId: employee.user.id,
           createdAt: {
             gte: startOfDay(new Date()),
@@ -78,7 +84,7 @@ export default async function handler(req, res) {
 
       } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: error.message });
+        continue;        
       }
     }
 

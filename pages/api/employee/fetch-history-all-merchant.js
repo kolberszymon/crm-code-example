@@ -1,4 +1,5 @@
 import {prisma} from '@/lib/init/prisma';
+import { Role } from '@prisma/client';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -38,18 +39,39 @@ export default async function handler(req, res) {
         from: {
           id: user.id,
           role: {
-            in: ['MERCHANT_VIEW', 'MERCHANT_EDIT', 'ADMIN']
+            in: [Role.MERCHANT_VIEW, Role.MERCHANT_EDIT, Role.ADMIN]
           }
         },
         to: {
-          role: 'EMPLOYEE'
+          role: Role.EMPLOYEE
         }
       },      
     });
 
+    const transactionFromEmployee = await prisma.transaction.findMany({
+      include: {
+        from: {
+          include: {
+            employeeData: true
+          }
+        },
+        to: true
+      },
+      where: {
+        to: {
+          role: "ADMIN"
+        },
+        from: {
+          role: "EMPLOYEE",
+        },
+        merchantId: user.id
+      }
+    });
+
+    
 
 
-    res.status(200).json(transactions);
+    res.status(200).json(transactions.concat(transactionFromEmployee).sort((a, b) => b.createdAt - a.createdAt));
   } catch (error) {
     console.error('Error fetching employees:', error);
     res.status(500).json({ message: 'Error fetching employees' });

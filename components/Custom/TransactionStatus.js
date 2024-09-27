@@ -16,6 +16,8 @@ export const TransactionStatus = ({ status }) => {
         return 'bg-zinc-100 text-zinc-600';
       case 'zakonczono':
         return 'bg-[#d9fbe8] text-[#00a155]';
+      case 'blad_zasilenia':
+        return 'bg-[#ef4444] text-red-50';
       default:
         return 'bg-white';
     }
@@ -33,6 +35,8 @@ export const TransactionStatus = ({ status }) => {
         return 'Zakończono';
       case 'zasilono':
         return 'Zasilono';
+      case 'blad_zasilenia':
+        return 'Błąd zasilenia';
       default:
         return '-';
     }

@@ -13,6 +13,7 @@ import { TransferStatus } from "@/components/Custom/TransferStatus";
 import { MulticolorTitleTile } from "@/components/Custom/MulticolorTitleTile";
 import { EmployeeTransactionSender } from "@/components/Custom/EmployeeTransactionSender";
 import { EmployeeTransactionRecipient } from "@/components/Custom/EmployeeTransactionRecipient";
+import { TransactionStatus as PrismaTransactionStatus } from "@prisma/client";
 
 
 const formatTransaction = (transaction) => {
@@ -71,6 +72,21 @@ const formatTransaction = (transaction) => {
   }
 
   return tx
+}
+
+const formatPayment = (transaction) => {
+  if (transaction.transactionStatus === PrismaTransactionStatus.BLAD_ZASILENIA) {
+    return <MulticolorTitleTile title="Cykliczna" color="red" />
+  }
+
+  if (transaction.wasPaymentAutomatic === true) {
+    return <MulticolorTitleTile title="Auto" color="blue" />
+  }
+
+  if (transaction.wasPaymentAutomatic === false || transaction.wasPaymentAutomatic === null) {
+    return <MulticolorTitleTile title="Manualna" color="orange" />
+  }
+  
 }
 
 export default function MerchantView() {
@@ -212,9 +228,8 @@ export default function MerchantView() {
           <div className="flex flex-col items-start">
             <p className="text-zinc-800 text-xs font-medium leading-normal">
               Płatność:
-            </p>       
-            {transaction?.wasPaymentAutomatic === true && <MulticolorTitleTile title="Auto" color="blue" />}
-            {(transaction?.wasPaymentAutomatic === false || transaction?.wasPaymentAutomatic === null) && <MulticolorTitleTile title="Manualna" color="orange" />}
+            </p>
+            {formatPayment(transaction)}
           </div>
         </div>
 

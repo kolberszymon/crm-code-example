@@ -104,21 +104,6 @@ export default function Home() {
     }
   })
 
-  const { data: merchantsOptions } = useQuery({
-    queryKey: ['merchants'],
-    queryFn: async () => {
-     const res = await fetch('/api/merchant/fetch-all');
-
-     const data = await res.json();
-
-     const merchantsOptions = data.map((merchant) => ({
-      value: merchant.id,
-      label: merchant.merchantName,
-     }));
-         
-     return merchantsOptions;
-    }
-  });
 
   const updateTransactionsStatus = () => {
     changeTransactionStatus()
@@ -182,8 +167,6 @@ export default function Home() {
                 extraCss="my-[32px]"
               />
               <DatePickerWithRange className="w-[235px] bg-white border border-zinc-400 rounded-md" date={date} setDate={setDate}/>
-            </div>
-            <div className="flex flex-row items-start gap-[8px]">
               <SelectDropdown
                 value={selectedTransactionStatus}
                 setValue={setSelectedTransactionStatus}
