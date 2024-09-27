@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/init/prisma';
+import { Role } from "@prisma/client";
+import { checkIfUserIsAuthorized } from "@/helpers/checkIfUserIsAuthorized";
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,6 +8,14 @@ export default async function handler(req, res) {
   }
 
   const token = req.headers['x-user-id'];
+
+  const userId = req.headers["x-user-id"];
+  
+  try {
+    await checkIfUserIsAuthorized(userId, [Role.ADMIN, Role.MERCHANT_EDIT, Role.MERCHANT_VIEW]);
+  } catch (error) {
+    return res.status(403).json({ message: 'Unauthorized' });
+  }
 
   try {
     // Transactions to merchants can go only from admin, merchants can't transfer between other merchants

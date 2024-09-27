@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MerchantType } from "@/components/Custom/MerchantType";
 
-export const EmployeeTransactionRecipient = ({ to }) => {
+export const EmployeeTransactionRecipient = ({ to, role = "admin" }) => {
 
   if (to.type === 'merchant') {
       return (
@@ -10,8 +10,9 @@ export const EmployeeTransactionRecipient = ({ to }) => {
           <h4 className="text-zinc-800 text-sm font-semibold leading-[21px]">
             Odbiorca
           </h4>
-          <Link href={`/admin/merchants/view/${to.merchantData.id}`} className="flex flex-row mb-[24px]">
-            <p className="text-zinc-600 text-xs font-normal">
+          {role === "admin" && (
+            <Link href={`/${role}/merchants/view/${to.merchantData.id}`} className="flex flex-row mb-[24px]">
+              <p className="text-zinc-600 text-xs font-normal">
               zobacz szczegóły odbiorcy
             </p>
             <Image
@@ -19,15 +20,16 @@ export const EmployeeTransactionRecipient = ({ to }) => {
               width={16}
               height={16}
               alt="forward icon"
-            />
-          </Link>
+              />
+            </Link>
+          )}
 
-          <div className="flex flex-col mb-[16px]">
+<div className={`flex flex-col mb-[16px] ${role === "merchant" ? "mt-[24px]" : ""}`}>
             <p className="text-zinc-800 text-xs font-medium leading-normal">
               Nazwa merchanta:
             </p>
             <div className="flex flex-row items-center gap-[4px]">
-              <MerchantType type={"View"} />
+              <MerchantType type={to.merchantData.accountType} />
               <p className="text-zinc-600 text-xs font-normal">
                 {to.merchantData.merchantName}
               </p>
@@ -62,17 +64,19 @@ export const EmployeeTransactionRecipient = ({ to }) => {
           Odbiorca
         </h4>
 
-        <Link href={`/admin/employees/view/${to.employeeData.id}`} className="flex flex-row mb-[24px]">
+        
+        <Link href={`/${role}/employees/view/${to.employeeData.id}`} className="flex flex-row mb-[24px]">
           <p className="text-zinc-600 text-xs font-normal">
-            zobacz szczegóły odbiorcy
-          </p>
-          <Image
-            src="/icons/forward-icon.svg"
-            width={16}
-            height={16}
-            alt="forward icon"
+          zobacz szczegóły odbiorcy
+        </p>
+        <Image
+          src="/icons/forward-icon.svg"
+          width={16}
+          height={16}
+          alt="forward icon"
           />
         </Link>
+        
 
         <div className="flex flex-col mb-[16px]">
           <p className="text-zinc-800 text-xs font-medium leading-normal">

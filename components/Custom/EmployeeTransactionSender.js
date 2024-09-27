@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MerchantType } from "@/components/Custom/MerchantType";
 
-export const EmployeeTransactionSender = ({ from }) => {
+export const EmployeeTransactionSender = ({ from, role = "admin" }) => {
 
   if (from.type === 'merchant') {
       return (
@@ -10,24 +10,26 @@ export const EmployeeTransactionSender = ({ from }) => {
           <h4 className="text-zinc-800 text-sm font-semibold leading-[21px]">
             Nadawca
           </h4>
-          <Link href={`/admin/merchants/view/${from.merchantData.id}`} className="flex flex-row mb-[24px]">
-            <p className="text-zinc-600 text-xs font-normal">
-              zobacz szczegóły nadawcy
-            </p>
-            <Image
-              src="/icons/forward-icon.svg"
-              width={16}
-              height={16}
-              alt="forward icon"
-            />
-          </Link>
+          {role === "admin" && (
+            <Link href={`/${role}/merchants/view/${from.merchantData.id}`} className="flex flex-row mb-[24px]">
+              <p className="text-zinc-600 text-xs font-normal">
+                zobacz szczegóły nadawcy
+              </p>
+              <Image
+                src="/icons/forward-icon.svg"
+                width={16}
+                height={16}
+                alt="forward icon"
+              />
+            </Link>
+          )}
 
-          <div className="flex flex-col mb-[16px]">
+          <div className={`flex flex-col mb-[16px] ${role === "merchant" ? "mt-[24px]" : ""}`}>
             <p className="text-zinc-800 text-xs font-medium leading-normal">
               Nazwa merchanta:
             </p>
             <div className="flex flex-row items-center gap-[4px]">
-              <MerchantType type={"View"} />
+              <MerchantType type={from.merchantData.accountType} />
               <p className="text-zinc-600 text-xs font-normal">
                 {from.merchantData.merchantName}
               </p>
@@ -62,7 +64,7 @@ export const EmployeeTransactionSender = ({ from }) => {
           Nadawca
         </h4>
 
-        <Link href={`/admin/employees/view/${from.employeeData.id}`} className="flex flex-row mb-[24px]">
+        <Link href={`/${role}/employees/view/${from.employeeData.id}`} className="flex flex-row mb-[24px]">
           <p className="text-zinc-600 text-xs font-normal">
             zobacz szczegóły nadawcy
           </p>

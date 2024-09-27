@@ -3,10 +3,19 @@ import { Role } from '@prisma/client';
 import { startOfMonth, subMonths, endOfMonth, eachMonthOfInterval, format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { startCase } from 'lodash';
+import { checkIfUserIsAuthorized } from "@/helpers/checkIfUserIsAuthorized";
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  const userId = req.headers["x-user-id"];
+  
+  try {
+    await checkIfUserIsAuthorized(userId, [Role.ADMIN]);
+  } catch (error) {
+    return res.status(403).json({ message: 'Unauthorized' });
   }
 
   const endDate = new Date();

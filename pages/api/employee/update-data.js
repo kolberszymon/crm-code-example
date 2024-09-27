@@ -1,8 +1,18 @@
 import {prisma} from '@/lib/init/prisma';
+import { Role } from "@prisma/client";
+import { checkIfUserIsAuthorized } from "@/helpers/checkIfUserIsAuthorized";
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  const userId = req.headers["x-user-id"];
+  
+  try {
+    await checkIfUserIsAuthorized(userId, [Role.ADMIN, Role.MERCHANT_EDIT, Role.MERCHANT_VIEW]);
+  } catch (error) {
+    return res.status(403).json({ message: 'Unauthorized' });
   }
 
   const {
@@ -27,7 +37,6 @@ export default async function handler(req, res) {
     paymentFrequency,
     id
   } = req.body;
-
 
   try {
     // Check if a merchant with the same email or phone already exists

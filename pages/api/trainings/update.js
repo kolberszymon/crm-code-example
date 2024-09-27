@@ -1,8 +1,19 @@
 import { prisma } from '@/lib/init/prisma';
+import { checkIfUserIsAuthorized } from "@/helpers/checkIfUserIsAuthorized";
+import { Role } from "@prisma/client";
 
 export default async function handler(req, res) {
-  console.log(req.body);
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
 
+  const userId = req.headers["x-user-id"];
+  
+  try {
+    await checkIfUserIsAuthorized(userId, [Role.ADMIN]);
+  } catch (error) {
+    return res.status(403).json({ message: 'Unauthorized' });
+  }
   const { id, title, introduction, category, description, fileUrl, priceTokens, pricePln } = req.body;
 
   try {

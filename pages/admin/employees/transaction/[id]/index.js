@@ -14,6 +14,8 @@ import { MulticolorTitleTile } from "@/components/Custom/MulticolorTitleTile";
 import { EmployeeTransactionSender } from "@/components/Custom/EmployeeTransactionSender";
 import { EmployeeTransactionRecipient } from "@/components/Custom/EmployeeTransactionRecipient";
 import { TransactionStatus as PrismaTransactionStatus } from "@prisma/client";
+import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
+
 
 
 const formatTransaction = (transaction) => {
@@ -124,7 +126,10 @@ export default function MerchantView() {
           <span className="text-zinc-800 text-xs font-medium leading-normal">
             ID transakcji
           </span>
-          <button className="flex items-center hover:cursor-pointer" onClick={() => navigator.clipboard.writeText(transaction?.id)}>
+          <button className="flex items-center hover:cursor-pointer" onClick={() => {
+            navigator.clipboard.writeText(transaction?.id);
+            showToastNotificationSuccess("Sukces", "Skopiowano do schowka");
+          }}>
             
             <Image
               src="/icons/copy-icon.svg"

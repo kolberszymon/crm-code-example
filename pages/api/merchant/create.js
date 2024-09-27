@@ -3,6 +3,7 @@ import { sendEmail } from '@/lib/send-email';
 import { LogIcon, Role } from "@prisma/client";
 import crypto from 'crypto';
 import { Argon2id } from "oslo/password";
+import { checkIfUserIsAuthorized } from "@/helpers/checkIfUserIsAuthorized";
 
 export function generateRandomPassword(length) {
   const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=';
@@ -23,6 +24,14 @@ export function generateToken() {
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  const userId = req.headers["x-user-id"];
+  
+  try {
+    await checkIfUserIsAuthorized(userId, [Role.ADMIN]);
+  } catch (error) {
+    return res.status(403).json({ message: 'Unauthorized' });
   }
 
   const {

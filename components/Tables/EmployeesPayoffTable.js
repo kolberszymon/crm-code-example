@@ -59,11 +59,32 @@ const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
   );
 });
 
-export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
+export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchValue, automaticReturnOn, isRecurrentPaymentOn }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
+
+  const filteredData = useMemo(() => {
+    let filteredData = data;
+
+    if (automaticReturnOn === "Auto") {
+      filteredData = filteredData.filter(row => row.automaticReturnOn === true);
+    } else if (automaticReturnOn === "Manualny") {
+      filteredData = filteredData.filter(row => row.automaticReturnOn === false);
+    }
+
+    if (isRecurrentPaymentOn === "Aktywna") {
+      filteredData = filteredData.filter(row => row.recurrentPaymentOn === true);
+    } else if (isRecurrentPaymentOn === "Nieaktywna") {
+      filteredData = filteredData.filter(row => row.recurrentPaymentOn === false);
+    }
+
+    return filteredData.filter(row => 
+      row.name.toLowerCase().includes(searchValue?.toLowerCase()) ||
+      row.merchantName.toLowerCase().includes(searchValue?.toLowerCase())
+    );
+  }, [data, searchValue, automaticReturnOn, isRecurrentPaymentOn]);
 
   const columns = useMemo(
     () => [
@@ -197,7 +218,7 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues }) => {
 
   const table = useReactTable({
     columns,
-    data,
+    data: filteredData,
     state: {
       rowSelection,
       pagination: { pageIndex, pageSize },

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/init/prisma";
 import { Role, TransactionType, TransactionStatus, TransferStatus } from "@prisma/client";
 import { addSeconds } from "date-fns";
+import { checkIfUserIsAuthorized } from "@/helpers/checkIfUserIsAuthorized";
 
 // This endpoint is used to send payoff to employees from admin
 // It means that transaction needs to go from admin to merchant and from merchant to employee
@@ -11,8 +12,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    const userId = req.headers["x-user-id"];
     let employees = req.body;
+    
+    const userId = req.headers["x-user-id"];
+  
+    try {
+      await checkIfUserIsAuthorized(userId, [Role.ADMIN, Role.MERCHANT_EDIT, Role.MERCHANT_VIEW]);
+    } catch (error) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
 
     // Check if admin has enough tokens to send
     const merchant = await prisma.user.findUnique({

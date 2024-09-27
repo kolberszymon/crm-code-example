@@ -13,7 +13,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CSVLink } from "react-csv";
 
 export default function Home() {
-  const [searchValue, setSearchValue] = useState(null);  
+  const [searchValue, setSearchValue] = useState("");  
   const [paymentType, setPaymentType] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);

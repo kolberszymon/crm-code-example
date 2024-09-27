@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { formatNumberWithSpaces } from "@/helpers/formatNumberWithSpaces";
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
+import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
 
 export default function MerchantView() {
   const { id } = useRouter().query;
@@ -43,7 +44,10 @@ export default function MerchantView() {
           <span className="text-zinc-800 text-xs font-medium leading-normal">
             ID transakcji
           </span>
-          <button className="flex items-center hover:cursor-pointer" onClick={() => navigator.clipboard.writeText(transaction?.id)}>
+          <button className="flex items-center hover:cursor-pointer" onClick={() => {
+            navigator.clipboard.writeText(transaction?.id);
+            showToastNotificationSuccess("Sukces", "Skopiowano do schowka");
+          }}>
             
             <Image
               src="/icons/copy-icon.svg"

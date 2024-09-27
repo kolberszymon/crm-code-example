@@ -1,8 +1,5 @@
-import { MerchantType } from "@/components/Custom/MerchantType";
 import { MainComponent } from "@/components/MainComponent";
 import Image from "next/image";
-import Link from "next/link";
-import AdminLayout from "@/components/Layouts/AdminLayout";
 import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -14,6 +11,8 @@ import { MulticolorTitleTile } from "@/components/Custom/MulticolorTitleTile";
 import { EmployeeTransactionSender } from "@/components/Custom/EmployeeTransactionSender";
 import { EmployeeTransactionRecipient } from "@/components/Custom/EmployeeTransactionRecipient";
 import MerchantLayout from "@/components/Layouts/MerchantLayout";
+import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
+
 
 
 const formatTransaction = (transaction) => {
@@ -109,7 +108,10 @@ export default function MerchantView() {
           <span className="text-zinc-800 text-xs font-medium leading-normal">
             ID transakcji
           </span>
-          <button className="flex items-center hover:cursor-pointer" onClick={() => navigator.clipboard.writeText(transaction?.id)}>
+          <button className="flex items-center hover:cursor-pointer" onClick={() => {
+            navigator.clipboard.writeText(transaction?.id);
+            showToastNotificationSuccess("Sukces", "Skopiowano do schowka");
+          }}>
             
             <Image
               src="/icons/copy-icon.svg"
@@ -219,9 +221,9 @@ export default function MerchantView() {
           </div>
         </div>
 
-        <EmployeeTransactionRecipient to={formatTransaction(transaction).to} />
+        <EmployeeTransactionRecipient to={formatTransaction(transaction).to} role="merchant" />
 
-        <EmployeeTransactionSender from={formatTransaction(transaction).from} />
+        <EmployeeTransactionSender from={formatTransaction(transaction).from} role="merchant" />
 
         <ButtonGreen 
           title="Powrót"

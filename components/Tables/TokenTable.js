@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Icons from "../../constants/icons";
 import { formatNumberWithSpaces } from "@/helpers/formatNumberWithSpaces";
+import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
 
 function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   const ref = useRef(null);
@@ -74,7 +75,10 @@ export const TokenTable = ({ data, setSelectedRowValues, searchValue }) => {
         header: "ID doładowania",
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
-            <button onClick={() => navigator.clipboard.writeText(getValue())}>
+            <button onClick={() => {
+              navigator.clipboard.writeText(getValue());
+              showToastNotificationSuccess("Sukces", "Skopiowano do schowka");
+            }}>
               <Icons.CopyImage w={16} h={16} />
             </button>
             {getValue()}

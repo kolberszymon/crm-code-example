@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/init/prisma";
 import { Role, TransactionType, TransactionStatus, TransferStatus } from "@prisma/client";
 import { addSeconds } from 'date-fns';
+import { checkIfUserIsAuthorized } from "@/helpers/checkIfUserIsAuthorized";
 
 // This endpoint is used to send payoff to employees from admin
 // It means that transaction needs to go from admin to merchant and from merchant to employee
@@ -12,6 +13,13 @@ export default async function handler(req, res) {
 
   try {
     const userId = req.headers["x-user-id"];
+  
+    try {
+      await checkIfUserIsAuthorized(userId, [Role.ADMIN]);
+    } catch (error) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
     let employees = req.body;
 
     // Check if admin has enough tokens to send
@@ -26,14 +34,8 @@ export default async function handler(req, res) {
       topUpAmount: Number(employee.topUpAmount),
       pit4Amount: Number(employee.pit4Amount)
     }));
-
-    console.log(employees)
-
+    
     const totalTokensToSend = employees.reduce((total, employee) => total + employee.topUpAmount, 0);
-
-    if (!admin || admin.role !== Role.ADMIN) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
 
     if (admin.tokens < totalTokensToSend) {
       return res.status(400).json({ success: false, message: "Nie masz wystarczającej ilości tokenów (doładuj je w Konta merchantów)" });

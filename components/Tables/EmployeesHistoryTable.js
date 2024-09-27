@@ -12,7 +12,7 @@ import Link from "next/link";
 import { TransactionStatus } from "../Custom/TransactionStatus";
 import { TransferStatus } from "../Custom/TransferStatus";
 import { parse } from "date-fns";
-
+import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
 const truncate = (str) => str.length > 10 ? str.slice(0, 10) + '...' : str;
 
 function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
@@ -100,7 +100,10 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
         header: "ID doładowania",
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
-            <button onClick={() => navigator.clipboard.writeText(getValue())}>
+            <button onClick={() => {
+              navigator.clipboard.writeText(getValue());
+              showToastNotificationSuccess("Sukces", "Skopiowano do schowka");
+            }}>
               <Icons.CopyImage w={16} h={16} />
             </button>
             {truncate(getValue())}
@@ -126,7 +129,10 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
           <div className="flex items-center justify-start gap-1">
             {getValue().length > 0 ? (
               <>
-                <button onClick={() => navigator.clipboard.writeText(getValue())}>
+                <button onClick={() => {
+                  navigator.clipboard.writeText(getValue());
+                  showToastNotificationSuccess("Sukces", "Skopiowano do schowka");
+                }}>
                   <Icons.CopyImage w={16} h={16} />
                 </button>
                 {truncate(getValue())}

@@ -2,6 +2,7 @@ import {prisma} from '@/lib/init/prisma';
 import { LogIcon, Role } from "@prisma/client";
 import crypto from 'crypto';
 import { Argon2id } from "oslo/password";
+import { checkIfUserIsAuthorized } from "@/helpers/checkIfUserIsAuthorized";
 
 export function generateRandomPassword(length) {
   const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=';
@@ -22,6 +23,13 @@ export default async function handler(req, res) {
 
   const { email, phone, merchantId } = req.body;
 
+  const userId = req.headers["x-user-id"];
+  
+  try {
+    await checkIfUserIsAuthorized(userId, [Role.ADMIN, Role.MERCHANT_EDIT, Role.MERCHANT_VIEW]);
+  } catch (error) {
+    return res.status(403).json({ message: 'Unauthorized' });
+  }
 
   try {
     // Check if a user with the same email or phone already exists

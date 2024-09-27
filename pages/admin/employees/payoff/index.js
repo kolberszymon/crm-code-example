@@ -16,8 +16,8 @@ import { useRouter } from "next/router";
 export default function Home() {
   const router = useRouter()
   const [searchValue, setSearchValue] = useState("");
-  const [merchantType, setMerchantType] = useState("");
-  const [paymentType, setPaymentType] = useState("");
+  const [automaticReturnOn, setAutomaticReturnOn] = useState("");
+  const [isRecurrentPaymentOn, setIsRecurrentPaymentOn] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [csvData, setCsvData] = useState([]);
@@ -131,15 +131,15 @@ export default function Home() {
               extraCss="my-[32px]"
             />
             <SelectDropdown
-              value={merchantType}
-              setValue={setMerchantType}
-              options={["Merchant", "View", "Edit"]}
+              value={automaticReturnOn}
+              setValue={setAutomaticReturnOn}
+              options={["Zwrot", "Auto", "Manualny"]}
               extraCss=""
             />
             <SelectDropdown
-              value={paymentType}
-              setValue={setPaymentType}
-              options={["Płatność", "Auto", "Manual"]}
+              value={isRecurrentPaymentOn}
+              setValue={setIsRecurrentPaymentOn}
+              options={["Płatność cykliczna", "Aktywna", "Nieaktywna"]}
               extraCss=""
             />
           </div>
@@ -169,8 +169,11 @@ export default function Home() {
         </div>
         {isPending ? <div>Ładowanie...</div> : (
           <EmployeesPayoffTable
-          tableData={employees}
-          setSelectedRowValues={setSelectedRowValues}
+            tableData={employees}
+            setSelectedRowValues={setSelectedRowValues}
+            searchValue={searchValue}
+            automaticReturnOn={automaticReturnOn}
+            isRecurrentPaymentOn={isRecurrentPaymentOn}
           />
         )}
 

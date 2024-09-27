@@ -11,6 +11,7 @@ import Icons from "../../constants/icons";
 import { formatNumberWithSpaces } from "@/helpers/formatNumberWithSpaces";
 import Link from "next/link";
 import { parse } from "date-fns";
+import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
 
 function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   const ref = useRef(null);
@@ -90,7 +91,10 @@ export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchVa
         header: "ID transkacji",
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
-            <button onClick={() => navigator.clipboard.writeText(getValue())}>
+            <button onClick={() => {
+              navigator.clipboard.writeText(getValue());
+              showToastNotificationSuccess("Sukces", "Skopiowano do schowka");
+            }}>
               <Icons.CopyImage w={16} h={16} />
             </button>
             {getValue()}
