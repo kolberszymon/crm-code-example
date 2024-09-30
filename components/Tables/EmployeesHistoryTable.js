@@ -3,6 +3,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   flexRender,
+  getSortedRowModel
 } from "@tanstack/react-table";
 import Image from "next/image";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -13,6 +14,7 @@ import { TransactionStatus } from "../Custom/TransactionStatus";
 import { TransferStatus } from "../Custom/TransferStatus";
 import { parse } from "date-fns";
 import { showToastNotificationSuccess } from "@/components/Custom/ToastNotification";
+
 const truncate = (str) => str.length > 10 ? str.slice(0, 10) + '...' : str;
 
 function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
@@ -41,6 +43,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
+  const [sorting, setSorting] = useState([])
 
   const filteredData = useMemo(() => {
     let filteredData = data;
@@ -63,8 +66,8 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
 
     return filteredData.filter(row => 
       row.id.toLowerCase().includes(searchValue.toLowerCase()) ||
-      row.employee.toLowerCase().includes(searchValue.toLowerCase()) ||            
-      row.accountNumber.toLowerCase().includes(searchValue.toLowerCase())      
+      row.employee?.toLowerCase().includes(searchValue.toLowerCase()) ||            
+      row.accountNumber?.toLowerCase().includes(searchValue.toLowerCase())      
     );
   }, [data, searchValue, selectedTransactionStatus, selectedTransferStatus, date]);
     
@@ -117,6 +120,26 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
       {
         accessorKey: "date",
         header: "Data",
+        header: ({ column }) => (
+          <div className="flex items-center">
+            Data
+            <button
+              onClick={() => {
+                const isDesc = column.getIsSorted() === "desc";
+                setSorting([{ id: "date", desc: !isDesc }]);
+              }}
+              className="ml-2"
+            >
+              <Icons.SortImage w={9} h={12} /> 
+            </button>
+          </div>
+        ),
+        cell: ({ getValue }) => getValue(),
+        sortingFn: (rowA, rowB, columnId) => {
+          const dateA = parse(rowA.getValue(columnId), 'dd.MM.yyyy', new Date());
+          const dateB = parse(rowB.getValue(columnId), 'dd.MM.yyyy', new Date());
+          return dateA.getTime() - dateB.getTime();
+        },
       },
       {
         accessorKey: "hour",
@@ -127,7 +150,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
         header: "Numer konta",
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
-            {getValue().length > 0 ? (
+            {getValue()?.length > 0 ? (
               <>
                 <button onClick={() => {
                   navigator.clipboard.writeText(getValue());
@@ -148,7 +171,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
-            <span>{formatNumberWithSpaces(getValue())}</span>
+            <span>{getValue()}</span>
           </div>
         ),
       },
@@ -198,11 +221,18 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
     state: {
       rowSelection,
       pagination: { pageIndex, pageSize },
+      sorting
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: (updater) => {
+      const newPagination = updater(table.getState().pagination);
+      setPageIndex(newPagination.pageIndex);
+      setPageSize(newPagination.pageSize);
+    },
+    getSortedRowModel: getSortedRowModel(),
   });
 
   useEffect(() => {
@@ -296,8 +326,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
-              table.previousPage();
-              setPageIndex(table.getState().pagination.pageIndex);
+              table.previousPage();              
             }}
             disabled={!table.getCanPreviousPage()}
           >
@@ -314,8 +343,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
-              table.nextPage();
-              setPageIndex(table.getState().pagination.pageIndex);
+              table.nextPage();              
             }}
             disabled={!table.getCanNextPage()}
           >

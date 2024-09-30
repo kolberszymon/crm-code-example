@@ -50,8 +50,6 @@ export default async function handler(req, res) {
       },      
     });
 
-    console.log(transactions);
-
     res.status(200).json(transactions);
   } catch (error) {
     console.error('Error fetching employees:', error);

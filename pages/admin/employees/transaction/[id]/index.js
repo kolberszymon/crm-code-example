@@ -180,7 +180,7 @@ export default function MerchantView() {
                 className="mr-1"
               />
               <p className="text-zinc-600 text-xs font-normal">
-                {formatNumberWithSpaces(transaction?.transactionAmount)}
+                {transaction?.transactionAmount}
               </p>
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function MerchantView() {
                 className="mr-1"
               />
               <p className="text-zinc-600 text-xs font-normal">
-                {formatNumberWithSpaces(transaction?.pit4Amount)}
+                {transaction?.pit4Amount}
               </p>
             </div>
           </div>
@@ -208,7 +208,7 @@ export default function MerchantView() {
               Wartość do rozliczenia:
             </p>                          
             <p className="text-zinc-600 text-xs font-normal">
-              {formatNumberWithSpaces(transaction?.transactionAmount)} PLN
+              {transaction?.transactionAmount} PLN
             </p>            
           </div>
 

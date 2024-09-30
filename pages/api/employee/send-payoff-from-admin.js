@@ -42,6 +42,11 @@ export default async function handler(req, res) {
     }
     
     for (const employee of employees) {
+      if (employee.topUpAmount === 0) {
+        console.log("Omijanie transakcji 0")
+        continue;
+      }
+
       await prisma.$transaction(async (prisma) => {
         // Create transaction from admin to merchant ALWAYS
         await prisma.transaction.create({

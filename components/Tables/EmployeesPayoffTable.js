@@ -35,14 +35,15 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
 
 const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
   const initialValue = getValue();
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(initialValue === 0 ? '' : initialValue);
 
   useEffect(() => {
-    setValue(initialValue);
+    setValue(initialValue === 0 ? "" : initialValue);
   }, [initialValue]);
 
   const onBlur = () => {
-    table.options.meta?.updateData(row.index, column.id, value);
+    const numericValue = value === '' ? 0 : parseFloat(value);
+    table.options.meta?.updateData(row.index, column.id, numericValue);
   };
 
   return (
@@ -227,6 +228,11 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: (updater) => {
+      const newPagination = updater(table.getState().pagination);
+      setPageIndex(newPagination.pageIndex);
+      setPageSize(newPagination.pageSize);
+    },
     meta: {
       updateData: (rowIndex, columnId, value) => {
         const newData = data.map((row, index) => {
@@ -313,7 +319,7 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
         <div className="text-zinc-950 flex flex-row items-center gap-[16px]">
           <p>
             Wyświetlono {table.getPaginationRowModel().rows.length} z{" "}
-            {table.getRowModel().rows.length} elementów
+            {data.length} elementów
           </p>
           <select
             value={table.getState().pagination.pageSize}

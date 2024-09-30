@@ -20,8 +20,14 @@ export const TokenFlowChart = () => {
     queryFn: async () => {
       const res = await fetch('/api/transactions/fetch-all-for-chart');
       const data = await res.json();
+
+      const formattedData = data.map(item => ({
+        name: item.name,
+        wyslane: Number(item.wyslane.toFixed(2)),
+        zwrocone: Number(item.zwrocone.toFixed(2))
+      }));      
       
-      return data;
+      return formattedData;
     },
     onSuccess: (data) => {
       console.log("Success", data);
@@ -32,7 +38,13 @@ export const TokenFlowChart = () => {
   })
 
   const formatYAxis = (tickItem) => {
-    return tickItem >= 1000 ? `${Math.round(tickItem / 1000)}k` : tickItem;
+    if (tickItem >= 1000000) {
+      return `${(tickItem / 1000000).toFixed(1)}M`;
+    } else if (tickItem >= 1000) {
+      return `${(tickItem / 1000).toFixed(1)}k`;
+    } else {
+      return tickItem.toFixed(1);
+    }
   };
 
   return (
@@ -64,7 +76,7 @@ export const TokenFlowChart = () => {
           width={730}
           height={250}
           data={data}
-          margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
+          margin={{ top: 10, right: 30, left: 15, bottom: 0 }}
         >
           <defs>
             <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">

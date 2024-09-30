@@ -115,7 +115,7 @@ export default function MerchantView() {
                 Imię merchanta
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.firstName}
+                {merchant.firstName?.length > 0 ? merchant.firstName : "-"}
               </p>
             </div>
             <div>
@@ -123,7 +123,7 @@ export default function MerchantView() {
                 Nazwisko merchanta
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.lastName}
+                {merchant.lastName?.length > 0 ? merchant.lastName : "-"}
               </p>
             </div>
             <div>
@@ -131,7 +131,7 @@ export default function MerchantView() {
                 Email
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.user.email}
+                {merchant.user?.email?.length > 0 ? merchant.user.email : "-"}
               </p>
             </div>
             <div>
@@ -156,7 +156,7 @@ export default function MerchantView() {
                 NIP
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {merchant.nip}
+                {merchant.nip?.length > 0 ? merchant.nip : "-"}
               </p>
             </div>
             <div>

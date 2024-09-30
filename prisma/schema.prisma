@@ -17,7 +17,7 @@ model User {
   hashedPassword     String
   phone              String?           @unique
   role               Role              @default(MERCHANT_VIEW)
-  tokens             Int               @default(0)
+  tokens             Float             @default(0)
   transactionIn      Transaction[]     @relation("ToUser")
   transactionOut     Transaction[]     @relation("FromUser")
   merchantData       MerchantData?
@@ -40,10 +40,10 @@ model MerchantData {
   id                     String         @id @default(uuid())
   accountType            String
   merchantName           String
-  firstName              String
-  lastName               String
-  lastTopupAmount        Int            @default(0)
-  nip                    String
+  firstName              String?
+  lastName               String?
+  lastTopupAmount        Float          @default(0)
+  nip                    String?
   accountNumber          String?
   country                String?
   city                   String?
@@ -76,14 +76,14 @@ model EmployeeData {
   city               String?
   street             String?
   houseNumber        String?
-  lastTopupAmount    Int               @default(0)
+  lastTopupAmount    Float             @default(0)
   apartmentNumber    String?
   postalCode         String?
   paymentFrequency   PaymentFrequency?
   startDate          DateTime?
-  paymentAmount      Int?
-  paymentAmountPit   Int?
-  automaticReturnOn  Boolean           @default(false)
+  paymentAmount      Float?
+  paymentAmountPit   Float?
+  automaticReturnOn  Boolean           @default(true)
   recurrentPaymentOn Boolean           @default(false)
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
@@ -100,8 +100,8 @@ model Training {
   category     String
   description  String
   fileUrl      String
-  priceTokens  Int
-  pricePln     Int
+  priceTokens  Float
+  pricePln     Float
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
   purchases    TrainingPurchase[]
@@ -113,9 +113,9 @@ model Transaction {
   fromId              String
   to                  User               @relation("ToUser", fields: [toId], references: [id], onDelete: Cascade)
   toId                String
-  balanceAfter        Int?
-  transactionAmount   Int?
-  pit4Amount          Int?
+  balanceAfter        Float?
+  transactionAmount   Float?
+  pit4Amount          Float?
   createdAt           DateTime           @default(now())
   type                TransactionType
   transactionStatus   TransactionStatus?
@@ -132,7 +132,7 @@ model TrainingPurchase {
   email      String
   emailSent  Boolean  @default(false)
   currency   Currency
-  price      Int
+  price      Float
   createdAt  DateTime @default(now())
 }
 

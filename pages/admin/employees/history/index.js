@@ -15,6 +15,7 @@ import { TransferStatus, TransactionStatus, Role } from "@prisma/client";
 import { DatePickerWithRange } from "@/components/Custom/DatePickerRange";
 import { useRouter } from "next/router";
 import { CSVLink } from "react-csv";
+import { UploadFileModal } from "@/components/UploadFileModal";
 
 const formatTransaction = (transaction) => {
   const transactionData = {
@@ -46,13 +47,11 @@ export default function Home() {
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const [modalPayoffStatus, setModalPayoffStatus] = useState(TransferStatus.ROZLICZONE);
   const queryClient = useQueryClient()
-  const [selectedMerchant, setSelectedMerchant] = useState(null);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedTransactionStatus, setSelectedTransactionStatus] = useState("Status transakcji");
   const [selectedTransferStatus, setSelectedTransferStatus] = useState("Status przelewu");
   const [csvData, setCsvData] = useState([]);
   const [date, setDate] = useState(null);
-
+  const [isUploadFileModalOpen, setIsUploadFileModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: transactions, isPending } = useQuery({
@@ -108,8 +107,6 @@ export default function Home() {
 
   useEffect(() => {
     if (router.isReady) {
-      setSelectedMerchant(router.query.merchantId)
-      setSelectedEmployee(router.query.employeeId)
       setSelectedTransactionStatus(router.query.transactionStatus)
       setSelectedTransferStatus(router.query.transferStatus)
     }
@@ -154,14 +151,23 @@ export default function Home() {
             Historia transkacji pracowników
           </p>
 
-          <ButtonGreen
-            title="Zmień status"
-            onPress={() => {
-              setModalPayoffStatus(TransferStatus.ROZLICZONE)
-              setIsModalOpen(true)              
-            }}
-            disabled={selectedRowValues.length === 0}
-          />
+          <div className="flex flex-row gap-[8px]">
+            <ButtonGray
+              title="Wgraj transakcje"
+              onPress={() => {
+                setIsUploadFileModalOpen(true)
+              }}
+            />
+
+            <ButtonGreen
+              title="Zmień status"
+              onPress={() => {
+                setModalPayoffStatus(TransferStatus.ROZLICZONE)
+                setIsModalOpen(true)              
+              }}
+              disabled={selectedRowValues.length === 0}
+            />
+          </div>
 
            
         </div>
@@ -242,6 +248,9 @@ export default function Home() {
             <ButtonGray title="Anuluj" onPress={() => setIsModalOpen(false)} />
           </div>
         </Modal>
+
+        <UploadFileModal isOpen={isUploadFileModalOpen} closeModal={() => setIsUploadFileModalOpen(false)} />
+
       </MainComponent>
     </AdminLayout>
   );

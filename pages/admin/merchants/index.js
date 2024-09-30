@@ -64,12 +64,25 @@ export default function Home() {
     
     console.log(merchantsRaw)
 
-    const merchants = merchantsRaw.map((merchant) => ({
-      id: merchant.merchantData.id,
-      merchantName: merchant.merchantData.firstName + " " + merchant.merchantData.lastName,
-      merchantCompany: merchant.merchantData.merchantName,
-      accountType: merchant.merchantData.accountType,
-    }));
+
+
+    const merchants = merchantsRaw.map((merchant) => {
+
+      let merchantName;
+
+      if (!merchant.merchantData.firstName && !merchant.merchantData.lastName) {
+        merchantName = "-";
+      } else {
+        merchantName = merchant.merchantData.firstName + " " + merchant.merchantData.lastName;
+      }
+
+      return {
+        id: merchant.merchantData.id,
+        merchantName,
+        merchantCompany: merchant.merchantData.merchantName,
+        accountType: merchant.merchantData.accountType,
+      }
+    });
 
     return merchants;
   }, [merchantsRaw]);

@@ -72,6 +72,11 @@ export default async function handler(req, res) {
         continue;
       }
 
+      if (employee.paymentAmount === 0) {
+        console.log("Omijanie transakcji 0")
+        continue;
+      }
+
       try {
         // 2. Create transaction TRANSFER_TOKENS_RECURRENT
         if (employee.merchant.accountType === "Edit") {

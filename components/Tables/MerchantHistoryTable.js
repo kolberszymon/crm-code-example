@@ -123,6 +123,11 @@ export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchVa
           </div>
         ),
         cell: ({ getValue }) => getValue(),
+        sortingFn: (rowA, rowB, columnId) => {
+          const dateA = parse(rowA.getValue(columnId), 'dd.MM.yyyy', new Date());
+          const dateB = parse(rowB.getValue(columnId), 'dd.MM.yyyy', new Date());
+          return dateA.getTime() - dateB.getTime();
+        },
       },
       {
         accessorKey: "time",
@@ -190,8 +195,7 @@ export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchVa
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),    
     onPaginationChange: (updater) => {
       const newPagination = updater(table.getState().pagination);
       setPageIndex(newPagination.pageIndex);
