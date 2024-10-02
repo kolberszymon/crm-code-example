@@ -25,10 +25,11 @@ const formatTransaction = (transaction) => {
     hour: format(new Date(transaction.createdAt), 'HH:mm:ss'),
     accountNumber: null,
     amount: transaction.transactionAmount,
+    pit4Amount: transaction.pit4Amount,
     transactionStatus: transaction.transactionStatus,
     transferStatus: transaction.transferStatus,
   }
-  
+    
   if (transaction.from.role === Role.EMPLOYEE) {
     transactionData.employee = transaction.from.employeeData.firstName + " " + transaction.from.employeeData.lastName
     transactionData.accountNumber = transaction.from.employeeData.accountNumber

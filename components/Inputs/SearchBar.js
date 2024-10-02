@@ -9,7 +9,7 @@ export const SearchBar = ({ value, setValue, extraCss, placeholder }) => {
         type="text"
         placeholder={placeholder ?? "Szukaj"}
         value={value ?? ""}
-        className="text-zinc-950 text-xs font-medium leading-tight pl-[8px] py-[8px] rounded-lg focus:outline-none placeholder-zinc-400 flex-1" // Add padding to the left
+        className="text-zinc-950 text-xs font-medium leading-tight pl-[8px] py-[8.5px] rounded-lg focus:outline-none placeholder-zinc-400 flex-1" // Add padding to the left
         onChange={(e) => setValue(e.target.value)}
       />
       <Image src="/icons/magnifying-glass.svg" width={17} height={17} alt="search" />

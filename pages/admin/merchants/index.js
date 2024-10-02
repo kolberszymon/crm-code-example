@@ -67,7 +67,7 @@ export default function Home() {
       let merchantName;
 
       if (!merchant.merchantData.firstName && !merchant.merchantData.lastName) {
-        merchantName = "-";
+        merchantName = "";
       } else {
         merchantName = merchant.merchantData.firstName + " " + merchant.merchantData.lastName;
       }

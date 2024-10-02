@@ -146,28 +146,18 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
         header: "Godzina",
       },
       {
-        accessorKey: "accountNumber",
-        header: "Numer konta",
+        accessorKey: "amount",
+        header: "Wartość netto",
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
-            {getValue()?.length > 0 ? (
-              <>
-                <button onClick={() => {
-                  navigator.clipboard.writeText(getValue());
-                  showToastNotificationSuccess("Sukces", "Skopiowano do schowka");
-                }}>
-                  <Icons.CopyImage w={16} h={16} />
-                </button>
-                {truncate(getValue())}
-              </>
-            ): '-'}
-            
+            <Icons.CoinImage w={16} h={16} />
+            <span>{getValue()}</span>
           </div>
         ),
       },
       {
-        accessorKey: "amount",
-        header: "Wartość netto",
+        accessorKey: "pit4Amount",
+        header: "PIT 4",
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
@@ -340,6 +330,11 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
           <p className="rounded-full bg-main-green text-white w-[30px] h-[30px] flex items-center justify-center">
             {pageIndex + 1}
           </p>
+          {table.getCanNextPage() && (
+            <p className="rounded-full bg-[#ebefee] text-black w-[30px] h-[30px] flex items-center justify-center">
+              {pageIndex + 2}
+            </p>
+          )}
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {

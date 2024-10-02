@@ -354,6 +354,11 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
           <p className="rounded-full bg-main-green text-white w-[30px] h-[30px] flex items-center justify-center">
             {pageIndex + 1}
           </p>
+          {table.getCanNextPage() && (
+            <p className="rounded-full bg-[#ebefee] text-black w-[30px] h-[30px] flex items-center justify-center">
+              {pageIndex + 2}
+            </p>
+          )}
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => table.nextPage()}

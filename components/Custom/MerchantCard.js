@@ -23,8 +23,8 @@ export const MerchantCard = ({ item, openModal }) => (
       </div>
     </div>
     <div className="mt-4">
-      <h4 className="text-sm text-zinc-950 font-medium">{item.merchantName.length > 0 ? item.merchantName : "-"}</h4>
-      <p className="text-xs text-zinc-600 font-normal">{item.merchantCompany.length > 0 ? item.merchantCompany : "-"}</p>
+      <h4 className="text-sm text-zinc-950 font-medium">{item.merchantCompany.length > 0 ? item.merchantCompany : "-"}</h4>
+      <p className="text-xs text-zinc-600 font-normal">{item.merchantName.length > 0 ? item.merchantName : ""}</p>
     </div>
     <div className="mt-4 flex justify-start gap-[8px]">
       <Link href={`/admin/employees?searchValue=${item.merchantCompany}`}>

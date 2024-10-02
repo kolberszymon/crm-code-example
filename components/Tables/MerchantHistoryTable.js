@@ -139,7 +139,7 @@ export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchVa
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
-            <span>{formatNumberWithSpaces(getValue())}</span>
+            <span>{getValue()}</span>
           </div>
         ),
       },
@@ -162,7 +162,7 @@ export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchVa
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
-            <span>{formatNumberWithSpaces(getValue())}</span>
+            <span>{getValue()}</span>
           </div>
         ),
       },
@@ -306,9 +306,17 @@ export const MerchantHistoryTable = ({ tableData, setSelectedRowValues, searchVa
               alt="arrow left"
             />
           </button>
+          
           <p className="rounded-full bg-main-green text-white w-[30px] h-[30px] flex items-center justify-center">
             {pageIndex + 1}
           </p>
+
+          {table.getCanNextPage() && (
+            <p className="rounded-full bg-[#ebefee] text-black w-[30px] h-[30px] flex items-center justify-center">
+              {pageIndex + 2}
+            </p>
+          )}
+
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {
