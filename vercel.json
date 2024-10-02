@@ -6,7 +6,7 @@
     }
   ],
   "functions": {
-    "api/file/process-transactions": {
+    "pages/api/file/process-transactions": {
       "maxDuration": 60
     }
   }
