@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import * as XLSX from 'xlsx';
+import { useQueryClient } from "@tanstack/react-query";
 
 import { ButtonGray } from "./Buttons/ButtonGray";
 import { ButtonGreen } from "./Buttons/ButtonGreen";
@@ -66,6 +67,8 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
   const [validationErrors, setValidationErrors] = useState({errors: [], message: '', type: ''});
   const [validatedFileData, setValidatedFileData] = useState(null);
   const [uniqueMerchantsEmailName, setUniqueMerchantsEmailName] = useState([]);
+
+  const queryClient = useQueryClient();
 
   const onDrop = useCallback((acceptedFiles) => {
     setFile(acceptedFiles[0]);
@@ -535,6 +538,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
                 console.log(data)
                 if (data.success) {
                   setUploadStep(6)
+                  queryClient.invalidateQueries({ queryKey: ['transactions-fetch-history-all'] })
                 } else {
                   console.log(data)
                   setUploadStep(4);

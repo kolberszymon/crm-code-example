@@ -80,64 +80,61 @@ async function processRow(row, year, month, admin) {
 
   const createdTransactions = [];
 
-  console.log("Przetwarzanie wiersza:", row);
-
   try {
     // Upsert merchant
-    const merchant = await prisma.user.upsert({
+    let merchant = await prisma.user.findUnique({
       where: { email: row.merchantEmail },
-      update: {}, // If the user exists, don't update anything
-      create: {
-        email: row.merchantEmail,
-        hashedPassword: await getRandomHashedPassword(),
-        role: Role.MERCHANT_VIEW,
-        merchantData: {
-          create: {
-            accountType: "View",
-            merchantName: row.merchantName
-          }
-        }
-      },
       include: { merchantData: true }
     });
-
-    // Upsert employee
-    const employee = await prisma.user.upsert({
-      where: { phone: row.employeePhone },
-      update: {
-        employeeData: {
-          upsert: {
+    
+    if (!merchant) {
+      merchant = await prisma.user.create({
+        data: {
+          email: row.merchantEmail,
+          hashedPassword: await getRandomHashedPassword(),
+          role: Role.MERCHANT_VIEW,
+          merchantData: {
             create: {
-              merchantId: merchant.merchantData.id,
-              firstName: row.employeeFirstName,
-              lastName: row.employeeLastName,
-              automaticReturnOn: true,
-            },
-            update: {
+              accountType: "View",
+              merchantName: row.merchantName
+            }
+          }
+        },
+        include: { merchantData: true }
+      });
+    }
+
+    let employee = await prisma.user.findUnique({
+      where: { phone: row.employeePhone },
+      include: { employeeData: true }
+    });
+
+    if (!employee) {
+      employee = await prisma.user.create({
+        data: {
+          email: row.employeeEmail,
+          phone: row.employeePhone,
+          hashedPassword: await getRandomHashedPassword(),
+          role: Role.EMPLOYEE,
+          employeeData: {
+            create: {
               merchantId: merchant.merchantData.id,
               firstName: row.employeeFirstName,
               lastName: row.employeeLastName,
               automaticReturnOn: true,
             }
           }
+        },
+        include: { employeeData: true }
+      });
+    } else if (employee.employeeData.merchantId !== merchant.merchantData.id) {      
+      await prisma.employeeData.update({
+        where: { id: employee.employeeData.id },
+        data: {
+          merchantId: merchant.merchantData.id
         }
-      },
-      create: {
-        email: row.employeeEmail,
-        phone: row.employeePhone,
-        hashedPassword: await getRandomHashedPassword(),
-        role: Role.EMPLOYEE,
-        employeeData: {
-          create: {
-            merchantId: merchant.merchantData.id,
-            firstName: row.employeeFirstName,
-            lastName: row.employeeLastName,
-            automaticReturnOn: true,
-          }
-        }
-      },
-      include: { employeeData: true }
-    });
+      });
+    }
 
     const transactionDate = getRandomTime(getLastWorkingDayOfMonth(year, month));
 
