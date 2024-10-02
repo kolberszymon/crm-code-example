@@ -60,12 +60,8 @@ export default function Home() {
   });
 
   const merchants = useMemo(() => {
-    if (!merchantsRaw) return [];
+    if (!merchantsRaw || !Array.isArray(merchantsRaw)) return [];
     
-    console.log(merchantsRaw)
-
-
-
     const merchants = merchantsRaw.map((merchant) => {
 
       let merchantName;

@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     return res.status(403).json({ message: 'Unauthorized' });
   }
 
-  const { email } = req.body;
+  const { email, type } = req.body;
 
   try {
 
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
 
   const protocol = req.headers['x-forwarded-proto'] || 'http';
   const host = req.headers.host;
-  const inviteUrl = `${protocol}://${host}/set-new-password/${token}`;
+  const inviteUrl = `${protocol}://${host}/set-new-password/${token}?type=${type}`;
   
   await sendEmail({
     to: email,

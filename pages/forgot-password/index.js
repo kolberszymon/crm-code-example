@@ -45,7 +45,7 @@ export default function Login() {
   });
 
   const onSubmit = async (formData) => {
-    mutate(formData);
+    mutate({...formData, type: 'forgotPassword'});
   };
 
 

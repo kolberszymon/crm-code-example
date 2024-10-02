@@ -9,7 +9,7 @@ import { showToastNotificationSuccess, showToastNotificationError } from "@/comp
 import Link from "next/link";
 import { ButtonRed } from "@/components/Buttons/ButtonRed";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import MerchantLayout from "@/components/Layouts/MerchantLayout";
 import { EmployeesAccountTableMerchant } from "@/components/Tables/EmployeesAccountTableMerchant";
 import { useSession } from "next-auth/react";
@@ -21,6 +21,7 @@ export default function Home() {
   const [isRecurrentPaymentOn, setIsRecurrentPaymentOn] = useState(null);
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const { data: session} = useSession();
+  const queryClient = useQueryClient()
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [csvData, setCsvData] = useState([]);
@@ -68,6 +69,7 @@ export default function Home() {
       return data
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] })
       showToastNotificationSuccess("Sukces", "Pracownicy zostali pomyślnie dezaktywowani")
       setIsModalOpen(false)
     },

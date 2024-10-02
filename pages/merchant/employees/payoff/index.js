@@ -40,6 +40,8 @@ export default function Home() {
         }
       })
 
+      console.log(employees)
+
       return employees
     },
   })
@@ -154,8 +156,11 @@ export default function Home() {
         </div>
         {isPending ? <div>Ładowanie...</div> : (
           <EmployeesPayoffTable
-          tableData={employees}
-          setSelectedRowValues={setSelectedRowValues}
+            tableData={employees}
+            setSelectedRowValues={setSelectedRowValues}
+            searchValue={searchValue}
+            automaticReturnOn={paymentType}
+            isRecurrentPaymentOn={paymentType}
           />
         )}
 

@@ -35,7 +35,7 @@ export default function MerchantView() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: merchant.user.email }),
+        body: JSON.stringify({ email: merchant.user.email, type: 'setPassword' }),
       });
 
       const data = await res.json();
@@ -49,7 +49,7 @@ export default function MerchantView() {
     onSuccess: () => {
       showToastNotificationSuccess(
         "Sukces",
-        `Wysłano zaproszenie do aplikacji na ${merchant.email}`
+        `Wysłano zaproszenie do aplikacji na ${merchant.user.email}`
       );
     },
     onError: (error) => {

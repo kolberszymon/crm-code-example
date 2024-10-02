@@ -9,7 +9,7 @@ import Link from "next/link";
 export default function SetNewPassword() {
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const { token } = useRouter().query;
+  const { token, type } = useRouter().query;
   const router = useRouter();
   
 
@@ -49,10 +49,7 @@ export default function SetNewPassword() {
       return data;
     },
     onSuccess: () => {
-      setSuccessMessage("Hasło zostało zmienione, nastąpi przekierowanie do logowania");
-      setTimeout(() => {
-        router.push("/login");
-      }, 3000);
+      router.push("/login");    
     },
     onError: () => {
       setErrorMessage("Wystąpił błąd podczas zmiany hasła");
@@ -78,7 +75,7 @@ export default function SetNewPassword() {
           />
           <div className="w-[585px] h-[549px] bg-white pl-[109px] pr-[48px] py-[70px] flex flex-col">
             <h4 className="text-4xl font-extrabold text-main-green">
-              Ustaw nowe hasło
+              {type === 'forgotPassword' ? 'Zmień hasło' : 'Ustaw nowe hasło'}
             </h4>
             <p className="text-sm font-normal text-[#002d21]">
               Wpisz nowe hasło
@@ -166,7 +163,7 @@ export default function SetNewPassword() {
                   type="submit"
                   disabled={!isValid || isUpdatingPassword}
                 >
-                  Zmień hasło
+                  {type === 'forgotPassword' ? 'Zmień hasło' : 'Ustaw hasło'}
                 </button>
                 :
                 <div className="text-red-500 text-sm mb-[24px]">Niepoprawny link lub link wygasł</div>

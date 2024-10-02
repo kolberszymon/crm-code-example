@@ -36,9 +36,10 @@ export default function EmployeeView() {
       console.log(data);
       return data;
     },
+    enabled: !!id
   });
 
-  if (isPending) return <div>Ładowanie...</div>;
+  if (isPending) return <div className="flex justify-center items-center h-screen">Ładowanie...</div>;
 
   return (
     <AdminLayout path={["Merchant", "Konto pracownika"]}>
@@ -212,7 +213,7 @@ export default function EmployeeView() {
                 Numer telefonu
               </label>
               <p className="text-xs text-zinc-600 font-normal">
-                {employee.user.phone.length > 0 ? employee.user.phone : "-"}
+                {employee.user?.phone?.length > 0 ? employee.user.phone : "-"}
               </p>
             </div>
             <div>

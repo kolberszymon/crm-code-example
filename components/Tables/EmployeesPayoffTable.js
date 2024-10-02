@@ -69,6 +69,8 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
   const filteredData = useMemo(() => {
     let filteredData = data;
 
+    console.log(data)
+
     if (automaticReturnOn === "Auto") {
       filteredData = filteredData.filter(row => row.automaticReturnOn === true);
     } else if (automaticReturnOn === "Manualny") {
@@ -130,7 +132,7 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
           } else {
             return (
               <div className="flex items-center justify-start">
-                <MulticolorTitleTile title="Manual" color="orange" />
+                <MulticolorTitleTile title="Manualny" color="orange" />
               </div>
             )
           }

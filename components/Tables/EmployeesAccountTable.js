@@ -127,7 +127,7 @@ export const EmployeesAccountTable = ({ tableData, setSelectedRowValues, searchV
             title = "Auto"
             color = "blue"
           } else {
-            title = "Ręczny"
+            title = "Manualny"
             color = "red"
           }
           

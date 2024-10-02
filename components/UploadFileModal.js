@@ -39,7 +39,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
   const [year, setYear] = useState("");
   const [file, setFile] = useState(null);
   const [uploadStep, setUploadStep] = useState(0);
-  const [validationErrors, setValidationErrors] = useState([]);
+  const [validationErrors, setValidationErrors] = useState({errors: [], message: '', type: ''});
   const [validatedFileData, setValidatedFileData] = useState(null);
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -229,6 +229,10 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
     setValidatedFileData(null)
   }
 
+  useEffect(() => {
+    console.log(validationErrors)
+  }, [validationErrors])
+
   if (!isOpen) return null;
 
   // Upload file step 0
@@ -239,7 +243,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
           {/* Top part */}
           <div className="flex items-center justify-between p-[16px] bg-zinc-100 rounded-t-md">
             <p className="text-zinc-950 text-base font-semibold">Prześlij plik</p>
-            <Link href="/monlib_przykladowy_plik.xlsx" download className="text-gray-400 text-xs underline">
+            <Link href="/monlib_przykladowy_plik.csv" download className="text-gray-400 text-xs underline">
               pobierz przykładowy plik
             </Link>
           </div>
@@ -313,6 +317,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
                 if (data.success) {                  
                   setUploadStep(3) // Success state
                 } else {
+                  console.log("data")
                   console.log(data)
                   setValidationErrors({
                     type: 'backend_validation_error',
@@ -323,8 +328,14 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
                 }
               })
               .catch((error) => {
+                console.log("error")
                 console.log(error)
                 setValidatedFileData(null);
+                setValidationErrors({
+                  type: 'backend_validation_error',
+                  message: error.message,
+                  errors: error.errors
+                });
                 setUploadStep(2) // Go back to the initial step if validation fails
               })
             }} disabled={!file || !month || !year} />
@@ -377,11 +388,16 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
           <div className="p-[16px] bg-white min-h-[200px] max-h-[400px] overflow-y-auto flex flex-col gap-[16px] items-start justify-start">                                      
               <p className="text-zinc-950 text-sm font-semibold">Przesyłanie nieudane, plik zawiera następujące błędy:</p>
                             
-              <ul className="text-red-500 text-xs list-disc list-inside">
-                {validationErrors.errors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
+              {validationErrors && (
+                <ul className="text-red-500 text-xs list-disc list-inside">
+                  {Array.isArray(validationErrors.errors) 
+                    ? validationErrors.errors.map((error, index) => (
+                        <li key={index}>{error}</li>
+                      ))
+                    : <li>{validationErrors.message}</li>
+                  }
+                </ul>
+              )}
           </div>
 
           {/* Botton part */}
