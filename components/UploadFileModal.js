@@ -120,7 +120,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
         const formattedData = [];
         let totalTokenAmount = 0;
         const uniqueMerchants = new Set();
-        const uniqueMerchantsEmailName = [];
+        const uniqueMerchantsMap = {};
 
         const selectedMonth = parseInt(month); // Assuming month is 1-12
         const selectedYear = parseInt(year);
@@ -178,10 +178,10 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
           // Collect unique merchant emails          
           if (merchantEmail) {
             uniqueMerchants.add(merchantEmail);
-            uniqueMerchantsEmailName.push({
+            uniqueMerchantsMap[merchantEmail] = {
               email: merchantEmail,
               merchantName: row[headers.indexOf('merchant_name')]
-            });
+            };
           }
 
           formattedRow.merchantName = row[headers.indexOf('merchant_name')]
@@ -235,7 +235,8 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
             errors: errors
           });
         } else {
-          setUniqueMerchantsEmailName(uniqueMerchantsEmailName);
+          setUniqueMerchantsEmailName(Object.values(uniqueMerchantsMap));
+          console.log("uniqueMerchantsMap", Object.values(uniqueMerchantsMap))
 
           resolve({
             totalTokenAmount: totalTokenAmount.toFixed(2),

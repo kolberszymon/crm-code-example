@@ -30,33 +30,48 @@ function getRandomTime(date) {
   return setMilliseconds(setSeconds(setMinutes(setHours(date, randomHour), randomMinute), randomSecond), 0);
 }
 
-async function ensureMerchantAccounts(uniqueMerchantsEmailName) {
-  const errors = [];
+async function batchCreateMerchants(uniqueMerchantsEmailName) {
+  const uniqueMerchantsEmail = [...new Set(uniqueMerchantsEmailName.map(m => m.email))];
+  const existingMerchants = await prisma.user.findMany({
+    where: { email: { in: uniqueMerchantsEmail } },
+    select: { email: true }
+  });
+  const existingEmails = new Set(existingMerchants.map(m => m.email));
+  
+  const newMerchants = uniqueMerchantsEmailName.filter((obj) => !existingEmails.has(obj.email));
+  
+  const hashedPassword = await getRandomHashedPassword();
 
-  for (const merchantEmailName of uniqueMerchantsEmailName) {
-    try {
-      await prisma.user.upsert({
-        where: { email: merchantEmailName.email },
-        update: {}, // If exists, don't update
-        create: {
-          email: merchantEmailName.email,
-          hashedPassword: await getRandomHashedPassword(),
-          role: Role.MERCHANT_VIEW,
-          merchantData: {
-            create: {
-              accountType: "View",
-              merchantName: merchantEmailName.merchantName
-            }
-          }
-        }
-      });
-    } catch (error) {
-      console.error(`Error creating merchant account for ${merchantEmailName.email}:`, error);
-      errors.push(`Failed to create merchant account for ${merchantEmailName.email}: ${error.message}`);
-    }    
+  if (newMerchants.length > 0) {
+    // Create users
+    await prisma.user.createMany({
+      data: newMerchants.map(m => ({
+        email: m.email,
+        hashedPassword,
+        role: Role.MERCHANT_VIEW,
+      })),
+      skipDuplicates: true,
+    });
+
+    // Fetch the newly created users
+    const createdUsers = await prisma.user.findMany({
+      where: { email: { in: newMerchants.map(m => m.email) } },
+      select: { id: true, email: true }
+    });
+
+    // Create merchantData for new users
+    await prisma.merchantData.createMany({
+      data: createdUsers.map(user => {
+        const merchant = newMerchants.find(m => m.email === user.email);
+        return {
+          userId: user.id,
+          accountType: "View",
+          merchantName: merchant.merchantName
+        };
+      }),
+      skipDuplicates: true,
+    });
   }
-
-  return errors;
 }
 
 async function processRow(row, year, month, admin) {
@@ -237,14 +252,7 @@ export default async function handler(req, res) {
     });
 
     // Create merchant accounts before processing transactions
-    const merchantErrors = await ensureMerchantAccounts(uniqueMerchantsEmailName);
-    if (merchantErrors.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Failed to create some merchant accounts",
-        errors: merchantErrors
-      });
-    }
+    await batchCreateMerchants(uniqueMerchantsEmailName);
   
     const BATCH_SIZE = 50;
     const allTransactions = [];
