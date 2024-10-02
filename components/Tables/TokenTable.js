@@ -114,7 +114,7 @@ export const TokenTable = ({ data, setSelectedRowValues, searchValue }) => {
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
-            <span>{formatNumberWithSpaces(getValue())}</span>
+            <span>{getValue()}</span>
           </div>
         ),
       },
@@ -137,7 +137,7 @@ export const TokenTable = ({ data, setSelectedRowValues, searchValue }) => {
         cell: ({ getValue }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
-            <span>{formatNumberWithSpaces(getValue())}</span>
+            <span>{getValue()}</span>
           </div>
         ),
       },

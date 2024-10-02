@@ -5,6 +5,8 @@ import { checkIfUserIsAuthorized } from "@/helpers/checkIfUserIsAuthorized";
 import { Argon2id } from "oslo/password";
 import { isSaturday, isSunday, lastDayOfMonth, subDays, setMilliseconds, setSeconds, setMinutes, setHours } from "date-fns";
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 const getRandomHashedPassword = async () => {
   const password = Math.random().toString(36).slice(2, 10);
   const hashedPassword = await new Argon2id().hash(password);
@@ -28,74 +30,99 @@ function getRandomTime(date) {
   return setMilliseconds(setSeconds(setMinutes(setHours(date, randomHour), randomMinute), randomSecond), 0);
 }
 
+async function ensureMerchantAccounts(uniqueMerchantsEmailName) {
+  const errors = [];
+
+  for (const merchantEmailName of uniqueMerchantsEmailName) {
+    try {
+      await prisma.user.upsert({
+        where: { email: merchantEmailName.email },
+        update: {}, // If exists, don't update
+        create: {
+          email: merchantEmailName.email,
+          hashedPassword: await getRandomHashedPassword(),
+          role: Role.MERCHANT_VIEW,
+          merchantData: {
+            create: {
+              accountType: "View",
+              merchantName: merchantEmailName.merchantName
+            }
+          }
+        }
+      });
+    } catch (error) {
+      console.error(`Error creating merchant account for ${merchantEmailName.email}:`, error);
+      errors.push(`Failed to create merchant account for ${merchantEmailName.email}: ${error.message}`);
+    }    
+  }
+
+  return errors;
+}
+
 async function processRow(row, year, month, admin) {
   const amountNetto = Number((parseFloat(row.amountNetto) || 0).toFixed(2));
   const amountPit4 = Number((parseFloat(row.amountPit4) || 0).toFixed(2));
 
   const createdTransactions = [];
 
+  console.log("Przetwarzanie wiersza:", row);
+
   try {
-    // Find merchant
-    let merchant = await prisma.user.findUnique({
+    // Upsert merchant
+    const merchant = await prisma.user.upsert({
       where: { email: row.merchantEmail },
+      update: {}, // If the user exists, don't update anything
+      create: {
+        email: row.merchantEmail,
+        hashedPassword: await getRandomHashedPassword(),
+        role: Role.MERCHANT_VIEW,
+        merchantData: {
+          create: {
+            accountType: "View",
+            merchantName: row.merchantName
+          }
+        }
+      },
       include: { merchantData: true }
     });
 
-    // If merchant doesn't exist, create it
-    if (!merchant) {
-      merchant = await prisma.user.create({
-        data: {
-          email: row.merchantEmail,
-          hashedPassword: await getRandomHashedPassword(),
-          role: Role.MERCHANT_VIEW,
-          merchantData: {
-            create: {
-              accountType: "View",
-              merchantName: row.merchantName
-            }
-          }
-        },
-        include: { merchantData: true }
-      });
-    }
-
-    // Find employee
-    let employee = await prisma.user.findUnique({
+    // Upsert employee
+    const employee = await prisma.user.upsert({
       where: { phone: row.employeePhone },
-      include: { employeeData: true }
-    });
-
-    // If employee doesn't exist, create it
-    if (!employee) {
-      employee = await prisma.user.create({
-        data: {
-          email: row.employeeEmail,
-          phone: row.employeePhone,
-          hashedPassword: await getRandomHashedPassword(),
-          role: Role.EMPLOYEE,
-          employeeData: {
+      update: {
+        employeeData: {
+          upsert: {
             create: {
+              merchantId: merchant.merchantData.id,
+              firstName: row.employeeFirstName,
+              lastName: row.employeeLastName,
+              automaticReturnOn: true,
+            },
+            update: {
               merchantId: merchant.merchantData.id,
               firstName: row.employeeFirstName,
               lastName: row.employeeLastName,
               automaticReturnOn: true,
             }
           }
-        },
-        include: { employeeData: true }
-      });
-    } else {
-      // Update employee data if it exists
-      await prisma.employeeData.update({
-        where: { userId: employee.id },
-        data: {
-          merchantId: merchant.merchantData.id,
-          firstName: row.employeeFirstName,
-          lastName: row.employeeLastName,
-          automaticReturnOn: true,
         }
-      });
-    }
+      },
+      create: {
+        email: row.employeeEmail,
+        phone: row.employeePhone,
+        hashedPassword: await getRandomHashedPassword(),
+        role: Role.EMPLOYEE,
+        employeeData: {
+          create: {
+            merchantId: merchant.merchantData.id,
+            firstName: row.employeeFirstName,
+            lastName: row.employeeLastName,
+            automaticReturnOn: true,
+          }
+        }
+      },
+      include: { employeeData: true }
+    });
 
     const transactionDate = getRandomTime(getLastWorkingDayOfMonth(year, month));
 
@@ -195,6 +222,8 @@ export default async function handler(req, res) {
     const fileData = req.body.fileData;
     const month = req.body.month;
     const year = req.body.year;
+    const uniqueMerchantsEmailName = req.body.uniqueMerchantsEmailName;
+
 
     if (!fileData) {
       return res.status(400).json({ message: "File data is required" });
@@ -206,6 +235,16 @@ export default async function handler(req, res) {
         role: Role.ADMIN
       }
     });
+
+    // Create merchant accounts before processing transactions
+    const merchantErrors = await ensureMerchantAccounts(uniqueMerchantsEmailName);
+    if (merchantErrors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to create some merchant accounts",
+        errors: merchantErrors
+      });
+    }
   
     const BATCH_SIZE = 50;
     const allTransactions = [];

@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
-          tokens: { increment: tokens },
+          tokens: { increment: parseFloat(tokens) },
         },
       });
       
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
           fromId: userId,
           toId: userId,          
           balanceAfter: updatedUser.tokens,
-          transactionAmount: tokens,
+          transactionAmount: parseFloat(tokens),
           type: TransactionType.GENERATE_TOKENS,
         },
       });

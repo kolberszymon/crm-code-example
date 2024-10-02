@@ -34,6 +34,30 @@ function excelDateToJSDate(excelDate) {
   return new Date((excelDate - 25569) * 86400 * 1000);
 }
 
+function parseLocaleNumber(value) {
+  // If it's already a number, return it
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  // If it's undefined or null, return NaN
+  if (value == null) {
+    return NaN;
+  }
+
+  // Ensure it's a string
+  const stringNumber = String(value).trim();
+
+  // If it's an empty string, return NaN
+  if (stringNumber === '') {
+    return NaN;
+  }
+
+  const normalizedNumber = stringNumber.replace(',', '.');
+
+  return parseFloat(normalizedNumber);
+}
+
 export const UploadFileModal = ({ isOpen, closeModal }) => {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
@@ -41,6 +65,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
   const [uploadStep, setUploadStep] = useState(0);
   const [validationErrors, setValidationErrors] = useState({errors: [], message: '', type: ''});
   const [validatedFileData, setValidatedFileData] = useState(null);
+  const [uniqueMerchantsEmailName, setUniqueMerchantsEmailName] = useState([]);
 
   const onDrop = useCallback((acceptedFiles) => {
     setFile(acceptedFiles[0]);
@@ -48,8 +73,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone({
     onDrop,
-    accept: {
-      'text/csv': ['.csv'],
+    accept: {      
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
       'application/vnd.ms-excel': ['.xls'],
     },
@@ -96,9 +120,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
         const formattedData = [];
         let totalTokenAmount = 0;
         const uniqueMerchants = new Set();
-
-        const amountNettoIndex = headers.indexOf('amount_netto');
-        const amountPit4Index = headers.indexOf('amount_pit4');
+        const uniqueMerchantsEmailName = [];
 
         const selectedMonth = parseInt(month); // Assuming month is 1-12
         const selectedYear = parseInt(year);
@@ -106,26 +128,41 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
         const employeeMerchantMap = new Map();
 
         jsonData.slice(1).forEach((row, index) => {
-          const rowNumber = index + 2; // +2 because we start from second row and Excel is 1-indexed
+          // +2 because we start from second row and Excel is 1-indexed, it's for displaying error
+          const rowNumber = index + 2; 
           
           // Check if the entire row is empty
           if (row.every(cell => cell === undefined || cell === '')) {
-            return; // Skip this row if it's entirely empty
+            return; 
           }
 
-          const amountNetto = row[amountNettoIndex];
-          const amountPit4 = row[amountPit4Index];
-
+          // Initialise all row variables
+          const amountNetto = row[headers.indexOf('amount_netto')];
+          const amountPit4 = row[headers.indexOf('amount_pit4')];
           const employeePhone = row[headers.indexOf('employee_phone')];
           const merchantEmail = row[headers.indexOf('merchant_email')];
           const employeeFirstName = row[headers.indexOf('employee_first_name')];
           const employeeLastName = row[headers.indexOf('employee_last_name')];
 
-          // Check if both amount_netto and amount_pit4 are empty or both are numbers
-          const bothAmountsEmpty = (amountNetto === undefined || amountNetto === '') && 
-                                  (amountPit4 === undefined || amountPit4 === '');
-          const bothAmountsValid = !isNaN(parseFloat(amountNetto)) && parseFloat(amountNetto) > 0 &&
-                                  !isNaN(parseFloat(amountPit4)) && parseFloat(amountPit4) >= 0;
+          const formattedRow = {}
+
+          // Check amount_netto and amount_pit4
+          const isAmountNettoUndefined = amountNetto === undefined || amountNetto === '';
+          const isAmountPit4Undefined = amountPit4 === undefined || amountPit4 === '';
+
+          if (isAmountNettoUndefined !== isAmountPit4Undefined) {
+            errors.push(`Wiersz ${rowNumber}: Wartości 'amount_netto' i 'amount_pit4' muszą być albo obie puste, albo obie wypełnione`);
+          } else if (!isAmountNettoUndefined) {          
+            
+            if (isNaN(amountNetto) || isNaN(amountPit4) || amountNetto < 1 || amountPit4 < 0) {
+              errors.push(`Wiersz ${rowNumber}: Wartości 'amount_netto' i 'amount_pit4' muszą być dodatnimi liczbami (amount_netto >= 1, amount_pit4 >= 0)`);
+            } else {
+              // Both are valid positive float numbers, you can use them
+              formattedRow.amountNetto = Number(parseLocaleNumber(amountNetto).toFixed(2));
+              formattedRow.amountPit4 = Number(parseLocaleNumber(amountPit4).toFixed(2));
+              totalTokenAmount += formattedRow.amountNetto + formattedRow.amountPit4;
+            }
+          }
 
           if (employeePhone && merchantEmail) {
             if (employeeMerchantMap.has(employeePhone)) {
@@ -138,30 +175,20 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
             }
           }
 
-          if (!bothAmountsEmpty && !bothAmountsValid) {
-            errors.push(`Wiersz ${rowNumber}: Wartości 'amount_netto' i 'amount_pit4' muszą być obie puste lub obie liczbami nieujemnymi`);
-          }
-
-          if (!isNaN(amountNetto)) {
-            totalTokenAmount += amountNetto;
-          }
-
           // Collect unique merchant emails          
           if (merchantEmail) {
             uniqueMerchants.add(merchantEmail);
+            uniqueMerchantsEmailName.push({
+              email: merchantEmail,
+              merchantName: row[headers.indexOf('merchant_name')]
+            });
           }
 
-          const formattedRow = {            
-            merchantName: row[headers.indexOf('merchant_name')],
-            merchantEmail: row[headers.indexOf('merchant_email')],
-            employeeLastName: row[headers.indexOf('employee_last_name')],
-            employeeFirstName: row[headers.indexOf('employee_first_name')],
-            employeePhone: String(row[headers.indexOf('employee_phone')]),
-            amountNetto: Number((parseFloat(row[headers.indexOf('amount_netto')]) || 0).toFixed(2)),
-            amountPit4: Number((parseFloat(row[headers.indexOf('amount_pit4')]) || 0).toFixed(2)),          
-          };
-
-          console.log(formattedRow)
+          formattedRow.merchantName = row[headers.indexOf('merchant_name')]
+          formattedRow.merchantEmail = row[headers.indexOf('merchant_email')]
+          formattedRow.employeeLastName = row[headers.indexOf('employee_last_name')]
+          formattedRow.employeeFirstName = row[headers.indexOf('employee_first_name')]
+          formattedRow.employeePhone = String(row[headers.indexOf('employee_phone')])         
 
           formattedData.push(formattedRow);
 
@@ -208,8 +235,10 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
             errors: errors
           });
         } else {
+          setUniqueMerchantsEmailName(uniqueMerchantsEmailName);
+
           resolve({
-            totalTokenAmount,
+            totalTokenAmount: totalTokenAmount.toFixed(2),
             uniqueMerchants: Array.from(uniqueMerchants),
             fileData: formattedData
           });
@@ -227,11 +256,13 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
     setYear(null)
     setValidationErrors([])
     setValidatedFileData(null)
+    setUniqueMerchantsEmailName([])
   }
 
   useEffect(() => {
     console.log(validationErrors)
   }, [validationErrors])
+
 
   if (!isOpen) return null;
 
@@ -264,7 +295,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
                 <>
                   <Image src="/icons/cloud-upload.svg" width={24} height={24} alt="cloud-upload" />
                   <p className="text-zinc-950 text-sm font-semibold">Przesuń i upuść lub <span className="text-[#015640]">Kliknij i wgraj plik</span></p>
-                  <p className="text-zinc-500 text-xs">Obsługiwane formaty: .csv, .xlsx, .xls</p>
+                  <p className="text-zinc-500 text-xs">Obsługiwane formaty: .xlsx, .xls</p>
                 </>
               )}
             </div>
@@ -494,7 +525,8 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
                 body: JSON.stringify({
                   fileData: validatedFileData.fileData,
                   month,
-                  year
+                  year,
+                  uniqueMerchantsEmailName
                 }),
               })
               .then(async (response) => {
@@ -532,7 +564,8 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
             {/* Middle part */}
             <div className="p-[16px] bg-white min-h-[200px] flex flex-col gap-[16px] items-center justify-center rounded-b-md">                        
                 <Loader2 className="w-10 h-10 text-zinc-950 animate-spin" />
-                <p className="text-zinc-950 text-sm">Wykonywanie transakcji, nie wyłączaj strony</p>              
+                <p className="text-zinc-950 text-sm">Wykonywanie transakcji, nie wyłączaj strony</p>
+                <p className="text-zinc-400 text-xs font-normal">Zazwyczaj zajmuje to poniżej 2 minut</p>            
             </div>          
           </div>
         </div>
