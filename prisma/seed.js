@@ -1,31 +1,37 @@
 const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function main() {
   const { Argon2id } = await import('oslo/password');
-  const hasher = new Argon2id();
-  const hashedPassword = await hasher.hash('your_admin_password');
+
+  const hasher = new Argon2id()
+  const hashedPassword = await hasher.hash('test1234')
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
+    where: { email: 'biuro@monlib.pl' },
     update: {},
     create: {
-      email: 'admin@example.com',
+      email: 'biuro@monlib.pl',
       hashedPassword: hashedPassword,
       role: 'ADMIN',
-      // Add any other necessary fields
+      merchantData: {
+        create: {
+          merchantName: 'Monlib',
+          accountType: 'Admin'
+        }
+      }
     },
-  });
+  })
 
-  console.log({ admin });
+  console.log({ admin })
 }
 
 main()
   .catch((e) => {
-    console.error(e);
-    process.exit(1);
+    console.error(e)
+    process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })

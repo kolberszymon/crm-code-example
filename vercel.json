@@ -4,5 +4,10 @@
       "path": "/api/employee/send-automatic-payoff",
       "schedule": "0 2 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "api/file/process-transactions": {
+      "maxDuration": 60
+    }
+  }
 }
