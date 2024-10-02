@@ -78,8 +78,8 @@ export default async function handler(req, res) {
           id: existingMerchant.user.id,
         },
         data: {
-          email,
-          phone,
+          email: email.trim().length > 0 ? email : null,
+          phone: phone.trim().length > 0 ? phone : null,
           role: accountType === 'Edit' ? Role.MERCHANT_EDIT : Role.MERCHANT_VIEW,
         },
       });
