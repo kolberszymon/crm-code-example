@@ -152,9 +152,7 @@ export default function NewMerchantForm() {
                   <input
                     type="text"
                     id="firstName"
-                    {...register("firstName", {
-                      required: "Imię jest wymagane",
-                    })}
+                    {...register("firstName")}
                     className="w-full border border-gray-300 rounded-md p-2 text-sm"
                     defaultValue={merchant?.firstName}
                   />
@@ -174,9 +172,7 @@ export default function NewMerchantForm() {
                   <input
                     type="text"
                     id="lastName"
-                    {...register("lastName", {
-                      required: "Nazwisko jest wymagane",
-                    })}
+                    {...register("lastName")}
                     className="w-full border border-gray-300 rounded-md p-2 text-sm"
                     defaultValue={merchant?.lastName}
                   />
@@ -240,7 +236,7 @@ export default function NewMerchantForm() {
                   <input
                     type="text"
                     id="nip"
-                    {...register("nip", { required: "NIP jest wymagany" })}
+                    {...register("nip")}
                     className="w-full border border-gray-300 rounded-md p-2 text-sm"
                     defaultValue={merchant?.nip}
                   />
