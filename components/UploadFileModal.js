@@ -191,7 +191,8 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
           formattedRow.merchantEmail = row[headers.indexOf('merchant_email')]
           formattedRow.employeeLastName = row[headers.indexOf('employee_last_name')]
           formattedRow.employeeFirstName = row[headers.indexOf('employee_first_name')]
-          formattedRow.employeePhone = String(row[headers.indexOf('employee_phone')])         
+          formattedRow.employeePhone = String(row[headers.indexOf('employee_phone')])  
+          formattedRow.transactionDate = parseDate(row[headers.indexOf('transaction_date')])       
 
           formattedData.push(formattedRow);
 

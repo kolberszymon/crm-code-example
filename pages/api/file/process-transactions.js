@@ -136,7 +136,7 @@ async function processRow(row, year, month, admin) {
       });
     }
 
-    const transactionDate = getRandomTime(getLastWorkingDayOfMonth(year, month));
+    const transactionDate = getRandomTime(row.transactionDate);
 
     // Create transaction from admin to merchant
     const transaction1 = await prisma.transaction.create({
