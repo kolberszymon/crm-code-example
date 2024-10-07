@@ -51,14 +51,22 @@ const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
   };
 
   return (
-    <div className="w-40 h-7 bg-white rounded-md border border-zinc-400 justify-center items-center flex flex-row gap-[8px] p-[13px]">
-      <Icons.CoinImage w={16} h={16} />
+    <div className="w-40 h-7 bg-white rounded-md border border-zinc-400 flex items-center px-2">
+      <Icons.CoinImage w={16} h={16} className="mr-2" />
       <input
-        className="text-xs font-normal text-zinc-950 outline-none border-none"
+        className="w-full h-full text-xs font-normal text-zinc-950 outline-none border-none bg-transparent"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onBlur={onBlur}
         type="number"
+        style={{
+          WebkitAppearance: 'none',
+          MozAppearance: 'textfield',
+          appearance: 'textfield',
+          margin: 0,
+          padding: 0,
+          boxSizing: 'border-box',
+        }}
       />
     </div>
   );

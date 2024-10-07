@@ -57,6 +57,8 @@ export default async function handler(req, res) {
       }
     })
 
+    let numberOfTransactionsMade = 0;
+
     for (const employee of employees) {
       if (employee.topUpAmount === 0) {
         console.log("Omijanie transakcji 0")
@@ -96,7 +98,7 @@ export default async function handler(req, res) {
           where: { id: merchant.id },
           data: { tokens: { decrement: employee.topUpAmount } }
         });
-
+        
         if (employee.automaticReturnOn) {         
           // Create transaction from employee to admin
           await prisma.transaction.create({
@@ -120,10 +122,12 @@ export default async function handler(req, res) {
             data: { tokens: { increment: employee.topUpAmount } }
           })
         }
+
+        numberOfTransactionsMade++;
       })
     }
 
-    res.status(200).json({ success: true, message: "Tokeny zostały przesłane" });
+    res.status(200).json({ success: true, message: "Tokeny zostały przesłane", numberOfTransactionsMade });
   } catch (error) {
     console.error("Error updating token balances:", error);
     res.status(500).json({ success: false, message: "Error updating token balances", error: error.message });

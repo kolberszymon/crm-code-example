@@ -40,6 +40,8 @@ export default async function handler(req, res) {
     if (admin.tokens < totalTokensToSend) {
       return res.status(400).json({ success: false, message: "Nie masz wystarczającej ilości tokenów (doładuj je w Konta merchantów)" });
     }
+
+    let numberOfTransactionsMade = 0;
     
     for (const employee of employees) {
       if (employee.topUpAmount === 0) {
@@ -113,10 +115,12 @@ export default async function handler(req, res) {
             data: { tokens: { increment: employee.topUpAmount } }
           })
         }
+
+        numberOfTransactionsMade++;
       })
     }
 
-    res.status(200).json({ success: true, message: "Tokeny zostały przesłane" });
+    res.status(200).json({ success: true, message: "Tokeny zostały przesłane", numberOfTransactionsMade });
   } catch (error) {
     console.error("Error updating token balances:", error);
     res.status(500).json({ success: false, message: "Error updating token balances", error: error.message });

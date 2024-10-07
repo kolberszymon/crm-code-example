@@ -43,8 +43,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: "Nie masz wystarczającej ilości tokenów (doładuj je w Konta merchantów)" });
     }
 
-    console.log("merchants");
-    console.log(merchants);
+    let numberOfTransactionsMade = 0
 
     await prisma.$transaction(async (prisma) => {
       // Decrement admin's token balance
@@ -54,6 +53,11 @@ export default async function handler(req, res) {
       });
 
       for (const merchant of merchants) {
+        if (merchant.topUpAmount === 0) {
+          console.log("Omijanie transakcji 0")
+          continue;
+        }
+
         // Increment merchant's token balance
         const updatedMerchant = await prisma.user.update({
           where: { id: merchant.userId },
@@ -76,6 +80,8 @@ export default async function handler(req, res) {
           }
         });
 
+        numberOfTransactionsMade++;
+
         // Create log entry
         await prisma.log.create({
           data: {
@@ -86,7 +92,7 @@ export default async function handler(req, res) {
     });
 
 
-    res.status(200).json({ success: true, message: "Tokeny zostały przesłane" });
+    res.status(200).json({ success: true, message: "Tokeny zostały przesłane", numberOfTransactionsMade });
   } catch (error) {
     console.error("Error updating token balances:", error);
     res.status(500).json({ success: false, message: "Error updating token balances", error: error.message });

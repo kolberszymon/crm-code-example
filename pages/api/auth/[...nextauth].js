@@ -11,35 +11,43 @@ export default NextAuth({
         email: {},
         password: {},
       },
-      async authorize(credentials, req) {
+      async authorize(credentials, req) {                
         if (!credentials || !credentials.email || !credentials.password) {
           throw new Error('Invalid email or password');
-        }
+        }        
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        });
+        try {
+          const user = await prisma.user.findUnique({
+              where: {
+              email: credentials.email,
+            },
+          });
 
-        const validPassword = await new Argon2id().verify(
-          user.hashedPassword,
-          credentials.password
-        );
+          const validPassword = await new Argon2id().verify(
+            user.hashedPassword,
+            credentials.password
+          );
 
-        if (!validPassword) {
+          if (!validPassword) {
+            console.log("invalid password")
+            throw new Error('Invalid email or password');
+          }
+
+          if (!user.isActive) {
+            console.log("user is not active")
+            throw new Error('User is not active');
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+          };
+
+        } catch (error) {
+          console.log(error)
           throw new Error('Invalid email or password');
         }
-
-        if (!user.isActive) {
-          throw new Error('User is not active');
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-        };
       },
     }),
   ],

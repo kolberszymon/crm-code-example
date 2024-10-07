@@ -6,14 +6,16 @@ async function main() {
   const { Argon2id } = await import('oslo/password');
 
   const hasher = new Argon2id()
-  const hashedPassword = await hasher.hash('test1234')
+  const hashedPassword = await hasher.hash('test12345')
+
+  console.log(hashedPassword)
 
   const admin = await prisma.user.upsert({
     where: { email: 'biuro@monlib.pl' },
     update: {},
     create: {
       email: 'biuro@monlib.pl',
-      hashedPassword: hashedPassword,
+      hashedPassword,
       role: 'ADMIN',
       merchantData: {
         create: {

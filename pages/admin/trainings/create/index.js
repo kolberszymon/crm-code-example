@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { MainComponent } from "@/components/MainComponent";
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import { ButtonWhiteWithBorder } from "@/components/Buttons/ButtonWhiteWithBorder";
@@ -7,8 +7,9 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import Icons from "@/constants/icons";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
+import CreatableSearchBar from "@/components/Custom/CreatableSearchBar";
 
 function sliceS3Url(url) {
   const pdfIndex = url.indexOf('.pdf');
@@ -21,13 +22,39 @@ function sliceS3Url(url) {
 export default function AddTraining() {
   const [file, setFile] = useState(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isValid },
     trigger
   } = useForm();
+
+  const { data: categories, isPending: isCategoriesPending } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/trainings/fetch-categories');
+      const data = await response.json();
+      return data.map(category => ({ value: category.name, label: category.name }));
+    },
+  });
+
+  const {mutate: createCategory, isPending: isCreateCategoryPending} = useMutation({
+    mutationFn: async (formData) => {
+      const response = await fetch('/api/trainings/create-category', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries('categories');
+    }
+  });
 
   // Create useMutation to create training
   const {mutate: createTraining, isPending} = useMutation({
@@ -74,6 +101,12 @@ export default function AddTraining() {
     return sliceS3Url(uploadResponse.url);
   };
 
+  const handleCreateCategory = (inputValue) => {
+    createCategory({ name: inputValue });
+      
+    return { value: inputValue, label: inputValue };
+  };
+
   const onSubmit = (data) => {
     createTraining(data);
   };
@@ -82,6 +115,12 @@ export default function AddTraining() {
     // Trigger validation for the file field whenever file state changes
     trigger("file");
   }, [file, trigger]);
+
+  if (isPending) {
+    return (<div className="flex justify-center items-center h-screen">
+      Ładowanie
+    </div>);
+  }
 
   return (
     <AdminLayout>
@@ -106,6 +145,9 @@ export default function AddTraining() {
                     type="number"
                     className="text-xs font-normal text-zinc-950 outline-none border-none w-full"
                     placeholder="500"
+                    onInput={(e) => {
+                      if (e.target.value < 0) e.target.value = 0;
+                    }}
                     
                   />
                 </div>
@@ -127,6 +169,9 @@ export default function AddTraining() {
                     type="number"
                     className="text-xs font-normal text-zinc-950 outline-none border-none w-full"
                     placeholder="1000 zł"
+                    onInput={(e) => {
+                      if (e.target.value < 0) e.target.value = 0;
+                    }}
                   />
                 </div>
                 {errors.pricePln && (
@@ -143,16 +188,20 @@ export default function AddTraining() {
               <label htmlFor="category" className="block text-xs font-medium text-zinc-600">
                 Wpisz nową kategorię lub wybierz istniejącą
               </label>
-              <select
-                id="category"
-                {...register("category", {
-                  required: "Kategoria jest wymagana",
-                })}
-                className="mt-1 block w-full border rounded-md p-2 text-xs"
-              >
-                <option value="">Wybierz kategorię</option>
-                <option value="Marketing">Marketing</option>
-              </select>
+              <Controller
+                name="category"
+                control={control}
+                rules={{ required: "Kategoria jest wymagana" }}
+                render={({ field }) => (
+                  <CreatableSearchBar
+                    options={categories || []}
+                    onChange={(selectedOption) => field.onChange(selectedOption.value)}
+                    onCreateOption={handleCreateCategory}
+                    placeholder={isCategoriesPending ? "Ładowanie kategorii..." : "Wybierz lub dodaj kategorię"}
+                    isLoading={isCategoriesPending || isCreateCategoryPending}
+                  />
+                )}
+              />
               {errors.category && (
                 <span className="text-red-600 text-sm">
                   {errors.category.message}

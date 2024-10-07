@@ -65,9 +65,11 @@ export default function Home() {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(['employees-fetch-all-payoff', "transactions-fetch-history-all"]);
-      showToastNotificationSuccess("Sukces!", "Tokeny zostały przesłane");
+      if (data.numberOfTransactionsMade > 0) {
+        showToastNotificationSuccess("Sukces!", `Tokeny zostały przesłane`);
+      }    
     },
     onError: (error) => {
       console.error("Error updating token balances:", error);

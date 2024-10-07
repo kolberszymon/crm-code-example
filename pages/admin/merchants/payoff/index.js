@@ -48,12 +48,14 @@ export default function MerchantPayoff() {
       if (!response.ok || data.success === false) {        
         throw new Error(data.message || "Wystąpił błąd podczas przesyłania tokenów");
       }
-
+      
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(['merchants']);
-      showToastNotificationSuccess("Sukces!", "Tokeny zostały przesłane");
+      if (data.numberOfTransactionsMade > 0) {
+        showToastNotificationSuccess("Sukces!", `Tokeny zostały przesłane`);
+      }
     },
     onError: (error) => {
       console.error("Error updating token balances:", error);

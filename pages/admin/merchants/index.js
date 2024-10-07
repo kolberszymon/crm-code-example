@@ -172,6 +172,12 @@ export default function Home() {
             <p className="rounded-full bg-main-green text-white w-[30px] h-[30px] flex items-center justify-center">
               {page}
             </p>
+
+            {page < Math.ceil(filteredData.length / tableSize) && (              
+              <p className="rounded-full bg-[#ebefee] text-black w-[30px] h-[30px] flex items-center justify-center">
+                {page + 1}
+              </p>              
+            )}
             <button className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center" onClick={() => setPage(page + 1)} disabled={page === Math.ceil(filteredData.length / tableSize)}>
               <Image
                 src="/icons/arrow-right-black.svg"

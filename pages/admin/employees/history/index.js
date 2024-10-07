@@ -237,11 +237,26 @@ export default function Home() {
           <div className="text-xs text-gray-500 mb-4">
             Zamiana statusu będzie przeprowadzona na {selectedRowValues.length} zaznaczonym pracowniku
           </div>
-          <select className={`p-[8px] mb-[24px] rounded-md outline-none ${modalPayoffStatus === TransferStatus.ROZLICZONE ? "bg-[#d9fbe8] text-[#00a155]" : "bg-[#ef4444] text-red-50"}`} onChange={(e) => setModalPayoffStatus(e.target.value)}>
-            <option value={TransferStatus.ROZLICZONE}>Rozliczone</option>
-            <option value={TransferStatus.NIEROZLICZONE}>Nierozliczone</option>
-          </select>
-          <div className="flex flex-row gap-[8px]">
+          <div className="relative inline-block ">
+            <select 
+              className={`appearance-none p-2 pr-8 rounded-md outline-none border cursor-pointer ${
+                modalPayoffStatus === TransferStatus.ROZLICZONE 
+                  ? "bg-[#d9fbe8] text-[#00a155] border-[#00a155]" 
+                  : "bg-[#fde8e8] text-[#ef4444] border-[#ef4444]"
+              }`}
+              onChange={(e) => setModalPayoffStatus(e.target.value)}
+              value={modalPayoffStatus}
+            >
+              <option value={TransferStatus.ROZLICZONE}>Rozliczone</option>
+              <option value={TransferStatus.NIEROZLICZONE}>Nierozliczone</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+              </svg>
+            </div>
+          </div>
+          <div className="flex flex-row gap-[8px] mt-4">
             <ButtonGreen
               title="Zatwierdź"
               onPress={updateTransactionsStatus}

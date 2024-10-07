@@ -36,29 +36,7 @@ export default function Home() {
             </div>
             <h3 className="text-xl font-semibold text-gray-800">
               {training.title}
-            </h3>
-            <div className="flex flex-row gap-4 text-gray-600 mt-2">
-              <div className="flex items-center gap-1">
-                <Image
-                  src="/icons/calendar-icon.svg"
-                  alt="calendar"
-                  width={16}
-                  height={16}
-                />
-                <span className="text-sm">{format(new Date(training.createdAt), 'dd.MM.yyyy')}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Image
-                  src="/icons/profile-circle-icon.svg"
-                  alt="profile"
-                  width={16}
-                  height={16}
-                />
-                <span className="text-sm">
-                  Liczba osób które kupiło szkolenie: 0
-                </span>
-              </div>
-            </div>
+            </h3>            
           </div>
         </div>
 
