@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import * as XLSX from 'xlsx';
 import { useQueryClient } from "@tanstack/react-query";
-
+import Papa from 'papaparse';
 import { ButtonGray } from "./Buttons/ButtonGray";
 import { ButtonGreen } from "./Buttons/ButtonGreen";
 import { SelectDropdown } from "./Inputs/SelectDropdown";
@@ -13,21 +13,40 @@ import { groupBy } from 'lodash';
 import { ButtonMustard } from "./Buttons/ButtonMustard";
 import Link from "next/link";
 
-// Add these helper functions at the top of your file or in a separate utilities file
 function parseDate(value) {
-  // First, try parsing as an Excel date
+  // First, check if it's already a Date object
+  if (value instanceof Date) {
+    return value;
+  }
+
+  // If it's a string, try parsing it
+  if (typeof value === 'string') {
+    // Try parsing as M/D/YYYY format
+    const parts = value.split('/');
+    if (parts.length === 3) {
+      const month = parseInt(parts[0], 10) - 1; // JavaScript months are 0-indexed
+      const day = parseInt(parts[1], 10);
+      const year = parseInt(parts[2], 10);
+      const date = new Date(year, month, day);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+  }
+
+  // If the above fails, try parsing as an Excel date
   const excelDate = parseFloat(value);
   if (!isNaN(excelDate)) {
     return excelDateToJSDate(excelDate);
   }
-  
-  // If not an Excel date, try parsing as a string
+
+  // If both fail, try parsing as a general date string
   const date = new Date(value);
   if (!isNaN(date.getTime())) {
     return date;
   }
   
-  // If both fail, return null
+  // If all parsing attempts fail, return null
   return null;
 }
 
@@ -56,7 +75,7 @@ function parseLocaleNumber(value) {
 
   const normalizedNumber = stringNumber.replace(',', '.');
 
-  return parseFloat(normalizedNumber);
+  return parseFloat(normalizedNumber).toFixed(2);
 }
 
 export const UploadFileModal = ({ isOpen, closeModal }) => {
@@ -79,6 +98,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
     accept: {      
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
       'application/vnd.ms-excel': ['.xls'],
+      'text/csv': ['.csv']
     },
     maxFiles: 1,
   });
@@ -87,13 +107,25 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, {type: 'array'});
-        
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+        let jsonData;
+        let headers;
+      
+        if (file.name.endsWith('.csv')) {
+          // Parse CSV
+          const csvData = e.target.result;
+          const parsedData = Papa.parse(csvData, { header: true, skipEmptyLines: true });
+          jsonData = parsedData.data;
+          headers = parsedData.meta.fields;
+        } else {
+          // Parse Excel
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, {type: 'array'});
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          headers = XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0];
+          jsonData = XLSX.utils.sheet_to_json(worksheet, { header: headers });
+          jsonData.shift()
+        }
         
         const requiredColumns = [
           'merchant_name',
@@ -105,8 +137,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
           'amount_pit4',
           'transaction_date'
         ];
-        
-        const headers = jsonData[0];
+                
         const missingColumns = requiredColumns.filter(col => !headers.includes(col));
         
         // It makes sense to throw an error here, because we can't validate data without properly assigned columns
@@ -129,23 +160,20 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
         const selectedYear = parseInt(year);
 
         const employeeMerchantMap = new Map();
-
-        jsonData.slice(1).forEach((row, index) => {
-          // +2 because we start from second row and Excel is 1-indexed, it's for displaying error
-          const rowNumber = index + 2; 
-          
+            
+        jsonData.forEach((row, index) => {
           // Check if the entire row is empty
-          if (row.every(cell => cell === undefined || cell === '')) {
+          if (Object.values(row).every(cell => cell === undefined || cell === '')) {
             return; 
           }
 
           // Initialise all row variables
-          const amountNetto = row[headers.indexOf('amount_netto')];
-          const amountPit4 = row[headers.indexOf('amount_pit4')];
-          const employeePhone = row[headers.indexOf('employee_phone')];
-          const merchantEmail = row[headers.indexOf('merchant_email')];
-          const employeeFirstName = row[headers.indexOf('employee_first_name')];
-          const employeeLastName = row[headers.indexOf('employee_last_name')];
+          const amountNetto = parseLocaleNumber(row['amount_netto']);
+          const amountPit4 = parseLocaleNumber(row['amount_pit4']);
+          const employeePhone = row['employee_phone'];
+          const merchantEmail = row['merchant_email'];
+          const employeeFirstName = row['employee_first_name'];
+          const employeeLastName = row['employee_last_name'];
 
           const formattedRow = {}
 
@@ -154,15 +182,15 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
           const isAmountPit4Undefined = amountPit4 === undefined || amountPit4 === '';
 
           if (isAmountNettoUndefined !== isAmountPit4Undefined) {
-            errors.push(`Wiersz ${rowNumber}: Wartości 'amount_netto' i 'amount_pit4' muszą być albo obie puste, albo obie wypełnione`);
+            errors.push(`Wiersz ${index + 2}: Wartości 'amount_netto' i 'amount_pit4' muszą być albo obie puste, albo obie wypełnione`);
           } else if (!isAmountNettoUndefined) {          
             
             if (isNaN(amountNetto) || isNaN(amountPit4) || amountNetto < 1 || amountPit4 < 0) {
-              errors.push(`Wiersz ${rowNumber}: Wartości 'amount_netto' i 'amount_pit4' muszą być dodatnimi liczbami (amount_netto >= 1, amount_pit4 >= 0)`);
+              errors.push(`Wiersz ${index + 2}: Wartości 'amount_netto' i 'amount_pit4' muszą być dodatnimi liczbami (amount_netto >= 1, amount_pit4 >= 0)`);
             } else {
               // Both are valid positive float numbers, you can use them
-              formattedRow.amountNetto = Number(parseLocaleNumber(amountNetto).toFixed(2));
-              formattedRow.amountPit4 = Number(parseLocaleNumber(amountPit4).toFixed(2));
+              formattedRow.amountNetto = amountNetto
+              formattedRow.amountPit4 = amountPit4
               totalTokenAmount += formattedRow.amountNetto + formattedRow.amountPit4;
             }
           }
@@ -171,7 +199,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
             if (employeeMerchantMap.has(employeePhone)) {
               const existingMerchant = employeeMerchantMap.get(employeePhone);
               if (existingMerchant !== merchantEmail) {
-                errors.push(`Wiersz ${rowNumber}: Pracownik ${employeeFirstName} ${employeeLastName} (nr tel. ${employeePhone}) jest przypisany do dwóch róznych merchantów: ${existingMerchant} i ${merchantEmail}`);
+                errors.push(`Wiersz ${index + 2}: Pracownik ${employeeFirstName} ${employeeLastName} (nr tel. ${employeePhone}) jest przypisany do dwóch róznych merchantów: ${existingMerchant} i ${merchantEmail}`);
               }
             } else {
               employeeMerchantMap.set(employeePhone, merchantEmail);
@@ -183,46 +211,48 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
             uniqueMerchants.add(merchantEmail);
             uniqueMerchantsMap[merchantEmail] = {
               email: merchantEmail,
-              merchantName: row[headers.indexOf('merchant_name')]
+              merchantName: row['merchant_name']
             };
           }
 
-          formattedRow.merchantName = row[headers.indexOf('merchant_name')]
-          formattedRow.merchantEmail = row[headers.indexOf('merchant_email')]
-          formattedRow.employeeLastName = row[headers.indexOf('employee_last_name')]
-          formattedRow.employeeFirstName = row[headers.indexOf('employee_first_name')]
-          formattedRow.employeePhone = String(row[headers.indexOf('employee_phone')])  
-          formattedRow.transactionDate = parseDate(row[headers.indexOf('transaction_date')])       
+          formattedRow.merchantName = row['merchant_name']
+          formattedRow.merchantEmail = row['merchant_email']
+          formattedRow.employeeLastName = row['employee_last_name']
+          formattedRow.employeeFirstName = row['employee_first_name']
+          formattedRow.employeePhone = String(row['employee_phone'])  
+          formattedRow.transactionDate = parseDate(row['transaction_date'])       
 
           formattedData.push(formattedRow);
 
           requiredColumns.forEach((col, colIndex) => {
-            const value = row[headers.indexOf(col)];
+            const value = row[col];
             if (col !== 'amount_netto' && col !== 'amount_pit4') {
               if (value === undefined || value === '') {
-                errors.push(`Wiersz ${rowNumber}, kolumna "${col}": Brak wartości`);
+                errors.push(`Wiersz ${index + 2}, kolumna "${col}": Brak wartości`);
               } else {
                 // Add specific validations for each column type
                 switch(col) {
                   case 'merchant_email':
                     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                      errors.push(`Wiersz ${rowNumber}, kolumna "${col}": Nieprawidłowy format email`);
+                      errors.push(`Wiersz ${index + 2}, kolumna "${col}": Nieprawidłowy format email`);
                     }
                     break;
                   case 'employee_phone':
                     if (!/^\+?[\d\s-]{9,}$/.test(value)) {
-                      errors.push(`Wiersz ${rowNumber}, kolumna "${col}": Nieprawidłowy format numeru telefonu`);
+                      errors.push(`Wiersz ${index + 2}, kolumna "${col}": Nieprawidłowy format numeru telefonu`);
                     }
                     break;
-                  case 'transaction_date':
+                  case 'transaction_date':  
+                    console.log(value)
                     const date = parseDate(value);
+                    console.log(date)
                     if (date === null) {
-                      errors.push(`Wiersz ${rowNumber}, kolumna "${col}": Nieprawidłowy format daty`);
+                      errors.push(`Wiersz ${index + 2}, kolumna "${col}": Nieprawidłowy format daty`);
                     } else {
                       const transactionMonth = date.getMonth() + 1; // getMonth() returns 0-11
-                      const transactionYear = date.getFullYear();
+                      const transactionYear = date.getFullYear(); 
                       if (transactionMonth !== selectedMonth || transactionYear !== selectedYear) {
-                        errors.push(`Wiersz ${rowNumber}, kolumna "${col}": Data transakcji (${date.toLocaleDateString('pl-PL')}) nie jest z wybranego miesiąca i roku (${selectedMonth}/${selectedYear})`);
+                        errors.push(`Wiersz ${index + 2}, kolumna "${col}": Data transakcji (${date.toLocaleDateString('pl-PL')}) nie jest z wybranego miesiąca i roku (${selectedMonth}/${selectedYear})`);
                       }
                     }
                     break;
@@ -243,14 +273,19 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
           console.log("uniqueMerchantsMap", Object.values(uniqueMerchantsMap))
 
           resolve({
-            totalTokenAmount: totalTokenAmount.toFixed(2),
+            totalTokenAmount: totalTokenAmount,
             uniqueMerchants: Array.from(uniqueMerchants),
             fileData: formattedData
           });
         }
       };
       reader.onerror = (error) => reject({type: 'file_error', message: 'Błąd odczytu pliku'});
-      reader.readAsArrayBuffer(file);
+      
+      if (file.name.endsWith('.csv')) {
+        reader.readAsText(file);
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
     });
   };
 

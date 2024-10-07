@@ -15,6 +15,7 @@ export default function MerchantPayoff() {
   const queryClient = useQueryClient();
 
   const [searchValue, setSearchValue] = useState("");  
+  const [merchants, setMerchants] = useState([]);
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const [csvData, setCsvData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,8 +52,9 @@ export default function MerchantPayoff() {
       
       return data;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(['merchants']);
+    onSuccess: (data) => {      
+
+      queryClient.invalidateQueries(['merchants-edit']);
       if (data.numberOfTransactionsMade > 0) {
         showToastNotificationSuccess("Sukces!", `Tokeny zostały przesłane`);
       }
@@ -63,19 +65,19 @@ export default function MerchantPayoff() {
     },
   });
 
-  const merchants = useMemo(() => {
-    if (!merchantsRaw) return [];
-
-    return merchantsRaw.map((merchant) => {
-      return {
+  useEffect(() => {
+    if (merchantsRaw) {
+      const formattedMerchants = merchantsRaw.map((merchant) => ({
         merchantId: merchant.merchantData.id,
         userId: merchant.id,
         merchantName: merchant.merchantData.merchantName,
         merchantType: merchant.merchantData.accountType,
         merchantBalance: merchant.tokens,
         topUpAmount: merchant.merchantData.lastTopupAmount,
-      };
-    });
+        justSentTokens: false,
+      }));
+      setMerchants(formattedMerchants);
+    }
   }, [merchantsRaw]);
 
   const submitPayoff = () => {
@@ -85,6 +87,7 @@ export default function MerchantPayoff() {
   }
 
   useEffect(() => {
+    console.log(selectedRowValues);
     const data = Object.values(selectedRowValues).map(row => ({
       merchantName: row.merchantName,
       merchantType: row.merchantType,
