@@ -16,7 +16,7 @@ export default function MerchantPayoff() {
 
   const [searchValue, setSearchValue] = useState("");  
   const [merchants, setMerchants] = useState([]);
-  const [selectedRowValues, setSelectedRowValues] = useState({});
+  const [selectedRowValues, setSelectedRowValues] = useState([]);
   const [csvData, setCsvData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -32,6 +32,7 @@ export default function MerchantPayoff() {
       console.log(data);
       return data;
     },
+    refetchOnWindowFocus: false
   });
 
   const updateTokenBalancesMutation = useMutation({
@@ -67,22 +68,44 @@ export default function MerchantPayoff() {
 
   useEffect(() => {
     if (merchantsRaw) {
-      const formattedMerchants = merchantsRaw.map((merchant) => ({
-        merchantId: merchant.merchantData.id,
-        userId: merchant.id,
-        merchantName: merchant.merchantData.merchantName,
-        merchantType: merchant.merchantData.accountType,
-        merchantBalance: merchant.tokens,
-        topUpAmount: merchant.merchantData.lastTopupAmount,
-        justSentTokens: false,
-      }));
+      const selectedRowMerchants = selectedRowValues.map((merchant) => merchant.merchantId)
+
+      const formattedMerchants = merchantsRaw.map((merchant) => {
+        
+        if (selectedRowMerchants.includes(merchant.merchantData.id)) {
+          return {
+            merchantId: merchant.merchantData.id,
+            userId: merchant.id,
+            merchantName: merchant.merchantData.merchantName,
+            merchantType: merchant.merchantData.accountType,
+            merchantBalance: merchant.tokens,
+            topUpAmount: merchant.merchantData.lastTopupAmount,
+            justSentTokens: true
+          }
+        }
+
+        return {
+          merchantId: merchant.merchantData.id,
+          userId: merchant.id,
+          merchantName: merchant.merchantData.merchantName,
+          merchantType: merchant.merchantData.accountType,
+          merchantBalance: merchant.tokens,
+          topUpAmount: merchant.merchantData.lastTopupAmount,
+          justSentTokens: false,
+        }
+      });
+      
       setMerchants(formattedMerchants);
     }
   }, [merchantsRaw]);
 
   const submitPayoff = () => {
     updateTokenBalancesMutation.mutate(selectedRowValues);
-    
+    console.log("selectedRowValues")
+    console.log(selectedRowValues)
+
+    console.log("merchants")
+    console.log(merchants)
     setIsModalOpen(false);
   }
 

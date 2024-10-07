@@ -18,33 +18,22 @@ export default function Home() {
   const [searchValue, setSearchValue] = useState("");
   const [automaticReturnOn, setAutomaticReturnOn] = useState("");
   const [isRecurrentPaymentOn, setIsRecurrentPaymentOn] = useState("");
-  const [selectedRowValues, setSelectedRowValues] = useState({});
+  const [selectedRowValues, setSelectedRowValues] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [csvData, setCsvData] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const queryClient = useQueryClient();
 
   // useQuery to get employees data
-  const { data: employees, isPending } = useQuery({
+  const { data: employeesRaw, isPending, refetch } = useQuery({
     queryKey: ['employees-fetch-all-payoff'],
     queryFn: async () => {
       const res = await fetch("/api/employee/fetch-all-payoff")
       const data = await res.json()
 
-      const employees = data.map(employee => {
-        return {
-          id: employee.id,
-          name: employee.employeeData.firstName + " " + employee.employeeData.lastName,
-          automaticReturnOn: employee.employeeData.automaticReturnOn,
-          merchantName: employee.employeeData.merchant.merchantName,
-          balance: employee.tokens,
-          recurrentPaymentOn: employee.employeeData.recurrentPaymentOn,
-          merchantUserId: employee.employeeData.merchant.userId,
-          merchantId: employee.employeeData.merchant.id,
-        }
-      })
-
-      return employees
+      return data
     },
+    refetchOnWindowFocus: false
   })
 
   const updateEmployeeTokenBalancesMutation = useMutation({
@@ -69,7 +58,41 @@ export default function Home() {
       queryClient.invalidateQueries(['employees-fetch-all-payoff', "transactions-fetch-history-all"]);
       if (data.numberOfTransactionsMade > 0) {
         showToastNotificationSuccess("Sukces!", `Tokeny zostały przesłane`);
-      }    
+      }
+      
+      const selectedRowEmployees = selectedRowValues.map((employee) => employee.id)
+      
+      const formattedEmployees = employeesRaw.map((employee) => {
+        
+        if (selectedRowEmployees.includes(employee.id)) {
+          return {
+            id: employee.id,
+            name: employee.employeeData.firstName + " " + employee.employeeData.lastName,
+            automaticReturnOn: employee.employeeData.automaticReturnOn,
+            merchantName: employee.employeeData.merchant.merchantName,
+            balance: employee.tokens,
+            recurrentPaymentOn: employee.employeeData.recurrentPaymentOn,
+            merchantUserId: employee.employeeData.merchant.userId,
+            merchantId: employee.employeeData.merchant.id,
+            justSentTokens: true
+          }
+        }
+
+
+        return {
+          id: employee.id,
+          name: employee.employeeData.firstName + " " + employee.employeeData.lastName,
+          automaticReturnOn: employee.employeeData.automaticReturnOn,
+          merchantName: employee.employeeData.merchant.merchantName,
+          balance: employee.tokens,
+          recurrentPaymentOn: employee.employeeData.recurrentPaymentOn,
+          merchantUserId: employee.employeeData.merchant.userId,
+          merchantId: employee.employeeData.merchant.id,
+        }
+
+      });
+      
+      setEmployees(formattedEmployees);
     },
     onError: (error) => {
       console.error("Error updating token balances:", error);
@@ -81,6 +104,52 @@ export default function Home() {
     updateEmployeeTokenBalancesMutation.mutate(selectedRowValues)
     setIsModalOpen(false)
   }
+
+  useEffect(() => {
+    if (employeesRaw) {
+      console.log("employeesRaw")
+      
+      const selectedRowEmployees = selectedRowValues.map((employee) => employee.id)
+      
+      console.log("selectedRowValues")
+      console.log(selectedRowValues)
+      
+      console.log("selectedRowEmployees")
+      console.log(selectedRowEmployees)
+      
+      const formattedEmployees = employeesRaw.map((employee) => {
+        
+        if (selectedRowEmployees.includes(employee.id)) {
+          return {
+            id: employee.id,
+            name: employee.employeeData.firstName + " " + employee.employeeData.lastName,
+            automaticReturnOn: employee.employeeData.automaticReturnOn,
+            merchantName: employee.employeeData.merchant.merchantName,
+            balance: employee.tokens,
+            recurrentPaymentOn: employee.employeeData.recurrentPaymentOn,
+            merchantUserId: employee.employeeData.merchant.userId,
+            merchantId: employee.employeeData.merchant.id,
+            justSentTokens: true
+          }
+        }
+
+
+        return {
+          id: employee.id,
+          name: employee.employeeData.firstName + " " + employee.employeeData.lastName,
+          automaticReturnOn: employee.employeeData.automaticReturnOn,
+          merchantName: employee.employeeData.merchant.merchantName,
+          balance: employee.tokens,
+          recurrentPaymentOn: employee.employeeData.recurrentPaymentOn,
+          merchantUserId: employee.employeeData.merchant.userId,
+          merchantId: employee.employeeData.merchant.id,
+        }
+
+      });
+      
+      setEmployees(formattedEmployees);
+    }
+  }, [employeesRaw]);
 
   useEffect(() => {
     const data = Object.values(selectedRowValues).map(row => ({

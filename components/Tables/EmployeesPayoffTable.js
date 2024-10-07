@@ -153,10 +153,11 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
       {
         accessorKey: "balance",
         header: "Saldo Pracownika",
-        cell: ({ getValue }) => (
+        cell: ({ getValue, row }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
             <span>{formatNumberWithSpaces(getValue())}</span>
+            {row.original.justSentTokens && <Icons.ArrowUpGreenImage w={16} h={16} />}
           </div>
         ),
       },
