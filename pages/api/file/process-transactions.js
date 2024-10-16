@@ -3,22 +3,12 @@ import { Role, TransactionType, TransactionStatus, TransferStatus } from "@prism
 import { addSeconds } from "date-fns";
 import { checkIfUserIsAuthorized } from "@/helpers/checkIfUserIsAuthorized";
 import { Argon2id } from "oslo/password";
-import { isSaturday, isSunday, lastDayOfMonth, subDays, setMilliseconds, setSeconds, setMinutes, setHours } from "date-fns";
-
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+import { setMilliseconds, setSeconds, setMinutes, setHours } from "date-fns";
 
 const getRandomHashedPassword = async () => {
   const password = Math.random().toString(36).slice(2, 10);
   const hashedPassword = await new Argon2id().hash(password);
   return hashedPassword;
-}
-
-function getLastWorkingDayOfMonth(year, month) {
-  let lastDay = lastDayOfMonth(new Date(year, month - 1));
-  while (isSaturday(lastDay) || isSunday(lastDay)) {
-    lastDay = subDays(lastDay, 1);
-  }
-  return lastDay;
 }
 
 function getRandomTime(date) {

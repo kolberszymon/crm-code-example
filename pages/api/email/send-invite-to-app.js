@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { prisma } from '@/lib/init/prisma';
 import { checkIfUserIsAuthorized } from '@/helpers/checkIfUserIsAuthorized';
 import { Role } from '@prisma/client';
+import { createEmailTemplateHTML } from '@/helpers/createEmailTemplate';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -68,7 +69,7 @@ export default async function handler(req, res) {
     to: email,
     subject: 'Witamy w aplikacji Monlib',
     text: `Kliknij tutaj, aby utworzyć swoje hasło:`,
-    html: `<p>Kliknij <a href="${inviteUrl}">tutaj</a>, aby utworzyć swoje hasło.</p>`,
+    html: createEmailTemplateHTML('Witamy w aplikacji Monlib', `<p>Kliknij <a href="${inviteUrl}">tutaj</a>, aby utworzyć swoje hasło.</p>`),
   });
 
     res.status(201).json({ success: true, message: 'Password set link sent' });

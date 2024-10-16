@@ -23,8 +23,8 @@ export const TokenFlowChart = () => {
 
       const formattedData = data.map(item => ({
         name: item.name,
-        wyslane: Number(item.wyslane.toFixed(2)),
-        zwrocone: Number(item.zwrocone.toFixed(2))
+        "wysłane": Number(item.wyslane.toFixed(2)),
+        "zwrócone": Number(item.zwrocone.toFixed(2))
       }));      
       
       return formattedData;
@@ -53,10 +53,10 @@ export const TokenFlowChart = () => {
       <div className="flex flex-row items-center justify-between pr-8">
         <div className="flex flex-col">          
           <p className="text-sm">
-            Wysłanych <span className="text-main-orange">{isPending ? 0 : data.reduce((acc, curr) => acc + curr.wyslane, 0)}</span>{" "}
+            Wysłanych <span className="text-main-orange">{isPending ? 0 : data.reduce((acc, curr) => acc + curr["wysłane"], 0)}</span>{" "}
           </p> 
           <p className="text-sm">
-            Zwróconych <span className="text-main-green">{isPending ? 0 : data.reduce((acc, curr) => acc + curr.zwrocone, 0)}</span>
+            Zwróconych <span className="text-main-green">{isPending ? 0 : data.reduce((acc, curr) => acc + curr["zwrócone"], 0)}</span>
           </p>
         </div>
         <div className="flex flex-col">
@@ -105,14 +105,14 @@ export const TokenFlowChart = () => {
           <Tooltip />
           <Area
             type="monotone"
-            dataKey="zwrocone"
+            dataKey="zwrócone"
             stroke="#015640"
             fillOpacity={1}
             fill="url(#colorUv)"
           />
           <Area
             type="monotone"
-            dataKey="wyslane"
+            dataKey="wysłane"
             stroke="#e59148"
             fillOpacity={1}
             fill="url(#colorPv)"

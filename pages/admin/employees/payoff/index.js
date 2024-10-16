@@ -38,6 +38,9 @@ export default function Home() {
 
   const updateEmployeeTokenBalancesMutation = useMutation({
     mutationFn: async (selectedEmployees) => {
+      console.log("selectedEmployees")
+      console.log(selectedEmployees)
+
       const response = await fetch('/api/employee/send-payoff-from-admin', {
         method: 'POST',
         headers: {
@@ -74,7 +77,9 @@ export default function Home() {
             recurrentPaymentOn: employee.employeeData.recurrentPaymentOn,
             merchantUserId: employee.employeeData.merchant.userId,
             merchantId: employee.employeeData.merchant.id,
-            justSentTokens: true
+            justSentTokens: true,
+            topUpAmount: "",
+            pit4Amount: ""  
           }
         }
 
@@ -88,6 +93,8 @@ export default function Home() {
           recurrentPaymentOn: employee.employeeData.recurrentPaymentOn,
           merchantUserId: employee.employeeData.merchant.userId,
           merchantId: employee.employeeData.merchant.id,
+          topUpAmount: "",
+          pit4Amount: ""
         }
 
       });
@@ -106,16 +113,8 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (employeesRaw) {
-      console.log("employeesRaw")
-      
+    if (employeesRaw) {      
       const selectedRowEmployees = selectedRowValues.map((employee) => employee.id)
-      
-      console.log("selectedRowValues")
-      console.log(selectedRowValues)
-      
-      console.log("selectedRowEmployees")
-      console.log(selectedRowEmployees)
       
       const formattedEmployees = employeesRaw.map((employee) => {
         
@@ -129,7 +128,9 @@ export default function Home() {
             recurrentPaymentOn: employee.employeeData.recurrentPaymentOn,
             merchantUserId: employee.employeeData.merchant.userId,
             merchantId: employee.employeeData.merchant.id,
-            justSentTokens: true
+            justSentTokens: true,
+            topUpAmount: "",
+            pit4Amount: ""
           }
         }
 
@@ -143,6 +144,8 @@ export default function Home() {
           recurrentPaymentOn: employee.employeeData.recurrentPaymentOn,
           merchantUserId: employee.employeeData.merchant.userId,
           merchantId: employee.employeeData.merchant.id,
+          topUpAmount: "",
+          pit4Amount: ""
         }
 
       });

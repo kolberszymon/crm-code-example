@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       },
     });
 
-    employees = employees.filter(employee => employee.pit4Amount && employee.topUpAmount).map(employee => ({
+    employees = employees.filter(employee => (parseFloat(employee.pit4Amount) >= 0) && (parseFloat(employee.topUpAmount) >= 1)).map(employee => ({
       ...employee,
       topUpAmount: Number(employee.topUpAmount),
       pit4Amount: Number(employee.pit4Amount)
@@ -57,21 +57,25 @@ export default async function handler(req, res) {
             transactionAmount: employee.topUpAmount + employee.pit4Amount,
             fromId: admin.id,
             toId: employee.merchantUserId,
+            balanceAfter: admin.tokens - (employee.topUpAmount + employee.pit4Amount),
           }
         })
 
         // Create transaction from merchant to admin for pit4Amount
-        await prisma.transaction.create({
-          data: {
-            type: TransactionType.TRANSFER_TOKENS_PIT,
-            transactionAmount: employee.pit4Amount,
-            fromId: employee.merchantUserId,
-            toId: admin.id,
-            merchantId: employee.merchantUserId,
-            pit4Amount: employee.pit4Amount,
-            createdAt: addSeconds(new Date(), 1)
-          }
-        })
+        if (employee.pit4Amount > 0) {
+          await prisma.transaction.create({
+            data: {
+              type: TransactionType.TRANSFER_TOKENS_PIT,
+              transactionAmount: employee.pit4Amount,
+              fromId: employee.merchantUserId,
+              toId: admin.id,
+              merchantId: employee.merchantUserId,
+              pit4Amount: employee.pit4Amount,
+              createdAt: addSeconds(new Date(), 1),
+              balanceAfter: admin.tokens - employee.pit4Amount
+            }
+          })
+        }
 
         // Create transaction from merchant to employee ALWAYS
         await prisma.transaction.create({
@@ -83,7 +87,8 @@ export default async function handler(req, res) {
             toId: employee.id,
             merchantId: employee.merchantUserId,
             transactionStatus: TransactionStatus.ZASILONO, 
-            createdAt: addSeconds(new Date(), 2)           
+            createdAt: addSeconds(new Date(), 2),
+            balanceAfter: employee.merchantUserId.tokens - employee.topUpAmount
           }
         })
         
@@ -100,7 +105,8 @@ export default async function handler(req, res) {
               transactionStatus: TransactionStatus.DO_ROZLICZENIA,
               transferStatus: TransferStatus.NIEROZLICZONE,
               createdAt: addSeconds(new Date(), 3),
-              wasPaymentAutomatic: true
+              wasPaymentAutomatic: true,
+              balanceAfter: admin.tokens + employee.topUpAmount
             }
           })
         } else {

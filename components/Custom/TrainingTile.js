@@ -17,7 +17,7 @@ export const TrainingTile = ({ training, onDelete, onDuplicate }) => {
             {training.title}
           </h4>
           <p className="text-xs text-zinc-600 font-normal text-wrap">
-            {training.description}
+            {training.introduction}
           </p>
         </div>
         <Link href={`/admin/trainings/edit/${training.id}`}>

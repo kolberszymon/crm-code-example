@@ -1,7 +1,7 @@
 import { MainComponent } from "@/components/MainComponent";
 import { ButtonGreen } from "@/components/Buttons/ButtonGreen";
 import { SearchBar } from "@/components/Inputs/SearchBar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { TrainingTile } from "@/components/Custom/TrainingTile";
 import Link from "next/link";
@@ -14,12 +14,13 @@ import { ButtonGray } from "@/components/Buttons/ButtonGray";
 import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 
 export default function Home() {
-  const [searchValue, setSearchValue] = useState(null);  
-  const [merchantType, setMerchantType] = useState("");
+  const [searchValue, setSearchValue] = useState("");  
+  const [trainingCategory, setTrainingCategory] = useState("");
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
   const [isModalDuplicateOpen, setIsModalDuplicateOpen] = useState(false);
   const [trainingIdToDelete, setTrainingIdToDelete] = useState(null);
   const [trainingIdToDuplicate, setTrainingIdToDuplicate] = useState(null);
+  const [filteredTrainings, setFilteredTrainings] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const queryClient = useQueryClient();
@@ -34,6 +35,17 @@ export default function Home() {
       console.log(data);
       return data;
     },    
+  });
+
+  const { data: categories, isPending: isCategoriesPending } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/trainings/fetch-categories');
+      const data = await response.json();
+
+
+      return data.map(category => ({ value: category.name, label: category.name }));
+    },
   });
 
   // useMutation for deleting a training
@@ -80,6 +92,13 @@ export default function Home() {
     setTrainingIdToDuplicate(id);
   }
 
+  useEffect(() => {
+    if (trainigs) {
+      const filteredTrainings = trainigs.filter(training => training.title.toLowerCase().includes(searchValue.toLowerCase()) && ((trainingCategory === '' || trainingCategory === 'Kategoria') || training.category === trainingCategory));
+      setFilteredTrainings(filteredTrainings);
+    }
+  }, [searchValue, trainigs, trainingCategory]);
+
   if (isPending) return <div className="flex items-center justify-center h-screen">Ładowanie...</div>;
 
   return (
@@ -95,12 +114,14 @@ export default function Home() {
         </div>
         <div className="flex flex-row items-center gap-4 mb-6">
           <SearchBar value={searchValue} setValue={setSearchValue} />
-          <SelectDropdown
-              value={merchantType}
-            setValue={setMerchantType}
-            options={["Kategoria", "Marketing"]}
-            extraCss=""
-          />
+          {!isCategoriesPending && (
+            <SelectDropdown
+              value={trainingCategory}
+              setValue={setTrainingCategory}
+              options={["Kategoria", ...categories.map(category => category.label)]}
+              extraCss=""
+            />
+          )}
         </div>
         <div className="space-y-4">
           {trainigs.length === 0 ? (
@@ -110,14 +131,14 @@ export default function Home() {
               </p>
             </div>
           ) : (
-            trainigs.map((training, i) => (
+            filteredTrainings.slice((page - 1) * pageSize, page * pageSize).map((training, i) => (
               <TrainingTile key={i} training={training} onDelete={() => openDeleteModal(training.id)} onDuplicate={() => openDuplicateModal(training.id)} />
             ))
           )}
         </div>
         <div className="w-full flex flex-row justify-between text-sm mt-[32px] h-[50px] items-center">
           <div className="text-zinc-950 flex flex-row items-center gap-[16px]">
-            <p>Wyświetlono {trainigs.length > pageSize ? pageSize : trainigs.length} z {trainigs.length} elementów</p>
+            <p>Wyświetlono {filteredTrainings.length > pageSize ? pageSize : filteredTrainings.length} z {filteredTrainings.length} elementów</p>
             <select
               value={pageSize}
               onChange={(e) => {

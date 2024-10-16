@@ -62,6 +62,9 @@ export default async function handler(req, res) {
         createdAt: 'desc',
       },
     });
+
+    console.log("transactions")
+    console.log(transactions)
     
     res.status(200).json(transactions);
   } catch (error) {

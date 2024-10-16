@@ -1,6 +1,7 @@
 
 import { sendEmail } from '@/lib/send-email';
 import { prisma } from '@/lib/init/prisma';
+import { createEmailTemplateHTML } from '@/helpers/createEmailTemplate';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -31,7 +32,7 @@ export default async function handler(req, res) {
       to: email,
       subject: 'Pobierz swoje szkolenie',
       text: `Kliknij tutaj, aby pobrać swoje szkolenie:`,
-      html: `<p>Kliknij <a href="${trainingPurchase.training.fileUrl}">tutaj</a>, aby pobrać swoje szkolenie.</p>`,
+      html: createEmailTemplateHTML('Pobierz swoje szkolenie', `<p>Kliknij <a href="${trainingPurchase.training.fileUrl}">tutaj</a>, aby pobrać swoje szkolenie.</p>`),
     });
 
     await prisma.trainingPurchase.update({

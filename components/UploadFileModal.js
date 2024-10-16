@@ -335,7 +335,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
                 <>
                   <Image src="/icons/cloud-upload.svg" width={24} height={24} alt="cloud-upload" />
                   <p className="text-zinc-950 text-sm font-semibold">Przesuń i upuść lub <span className="text-[#015640]">Kliknij i wgraj plik</span></p>
-                  <p className="text-zinc-500 text-xs">Obsługiwane formaty: .xlsx, .xls</p>
+                  <p className="text-zinc-500 text-xs">Obsługiwane formaty: .xlsx, .xls, .csv</p>
                 </>
               )}
             </div>

@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { MerchantType } from "@/components/Custom/MerchantType";
 
+
 const getPaymentFrequency = (frequency) => {
   switch (frequency) {
     case "WEEKLY":
@@ -26,6 +27,7 @@ const getPaymentFrequency = (frequency) => {
 
 export default function EmployeeView() {
   const { id } = useRouter().query;
+  const router = useRouter();
 
   const { data: employee, isPending } = useQuery({
     queryKey: ['employee', id],
@@ -296,7 +298,7 @@ export default function EmployeeView() {
           <Link href={`/admin/employees/edit/${id}`}>
             <ButtonGreen title="Edytuj dane" />
           </Link>
-          <ButtonGray title="Anuluj" />
+          <ButtonGray title="Anuluj"  onPress={() => router.back()} />
         </div>
       </MainComponent>
     </AdminLayout>

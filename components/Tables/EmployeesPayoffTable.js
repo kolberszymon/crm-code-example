@@ -35,7 +35,7 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
 
 const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
   const initialValue = getValue();
-  const [value, setValue] = useState(initialValue === 0 ? '' : initialValue);
+  const [value, setValue] = useState(!initialValue ? '' : initialValue);
 
   useEffect(() => {
     setValue(initialValue === 0 ? "" : initialValue);
@@ -76,8 +76,6 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
 
   const filteredData = useMemo(() => {
     let filteredData = data;
-
-    console.log(data)
 
     if (automaticReturnOn === "Auto") {
       filteredData = filteredData.filter(row => row.automaticReturnOn === true);

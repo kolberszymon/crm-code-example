@@ -2,6 +2,7 @@
 import { sendEmail } from '@/lib/send-email';
 import crypto from 'crypto';
 import { prisma } from '@/lib/init/prisma';
+import { createEmailTemplateHTML } from '@/helpers/createEmailTemplate';
 
 export function generateToken() {
   return crypto.randomBytes(32).toString('hex');
@@ -62,7 +63,7 @@ export default async function handler(req, res) {
     to: email,
     subject: 'Witamy w aplikacji Monlib',
     text: `Kliknij tutaj, aby utworzyć swoje hasło:`,
-    html: `<p>Kliknij <a href="${inviteUrl}">tutaj</a>, aby utworzyć swoje hasło.</p>`,
+    html: createEmailTemplateHTML('Witamy w aplikacji Monlib', `<p>Kliknij <a href="${inviteUrl}">tutaj</a>, aby utworzyć swoje hasło.</p>`),
   });
 
     res.status(201).json({ success: true, message: 'Password set link sent' });
