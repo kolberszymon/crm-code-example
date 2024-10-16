@@ -16,6 +16,7 @@ import { DatePickerWithRange } from "@/components/Custom/DatePickerRange";
 import { useRouter } from "next/router";
 import { CSVLink } from "react-csv";
 import { UploadFileModal } from "@/components/UploadFileModal";
+import { SelectDropdownLabelValue } from "@/components/Inputs/SelectDropdownLabelValue";
 
 const formatTransaction = (transaction) => {
   const transactionData = {
@@ -181,16 +182,27 @@ export default function Home() {
                 extraCss="my-[32px]"
               />
               <DatePickerWithRange className="w-[235px] bg-white border border-zinc-400 rounded-md" date={date} setDate={setDate}/>
-              <SelectDropdown
+              <SelectDropdownLabelValue
                 value={selectedTransactionStatus}
                 setValue={setSelectedTransactionStatus}
-                options={["Status transakcji", TransactionStatus.ZASILONO, TransactionStatus.DO_ROZLICZENIA, TransactionStatus.ZAKONCZONO, TransactionStatus.PRACOWNIK_PRACOWNIK, TransactionStatus.ZAKUP_SZKOLENIA]}
+                options={[
+                  { value: "", label: "Status transakcji" },
+                  { value: TransactionStatus.ZASILONO, label: "Zasilono" },
+                  { value: TransactionStatus.DO_ROZLICZENIA, label: "Do rozliczenia" },
+                  { value: TransactionStatus.ZAKONCZONO, label: "Zakończono" },
+                  { value: TransactionStatus.PRACOWNIK_PRACOWNIK, label: "Pracownik-Pracownik" },
+                  { value: TransactionStatus.ZAKUP_SZKOLENIA, label: "Zakup szkolenia" }
+                ]}
                 extraCss=""
               />
-              <SelectDropdown
+              <SelectDropdownLabelValue
                 value={selectedTransferStatus}
                 setValue={setSelectedTransferStatus}
-                options={["Status przelewu", TransferStatus.ROZLICZONE, TransferStatus.NIEROZLICZONE]}
+                options={[
+                  { value: "", label: "Status przelewu" },
+                  { value: TransferStatus.ROZLICZONE, label: "Rozliczone" },
+                  { value: TransferStatus.NIEROZLICZONE, label: "Nierozliczone" }
+                ]}
                 extraCss=""
               />
             </div>

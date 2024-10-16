@@ -36,7 +36,8 @@ export const createEmailTemplateHTML = (title, content) => {
       }
       .email-body {
           padding: 20px;
-          text-align: left;
+          text-align: center;
+          font-size: 14px;
           color: #333333;
       }
       .email-body a {
@@ -46,9 +47,9 @@ export const createEmailTemplateHTML = (title, content) => {
       }
       .footer {
           padding: 20px;
-          text-align: left;
+          text-align: right;
           color: #777777;
-          font-size: 14px;
+          font-size: 12px;
       }
   </style>
   </head>

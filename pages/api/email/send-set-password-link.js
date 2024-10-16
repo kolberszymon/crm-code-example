@@ -58,12 +58,15 @@ export default async function handler(req, res) {
   const protocol = req.headers['x-forwarded-proto'] || 'http';
   const host = req.headers.host;
   const inviteUrl = `${protocol}://${host}/set-new-password/${token}?type=${type}`;
+
+  console.log("type")
+  console.log(type)
   
   await sendEmail({
     to: email,
     subject: 'Witamy w aplikacji Monlib',
     text: `Kliknij tutaj, aby utworzyć swoje hasło:`,
-    html: createEmailTemplateHTML('Witamy w aplikacji Monlib', `<p>Kliknij <a href="${inviteUrl}">tutaj</a>, aby utworzyć swoje hasło.</p>`),
+    html: createEmailTemplateHTML('Witamy w aplikacji Monlib', `<p>Kliknij <a href="${inviteUrl}">tutaj</a>, aby ${type === 'forgotPassword' ? 'zresetować swoje hasło' : 'utworzyć swoje hasło'} do serwisu monlib.</p>`),
   });
 
     res.status(201).json({ success: true, message: 'Password set link sent' });

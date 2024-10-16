@@ -86,7 +86,7 @@ export default function Login() {
                         message: "Wprowadź poprawny email",
                       },
                     })}
-                    type="text"
+                    type="email"
                     placeholder="Email"
                     className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                   />

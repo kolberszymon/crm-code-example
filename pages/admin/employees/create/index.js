@@ -96,26 +96,26 @@ export default function CreateEmployee() {
               Szczegóły rozliczeń z pracownikiem
             </h4>
             <div className="flex flex-col gap-[16px]">
-              <div className="flex items-center">
+              <label className="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   checked={automaticReturn}
                   onChange={() => setAutomaticReturn(!automaticReturn)}
                   className="mr-2 accent-main-green w-[14px] h-[14px]"
                 />
-                <label className="text-sm">Automatyczny zwrot</label>
-              </div>
-              <div className="flex items-center">
+                <span className="text-sm">Automatyczny zwrot</span>
+              </label>
+              <label className="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   checked={recurrentPayment}
                   onChange={() => setRecurrentPayment(!recurrentPayment)}
                   className="mr-2 accent-main-green w-[14px] h-[14px]"
                 />
-                <label className="text-sm">
+                <span className="text-sm">
                   Transakcje wykonywane cyklicznie
-                </label>
-              </div>
+                </span>
+              </label>
               {recurrentPayment && (
                 <>
               <div className="w-1/4">
@@ -139,7 +139,8 @@ export default function CreateEmployee() {
                         message: "Wartość musi być liczbą",
                       },
                       valueAsNumber: true,
-                    })}                    
+                    })}
+                    defaultValue={0}         
                   />
                 </div>
                 {errors.paymentAmount && (
@@ -171,6 +172,7 @@ export default function CreateEmployee() {
                       },
                       valueAsNumber: true,
                     })}
+                    defaultValue={0}
                   />
                 </div>
                 {errors.paymentAmountPit && (

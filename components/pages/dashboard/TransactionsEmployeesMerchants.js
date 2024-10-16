@@ -37,6 +37,7 @@ export const TransactionsEmployeesMerchants = () => {
     }
   }, [date])
 
+
   return (
     <div className="flex flex-col min-w-[350px] justify-between gap-[16px]">
       <DatePickerWithRange className="w-[235px] bg-white border border-zinc-400 rounded-md" date={date} setDate={setDate}/>

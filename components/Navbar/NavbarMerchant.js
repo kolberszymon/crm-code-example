@@ -42,7 +42,9 @@ export const NavbarMerchant = () => {
   return (
     <nav className="w-64 bg-white rounded-tr-md rounded-br-md shadow flex-col justify-start items-start inline-flex">
       <div className="w-full px-2 my-[24px]">
-        <Image src="/logo.svg" alt="Logo" width={136} height={70} />
+        <Link href="/merchant/dashboard">
+          <Image src="/logo.svg" alt="Logo" width={136} height={70} />
+        </Link>
       </div>
       <NavbarSection title="Strona Główna" />
       <NavbarButton title="Saldo tokenów" path="/merchant/dashboard" />

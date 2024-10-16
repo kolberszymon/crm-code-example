@@ -59,7 +59,7 @@ const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
   );
 });
 
-export const EmployeesAccountTableMerchant = ({ tableData, setSelectedRowValues, searchValue, isRecurrentPaymentOn }) => {
+export const EmployeesAccountTableMerchant = ({ tableData, setSelectedRowValues, searchValue, isRecurrentPaymentOn, automaticReturnOn }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
@@ -68,10 +68,11 @@ export const EmployeesAccountTableMerchant = ({ tableData, setSelectedRowValues,
   const filteredData = useMemo(() => {
     let filteredData = data;
 
-    if (data.length === 0) {
-      return [];
+    if (automaticReturnOn === "Auto") {
+      filteredData = filteredData.filter(row => row.automaticReturnOn === true);
+    } else if (automaticReturnOn === "Manualny") {
+      filteredData = filteredData.filter(row => row.automaticReturnOn === false);
     }
-
 
     if (isRecurrentPaymentOn === "Aktywna") {
       filteredData = filteredData.filter(row => row.recurrentPaymentOn === true);
@@ -80,10 +81,10 @@ export const EmployeesAccountTableMerchant = ({ tableData, setSelectedRowValues,
     }
 
     return filteredData.filter(row => 
-      (row.name?.toLowerCase().includes(searchValue?.toLowerCase() || '') || false) ||
-      (row.merchantName?.toLowerCase().includes(searchValue?.toLowerCase() || '') || false)
+      row.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      row.merchantName.toLowerCase().includes(searchValue.toLowerCase())
     );
-  }, [data, searchValue, isRecurrentPaymentOn]);
+  }, [data, searchValue, automaticReturnOn, isRecurrentPaymentOn]);
 
   const columns = useMemo(
     () => [
@@ -125,7 +126,7 @@ export const EmployeesAccountTableMerchant = ({ tableData, setSelectedRowValues,
             title = "Auto"
             color = "blue"
           } else {
-            title = "Ręczny"
+            title = "Manualny"
             color = "red"
           }
           
@@ -272,7 +273,7 @@ export const EmployeesAccountTableMerchant = ({ tableData, setSelectedRowValues,
         <div className="text-zinc-950 flex flex-row items-center gap-[16px]">
           <p>
             Wyświetlono {table.getPaginationRowModel().rows.length} z{" "}
-            {data.length} elementów
+            {filteredData.length} elementów
           </p>
           <select
             value={pageSize}

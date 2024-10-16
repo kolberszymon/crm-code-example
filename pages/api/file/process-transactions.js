@@ -126,7 +126,14 @@ async function processRow(row, year, month, admin) {
       });
     }
 
+    let adminTokens = admin.tokens;
+    let merchantTokens = merchant.tokens;
+    let employeeTokens = employee.tokens;
+
     const transactionDate = getRandomTime(row.transactionDate);
+
+    merchantTokens += amountNetto + amountPit4;
+    adminTokens -= amountNetto + amountPit4;
 
     // Create transaction from admin to merchant
     const transaction1 = await prisma.transaction.create({
@@ -136,10 +143,15 @@ async function processRow(row, year, month, admin) {
         pit4Amount: amountPit4,
         fromId: admin.id,
         toId: merchant.id,
-        createdAt: transactionDate
+        createdAt: transactionDate,
+        balanceAfter: merchantTokens,
+        merchantId: merchant.id
       }
     });
     createdTransactions.push(transaction1.id);
+
+    merchantTokens -= amountPit4;
+    adminTokens += amountPit4;
 
     // Create transaction from merchant to admin for pit4Amount if pit4Amount is greater than 0
     if (amountPit4 > 0) {
@@ -151,11 +163,15 @@ async function processRow(row, year, month, admin) {
           toId: admin.id,
           merchantId: merchant.id,
           pit4Amount: amountPit4,
-          createdAt: addSeconds(transactionDate, 1)
+          createdAt: addSeconds(transactionDate, 1),
+          balanceAfter: adminTokens
         }
       });
       createdTransactions.push(transaction2.id);
     }
+
+    merchantTokens -= amountNetto;
+    employeeTokens += amountNetto;
 
     // Create transaction from merchant to employee ALWAYS
     const transaction3 = await prisma.transaction.create({
@@ -167,11 +183,15 @@ async function processRow(row, year, month, admin) {
         toId: employee.id,
         merchantId: merchant.id,
         transactionStatus: TransactionStatus.ZASILONO, 
-        createdAt: addSeconds(transactionDate, 2)           
+        createdAt: addSeconds(transactionDate, 2),
+        balanceAfter: employeeTokens
       }
     });
     createdTransactions.push(transaction3.id);
 
+
+    adminTokens += amountNetto;
+    employeeTokens -= amountNetto;
     // Create transaction from employee to admin
     const transaction4 = await prisma.transaction.create({
       data: {
@@ -184,7 +204,8 @@ async function processRow(row, year, month, admin) {
         transactionStatus: TransactionStatus.DO_ROZLICZENIA,
         transferStatus: TransferStatus.NIEROZLICZONE,
         createdAt: addSeconds(transactionDate, 3),
-        wasPaymentAutomatic: true
+        wasPaymentAutomatic: true,
+        balanceAfter: adminTokens
       }
     });
     createdTransactions.push(transaction4.id);

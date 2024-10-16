@@ -8,7 +8,7 @@ export const SelectDropdownLabelValue = ({ value, setValue, options, extraCss })
         onChange={(e) => {
           setValue(e.target.value);
         }}
-        className={`px-[8px] py-[8px] text-zinc-400 rounded-md text-xs font-medium appearance-none hover:cursor-pointer outline-none ${extraCss} text-zinc-950 `}
+        className={`pl-[8px] pr-[20px] py-[8px] text-zinc-400 rounded-md text-xs font-medium appearance-none hover:cursor-pointer outline-none ${extraCss} text-zinc-950 `}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value} >

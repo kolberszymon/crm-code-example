@@ -146,7 +146,7 @@ export default function Home() {
 
         <div className="w-full flex flex-row justify-between text-sm mt-[32px] h-[50px] items-center">
           <div className="text-zinc-950 flex flex-row items-center gap-[16px]">
-            <p>Wyświetlono {filteredData.length < tableSize ? filteredData.length : tableSize} z {merchants.length} elementów</p>
+            <p>Wyświetlono {filteredData.length < tableSize ? filteredData.length : tableSize} z {filteredData.length} elementów</p>
             <select
               value={tableSize}
               onChange={(e) => setTableSize(e.target.value)}

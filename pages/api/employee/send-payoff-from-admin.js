@@ -50,6 +50,19 @@ export default async function handler(req, res) {
       }
 
       await prisma.$transaction(async (prisma) => {
+        const merchant = await prisma.user.findUnique({
+          where: {
+            id: employee.merchantUserId
+          }
+        })
+
+        let adminTokens = admin.tokens;
+        let merchantTokens = merchant.tokens;
+        let employeeTokens = employee.tokens;
+
+        merchantTokens += employee.topUpAmount + employee.pit4Amount;
+        adminTokens -= employee.pit4Amount + employee.topUpAmount;
+
         // Create transaction from admin to merchant ALWAYS
         await prisma.transaction.create({
           data: {
@@ -57,9 +70,14 @@ export default async function handler(req, res) {
             transactionAmount: employee.topUpAmount + employee.pit4Amount,
             fromId: admin.id,
             toId: employee.merchantUserId,
-            balanceAfter: admin.tokens - (employee.topUpAmount + employee.pit4Amount),
+            balanceAfter: merchantTokens,
+            merchantId: employee.merchantUserId,
+            pit4Amount: employee.pit4Amount
           }
         })
+
+        merchantTokens -= employee.pit4Amount;
+        adminTokens += employee.pit4Amount;
 
         // Create transaction from merchant to admin for pit4Amount
         if (employee.pit4Amount > 0) {
@@ -72,10 +90,13 @@ export default async function handler(req, res) {
               merchantId: employee.merchantUserId,
               pit4Amount: employee.pit4Amount,
               createdAt: addSeconds(new Date(), 1),
-              balanceAfter: admin.tokens - employee.pit4Amount
+              balanceAfter: adminTokens
             }
           })
         }
+
+        merchantTokens -= employee.topUpAmount;
+        employeeTokens += employee.topUpAmount;
 
         // Create transaction from merchant to employee ALWAYS
         await prisma.transaction.create({
@@ -88,11 +109,13 @@ export default async function handler(req, res) {
             merchantId: employee.merchantUserId,
             transactionStatus: TransactionStatus.ZASILONO, 
             createdAt: addSeconds(new Date(), 2),
-            balanceAfter: employee.merchantUserId.tokens - employee.topUpAmount
+            balanceAfter: employeeTokens
           }
         })
         
         if (employee.automaticReturnOn) {         
+          adminTokens += employee.topUpAmount;
+          employeeTokens -= employee.topUpAmount;
           // Create transaction from employee to admin
           await prisma.transaction.create({
             data: {
@@ -106,7 +129,7 @@ export default async function handler(req, res) {
               transferStatus: TransferStatus.NIEROZLICZONE,
               createdAt: addSeconds(new Date(), 3),
               wasPaymentAutomatic: true,
-              balanceAfter: admin.tokens + employee.topUpAmount
+              balanceAfter: adminTokens
             }
           })
         } else {

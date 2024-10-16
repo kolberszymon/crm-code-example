@@ -293,7 +293,7 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
         <div className="text-zinc-950 flex flex-row items-center gap-[16px]">
           <p>
             Wyświetlono {table.getPaginationRowModel().rows.length} z{" "}
-            {data.length} elementów
+            {filteredData.length} elementów
           </p>
           <select
             value={pageSize}

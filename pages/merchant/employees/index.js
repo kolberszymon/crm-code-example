@@ -19,6 +19,7 @@ import { CSVLink } from "react-csv";
 export default function Home() {
   const [searchValue, setSearchValue] = useState("");
   const [isRecurrentPaymentOn, setIsRecurrentPaymentOn] = useState(null);
+  const [automaticReturnOn, setAutomaticReturnOn] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const { data: session} = useSession();
   const queryClient = useQueryClient()
@@ -128,6 +129,12 @@ export default function Home() {
               options={["Płatność cykliczna", "Aktywna", "Nieaktywna"]}
               extraCss=""
             />
+            <SelectDropdown
+              value={automaticReturnOn}
+              setValue={setAutomaticReturnOn}
+              options={["Zwrot", "Auto", "Manualny"]}
+              extraCss=""
+            />
           </div>
           <div className="flex flex-row gap-[8px]">
             {session?.user?.role === Role.MERCHANT_EDIT ? (
@@ -178,6 +185,7 @@ export default function Home() {
             setSelectedRowValues={setSelectedRowValues}
             searchValue={searchValue}            
             isRecurrentPaymentOn={isRecurrentPaymentOn}
+            automaticReturnOn={automaticReturnOn}
           />
         )}
 

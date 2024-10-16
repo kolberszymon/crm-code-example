@@ -86,6 +86,7 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
   const [validationErrors, setValidationErrors] = useState({errors: [], message: '', type: ''});
   const [validatedFileData, setValidatedFileData] = useState(null);
   const [uniqueMerchantsEmailName, setUniqueMerchantsEmailName] = useState([]);
+  const [uploadError, setUploadError] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -577,12 +578,14 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
                   queryClient.invalidateQueries({ queryKey: ['transactions-fetch-history-all'] })
                 } else {
                   console.log(data)
-                  setUploadStep(4);
+                  setUploadError(data.message)
+                  setUploadStep(7);
                 }
               })
               .catch((error) => {
                 console.log("error", error)
-                setUploadStep(4);
+                setUploadError(error.message)
+                setUploadStep(7);
                 
               })
             }} />
@@ -633,6 +636,41 @@ export const UploadFileModal = ({ isOpen, closeModal }) => {
           {/* Botton part */}
           <div className="bg-white p-[16px] rounded-b-md border-t border-zinc-200 flex flex-row gap-[8px] items-center justify-end">
             <ButtonGreen title="Zamknij" onPress={() => {
+              closeModal()
+              reset()
+            }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Upload file step 3 - validation success
+  if (uploadStep === 7) {
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
+        <div className="rounded-md shadow-md max-w-lg w-full">
+          {/* Top part */}
+          <div className="flex items-center justify-start p-[16px] bg-zinc-100 rounded-t-md">
+            <p className="text-zinc-950 text-base font-semibold">Prześlij plik</p>
+          </div>
+
+          {/* Middle top part */}
+          <div className="p-[16px] bg-white min-h-[160px] flex flex-col gap-[8px] items-center justify-center">     
+            <Image src="/icons/exclamation-triangle.svg" width={30} height={30} alt="exclamation-triangle" />
+            <p className="font-semibold text-[#E59148]">Wystąpił błąd!</p>
+            <p className="text-zinc-950 text-xs text-center">Wystąpił błąd podczas przetwarzania pliku. Kod błędu:</p>  
+            <p className="text-zinc-950 text-xs text-center">{uploadError}</p>
+          </div>
+
+          {/* Middle bottom part */}
+          <div className="p-[16px] bg-white min-h-[50px] flex flex-col gap-[8px] items-start justify-start">              
+            <p>Jeżeli błąd będzie się powtarzał, skontaktuj się z administratorem systemu</p>
+          </div>
+
+          {/* Botton part */}
+          <div className="bg-white p-[16px] rounded-b-md border-t border-zinc-200 flex flex-row gap-[8px] items-center justify-end">
+            <ButtonGray title="Zamknij" onPress={() => {
               closeModal()
               reset()
             }} />

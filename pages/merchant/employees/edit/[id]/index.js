@@ -6,9 +6,9 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 import { useForm } from "react-hook-form";
-import AdminLayout from "@/components/Layouts/AdminLayout";
 import { DatePickerSingle } from "@/components/Custom/DatePickerSingle";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import MerchantLayout from "@/components/Layouts/MerchantLayout";
 
 export default function EditEmployee() {
   const { id } = useRouter().query;
@@ -100,7 +100,7 @@ export default function EditEmployee() {
   }
 
   return (
-    <AdminLayout path={["Merchant", "Konto pracownika", "Edycja"]}>
+    <MerchantLayout path={["Merchant", "Konto pracownika", "Edycja"]}>
       <MainComponent>
         <h3 className="text-xl font-semibold mb-6">Konto pracownika</h3>
 
@@ -481,6 +481,6 @@ export default function EditEmployee() {
           </div>
         </form>
       </MainComponent>
-    </AdminLayout>
+    </MerchantLayout>
   );
 }

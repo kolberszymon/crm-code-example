@@ -28,15 +28,29 @@ export default async function handler(req, res) {
 
       const employees = await prisma.user.count({
         where: {
-          role: Role.EMPLOYEE
+          AND: [
+            {
+              role: Role.EMPLOYEE
+            },
+            {
+              isActive: true
+            }
+          ]
         }
       });
 
       const merchants = await prisma.user.count({
         where: {
-          role: {
-            in: [Role.MERCHANT_EDIT, Role.MERCHANT_VIEW]
-          }
+          AND: [
+            {
+              role: {
+                in: [Role.MERCHANT_EDIT, Role.MERCHANT_VIEW]
+              }
+            },
+            {
+              isActive: true
+            }
+          ]
         }
       });
 

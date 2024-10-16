@@ -104,7 +104,7 @@ export default function Home() {
           {trainigs.length === 0 ? (
             <div className="flex h-full">
               <p className="text-zinc-950 text-sm">
-                Nie znaleziono szkoleń, dodaj pierwsze szkolenie
+                Obecnie brak dostępnych szkoleń
               </p>
             </div>
           ) : (
