@@ -5,8 +5,9 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { Role } from "@prisma/client";
+import Link from "next/link";
 
-const AdminLayout = ({ path = [], children }) => {
+const AdminLayout = ({ path = [], children, firstPath }) => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -30,24 +31,34 @@ const AdminLayout = ({ path = [], children }) => {
         <HeaderAdmin />
         <main className="flex flex-1 flex-col items-start justify-start px-[32px] pt-[16px] h-full">
           <div className="flex flex-row gap-[4px] mb-[42px]">
-          {path.map((path, index) => {
+          {path.map((pathItem, index) => {
             if (index === 0) {
-              return (
-                <p className="text-[#015640] text-xs font-normal" key={index}>
-                  {path}
-                </p>
-              );
+              if (firstPath) {
+                return (
+                  <Link href={`/admin/${firstPath}`} key={index}>
+                    <p className="text-[#015640] text-xs font-normal cursor-pointer">
+                      {pathItem}
+                    </p>
+                  </Link>
+                );
+              } else {
+                return (
+                  <p className="text-[#015640] text-xs font-normal" key={index}>
+                    {pathItem}
+                  </p>
+                );
+              }
             } else {
               return (
                 <>
                   <Image src="/icons/arrow-right.svg" width={16} height={16} alt="arrow-right" key={`${index}-arrow`} />
                   <p className="text-[#0e1726] text-xs font-normal" key={`${index}-path`}>
-                    {path}
+                    {pathItem}
                   </p>
                 </>
               )
-            }
-          })}
+              }
+            })}
           </div>
           {children}
         </main>

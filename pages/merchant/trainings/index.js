@@ -84,7 +84,7 @@ export default function Home() {
   if (isPending) return <div className="flex items-center justify-center h-screen">Ładowanie...</div>;
 
   return (
-    <MerchantLayout path={["Szkolenia", "Lista Szkoleń"]}>
+    <MerchantLayout path={["Szkolenia", "Lista Szkoleń"]} firstPath="trainings">
       <MainComponent>
         <div className="flex flex-row justify-between items-center mb-6">
           <p className="text-zinc-950 text-base font-semibold leading-normal">

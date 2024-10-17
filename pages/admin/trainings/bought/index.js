@@ -45,7 +45,7 @@ export default function Settings() {
 
 
   return (
-    <AdminLayout path={["Szkolenia", "Lista szkoleń", "Kupione szkolenia"]}>
+    <AdminLayout path={["Szkolenia", "Lista szkoleń", "Kupione szkolenia"]} firstPath="trainings">
       <MainComponent>
       <div className="flex flex-row justify-between items-center">
           <p className="text-zinc-950 text-base font-semibold leading-normal">

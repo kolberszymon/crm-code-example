@@ -26,9 +26,9 @@ export function TutorialTable() {
         header: ({ table }) => (
           <IndeterminateCheckbox
             {...{
-              checked: table.getIsAllRowsSelected(),
-              indeterminate: table.getIsSomeRowsSelected(),
-              onChange: table.getToggleAllRowsSelectedHandler(),
+              checked: table.getIsAllPageRowsSelected(),
+              indeterminate: table.getIsSomePageRowsSelected(),
+              onChange: table.getToggleAllPageRowsSelectedHandler(),
             }}
           />
         ),

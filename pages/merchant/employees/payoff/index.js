@@ -105,7 +105,7 @@ export default function Home() {
   }
 
   return (
-    <MerchantLayout path={["Merchant", "Rozliczenia z pracownikami"]}>
+    <MerchantLayout path={["Pracownicy", "Rozliczenia z pracownikami"]} firstPath="employees">
       <MainComponent>
         <div className="flex flex-row justify-between items-center">
           <p className="text-zinc-950 text-base font-semibold leading-normal">

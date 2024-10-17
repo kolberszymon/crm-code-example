@@ -58,7 +58,7 @@ export default function Home() {
   ];
 
   return (
-    <MerchantLayout path={["Strona główna", "Saldo tokenów"]}>
+    <MerchantLayout path={["Strona główna", "Saldo tokenów"]} firstPath="dashboard">
       <MainComponent>
         <TokenBalanceMerchant />
 

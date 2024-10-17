@@ -9,7 +9,7 @@ import { MerchantNumberChart } from "@/components/pages/dashboard/MerchantNumber
 
 export default function Home() {
   return (
-    <AdminLayout path={["Dashboard"]}>
+    <AdminLayout path={["Dashboard"]} firstPath="dashboard">
       <MainComponentTransparent>
         {/* Top side of dashboard */}
         <div className="flex flex-row gap-[25px]">

@@ -26,7 +26,7 @@ export default function Home() {
   if (isPending) return <div className="flex items-center justify-center h-screen">Ładowanie...</div>;
 
   return (
-    <AdminLayout path={["Szkolenia", "Lista szkoleń", "Szczegóły"]}>
+    <AdminLayout path={["Szkolenia", "Lista szkoleń", "Szczegóły"]} firstPath="trainings">
       <MainComponent>
         {/* Top Section */}
         <div className="flex flex-row justify-between items-center">

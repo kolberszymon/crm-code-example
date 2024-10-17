@@ -62,7 +62,7 @@ export default function NewMerchantForm() {
   };
 
   return (
-    <AdminLayout path={["Merchant", "Konto merchantów", "Nowe konto"]}>
+    <AdminLayout path={["Merchant", "Konto merchantów", "Nowe konto"]} firstPath="merchants">
       <MainComponent>
         <div className="w-full">
           <div className="mb-4">

@@ -92,7 +92,7 @@ export default function Home() {
 
 
   return (
-    <AdminLayout path={["Tokeny", "Generowanie nowych tokenów"]}>
+    <AdminLayout path={["Tokeny", "Generowanie nowych tokenów"]} firstPath="tokens/generate">
       <MainComponent>
         <p className="text-zinc-950 text-base font-semibold leading-normal">
           Generowanie nowych tokenów

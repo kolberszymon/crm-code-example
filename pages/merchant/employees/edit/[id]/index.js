@@ -100,7 +100,7 @@ export default function EditEmployee() {
   }
 
   return (
-    <MerchantLayout path={["Merchant", "Konto pracownika", "Edycja"]}>
+    <MerchantLayout path={["Pracownicy", "Konto pracownika", "Edycja"]} firstPath="employees">
       <MainComponent>
         <h3 className="text-xl font-semibold mb-6">Konto pracownika</h3>
 

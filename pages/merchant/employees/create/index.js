@@ -74,7 +74,7 @@ export default function CreateEmployee() {
   if (isPending) return <div className="flex items-center justify-center h-screen"><p>Ładowanie...</p></div>
   
   return (
-    <MerchantLayout path={["Merchant", "Konto pracownika"]}>
+    <MerchantLayout path={["Pracownicy", "Konto pracownika"]} firstPath="employees">
       <MainComponent>
         <h3 className="text-xl font-semibold mb-6">Dodaj pracownika</h3>
 

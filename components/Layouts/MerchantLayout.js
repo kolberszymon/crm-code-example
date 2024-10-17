@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import { Role } from "@prisma/client";
 
-const MerchantLayout = ({ path = [], children }) => {
+const MerchantLayout = ({ path = [], children, firstPath}) => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -29,13 +29,23 @@ const MerchantLayout = ({ path = [], children }) => {
         <HeaderMerchant />
         <main className="flex flex-1 flex-col items-start justify-start px-[32px] pt-[16px] h-full">
           <div className="flex flex-row gap-[4px] mb-[42px]">
-          {path.map((path, index) => {
+          {path.map((pathItem, index) => {
             if (index === 0) {
-              return (
-                <p className="text-[#015640] text-xs font-normal">
-                  {path}
-                </p>
-              );
+              if (firstPath) {
+                return (
+                  <Link href={`/merchant/${firstPath}`} key={index}>
+                    <p className="text-[#015640] text-xs font-normal cursor-pointer">
+                      {pathItem}
+                    </p>
+                  </Link>
+                );
+              } else {
+                return (
+                  <p className="text-[#015640] text-xs font-normal" key={index}>
+                    {pathItem}
+                  </p>
+                );
+              }
             } else {
               return (
                 <>

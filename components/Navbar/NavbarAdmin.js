@@ -9,7 +9,7 @@ import { signOut } from "next-auth/react";
 
 const NavbarSection = ({ title }) => {
   return (
-    <div className="py-[12px] pl-[16px] w-full bg-main-gray font-medium text-[#0e1726] text-xs mt-[16px] mb-[16px]">
+    <div className="py-[12px] pl-[16px] w-full bg-main-gray font-medium text-[#0e1726] text-xs mt-[16px] mb-[16px] ">
       <p>{title}</p>
     </div>
   );
@@ -20,12 +20,12 @@ const NavbarButton = ({ title, path }) => {
 
   return (
     <Link
-      className={`w-full py-[12px] pl-[16px] bg-white text-[#0e1726] text-xs flex items-start hover:font-semibold transition-all ${
+      className={`w-full py-[12px] pl-[16px] bg-white text-[#0e1726] text-xs flex items-start ${
         path === currentPath ? "font-semibold" : ""
       }`}
       href={path}
     >
-      <p>{title}</p>
+      <p className="hover:cursor-pointer! hover:font-semibold w-full">{title}</p>
     </Link>
   );
 };

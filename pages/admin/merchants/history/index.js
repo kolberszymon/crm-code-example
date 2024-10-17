@@ -82,7 +82,7 @@ export default function Home() {
   }
 
   return (
-    <AdminLayout path={["Merchant", "Historia transakcji merchantów"]}>
+    <AdminLayout path={["Merchant", "Historia transakcji merchantów"]} firstPath="merchants">
       <MainComponent>
         <p className="text-zinc-950 text-base font-semibold leading-normal mb-[32px]">
           Historia rozliczeń merchantów

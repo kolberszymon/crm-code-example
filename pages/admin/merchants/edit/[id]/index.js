@@ -83,7 +83,7 @@ export default function NewMerchantForm() {
   );
 
   return (
-    <AdminLayout path={["Merchant", "Konta merchantów", "Edytuj"]}>
+    <AdminLayout path={["Merchant", "Konta merchantów", "Edytuj"]} firstPath="merchants">
       <MainComponent>
         <div className="w-full">
           <div className="mb-4 flex flex-col gap-[8px]">
@@ -212,7 +212,12 @@ export default function NewMerchantForm() {
                   <input
                     type="text"
                     id="phone"
-                    {...register("phone")}
+                    {...register("phone", {
+                      pattern: {
+                        value: /^(\+\d{1,3}[- ]?)?\d{4,15}$/,
+                        message: "Invalid phone number format"
+                      }
+                    })}
                     className="w-full border border-gray-300 rounded-md p-2 text-sm"
                     defaultValue={merchant?.user?.phone}
                   />

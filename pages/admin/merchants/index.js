@@ -114,7 +114,7 @@ export default function Home() {
   }
 
   return (
-    <AdminLayout path={["Merchant", "Konta merchantów"]}>
+    <AdminLayout path={["Merchant", "Konta merchantów"]} firstPath="merchants">
       <MainComponent>
         <div className="w-full flex flex-row justify-between items-center">
           <h3 className="text-base font-semibold">Konta merchanta</h3>
@@ -131,7 +131,7 @@ export default function Home() {
           <SelectDropdown
             value={merchantType}
             setValue={setMerchantType}
-            options={["Merchant", "View", "Edit"]}
+            options={["Rodzaj merchanta", "View", "Edit"]}
             extraCss=""
           />
         </div>

@@ -44,7 +44,7 @@ export default function EmployeeView() {
   if (isPending) return <div className="flex justify-center items-center h-screen">Ładowanie...</div>;
 
   return (
-    <AdminLayout path={["Merchant", "Konto pracownika"]}>
+    <AdminLayout path={["Pracownicy", "Konto pracownika"]} firstPath="employees">
       <MainComponent>
         <div className="mb-6 flex flex-row justify-between">
           <div className="flex flex-col">

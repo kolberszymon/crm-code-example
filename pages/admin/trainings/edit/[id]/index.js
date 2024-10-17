@@ -138,7 +138,7 @@ export default function AddTraining() {
   if (isPending) return <div className="flex items-center justify-center h-screen">Ładowanie...</div>;
 
   return (
-    <AdminLayout>
+    <AdminLayout path={["Szkolenia", "Lista szkoleń", "Edycja"]} firstPath="trainings" >
       <MainComponent>
         <div className="mb-4">
           <h3 className="text-lg font-semibold">Edytuj szkolenie</h3>

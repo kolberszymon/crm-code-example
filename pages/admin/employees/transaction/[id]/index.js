@@ -109,14 +109,14 @@ export default function MerchantView() {
 
   if (isPending) {
     return (
-      <AdminLayout path={["Merchant", "Rozliczenia z merchantami", "Szczegóły transakcji"]}>
+      <AdminLayout path={["Pracownicy", "Rozliczenia z merchantami", "Szczegóły transakcji"]}>
         <MainComponent><p>Ładowanie...</p></MainComponent>
       </AdminLayout>
     )
   }  
 
   return (
-    <AdminLayout path={["Merchant", "Rozliczenia z merchantami", "Szczegóły transakcji"]}>
+    <AdminLayout path={["Pracownicy", "Rozliczenia z merchantami", "Szczegóły transakcji"]} firstPath="employees">
       <MainComponent>
         <h3 className="text-zinc-950 text-base font-semibold leading-normal mb-[32px]">
           Szczegóły transakcji

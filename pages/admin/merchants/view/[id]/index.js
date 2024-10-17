@@ -73,7 +73,7 @@ export default function MerchantView() {
   );
 
   return (
-    <AdminLayout path={["Merchant", "Konto merchantów", "Nowe konto", "Szczegóły konta"]}>
+    <AdminLayout path={["Merchant", "Konto merchantów", "Nowe konto", "Szczegóły konta"]} firstPath="merchants">
       <MainComponent>
         <div className="mb-6 flex flex-row justify-between">
           <div className="flex flex-col">

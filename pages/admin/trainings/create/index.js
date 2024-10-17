@@ -123,7 +123,7 @@ export default function AddTraining() {
   }
 
   return (
-    <AdminLayout>
+    <AdminLayout path={["Szkolenia", "Lista szkoleń", "Dodaj"]} firstPath="trainings">
       <MainComponent>
         <div className="mb-4">
           <h3 className="text-lg font-semibold">Dodaj szkolenie</h3>

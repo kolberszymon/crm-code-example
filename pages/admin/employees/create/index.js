@@ -85,7 +85,7 @@ export default function CreateEmployee() {
   }
 
   return (
-    <AdminLayout path={["Merchant", "Konto pracownika"]}>
+    <AdminLayout path={["Pracownicy", "Konto pracownika"]} firstPath="employees">
       <MainComponent>
         <h3 className="text-xl font-semibold mb-6">Konto pracownika</h3>
 

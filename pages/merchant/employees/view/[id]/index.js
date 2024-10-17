@@ -44,7 +44,7 @@ export default function EmployeeView() {
   if (isPending) return <div>Ładowanie...</div>;
 
   return (
-    <MerchantLayout path={["Merchant", "Konto pracownika"]}>
+    <MerchantLayout path={["Pracownicy", "Konto pracownika"]} firstPath="employees">
       <MainComponent>
         <div className="mb-6 flex flex-row justify-between">
           <div className="flex flex-col">
