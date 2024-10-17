@@ -19,6 +19,7 @@ export default function Home() {
   const router = useRouter()
 
   const [searchValue, setSearchValue] = useState("");
+  const [searchMerchantValue, setSearchMerchantValue] = useState("");
   const [automaticReturnOn, setAutomaticReturnOn] = useState("");
   const [isRecurrentPaymentOn, setIsRecurrentPaymentOn] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
@@ -118,13 +119,20 @@ export default function Home() {
           </Link>
         </div>
         <div className="flex flex-row items-center justify-between">
-          <div className="flex flex-row items-center gap-4 my-[32px]">
+          <div className="flex flex-row items-center gap-4 my-[64px]">
             <SearchBar
               value={searchValue}
               setValue={setSearchValue}
-              extraCss="my-[32px]"
-              placeholder="Szukaj po pracowniku, merchancie"
+              extraCss=""
+              placeholder="Szukaj po pracowniku"
             />
+            <SearchBar
+              value={searchMerchantValue}
+              setValue={setSearchMerchantValue}
+              extraCss=""
+              placeholder="Szukaj po merchancie"
+            />
+
             <SelectDropdown
               value={automaticReturnOn}
               setValue={setAutomaticReturnOn}
@@ -183,6 +191,7 @@ export default function Home() {
             tableData={employees}
             setSelectedRowValues={setSelectedRowValues}
             searchValue={searchValue}
+            merchantSearchValue={searchMerchantValue}
             automaticReturnOn={automaticReturnOn}
             isRecurrentPaymentOn={isRecurrentPaymentOn}
           />

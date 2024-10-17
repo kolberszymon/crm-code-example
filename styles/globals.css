@@ -187,3 +187,7 @@ body {
     --radius: 0.5rem;
   }
 }
+
+input {
+  background-color: white; /* or transparent */
+}

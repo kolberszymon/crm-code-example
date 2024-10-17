@@ -10,6 +10,8 @@ import { Role } from "@prisma/client";
 
 export default function Login() {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+
   const router = useRouter();
 
   const {
@@ -99,7 +101,7 @@ export default function Login() {
                 <label className="text-sm font-semibold text-[#002d21]">
                   Hasło
                 </label>
-                <div className="flex flex-row border border-main-gray rounded-md pl-[16px] focus-within:border-zinc-800 transition-colors">
+                <div className="flex flex-row border border-main-gray rounded-md pl-[16px] focus-within:border-zinc-800 transition-colors items-center">
                   <Image
                     src="/icons/lock-password-icon.svg"
                     width={18}
@@ -115,10 +117,21 @@ export default function Login() {
                         message: "Hasło musi mieć co najmniej 6 znaków",
                       },
                     })}
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Hasło"
                     className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="w-[30px] h-[30px] mr-[8px] rounded-full hover:bg-gray-200 bg-zinc-100 flex items-center justify-center focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <Image width={16} height={16} src="/icons/eye-closed.svg" className="text-gray-500" />
+                    ) : (
+                      <Image width={16} height={16} src="/icons/eye.svg" className="text-gray-500" />
+                    )}
+                  </button>
                 </div>
                 {errors.password && (
                   <p className="text-red-500 text-sm">

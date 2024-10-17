@@ -68,7 +68,7 @@ const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
   );
 });
 
-export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchValue, automaticReturnOn, isRecurrentPaymentOn }) => {
+export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchValue, merchantSearchValue, automaticReturnOn, isRecurrentPaymentOn }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
@@ -90,10 +90,10 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
     }
 
     return filteredData.filter(row => 
-      row.name.toLowerCase().includes(searchValue?.toLowerCase()) ||
-      row.merchantName.toLowerCase().includes(searchValue?.toLowerCase())
+      row.name.toLowerCase().includes(searchValue?.toLowerCase()) &&
+      row.merchantName.toLowerCase().includes(merchantSearchValue?.toLowerCase())
     );
-  }, [data, searchValue, automaticReturnOn, isRecurrentPaymentOn]);
+  }, [data, searchValue, merchantSearchValue, automaticReturnOn, isRecurrentPaymentOn]);
 
   const columns = useMemo(
     () => [

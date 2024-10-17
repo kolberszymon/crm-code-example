@@ -9,6 +9,8 @@ import Link from "next/link";
 export default function SetNewPassword() {
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
   const { token, type } = useRouter().query;
   const router = useRouter();
   
@@ -89,7 +91,7 @@ export default function SetNewPassword() {
                   <label className="text-sm font-semibold text-[#002d21]">
                     Hasło
                   </label>
-                  <div className="flex flex-row border border-main-gray rounded-md pl-[16px] focus-within:border-zinc-800 transition-colors">
+                  <div className="flex flex-row border border-main-gray rounded-md pl-[16px] focus-within:border-zinc-800 transition-colors items-center">
                     <Image
                       src="/icons/lock-password-icon.svg"
                       width={18}
@@ -105,10 +107,21 @@ export default function SetNewPassword() {
                           message: "Hasło musi mieć co najmniej 6 znaków",
                         },
                       })}
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="Hasło"
                       className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="w-[30px] h-[30px] mr-[8px] rounded-full hover:bg-gray-200 bg-zinc-100 flex items-center justify-center focus:outline-none"
+                    >
+                      {showPassword ? (
+                        <Image width={16} height={16} src="/icons/eye-closed.svg" className="text-gray-500" />
+                      ) : (
+                        <Image width={16} height={16} src="/icons/eye.svg" className="text-gray-500" />
+                      )}
+                    </button>
                   </div>
                   {errors.password && (
                     <p className="text-red-500 text-sm">
@@ -120,7 +133,7 @@ export default function SetNewPassword() {
                   <label className="text-sm font-semibold text-[#002d21]">
                     Powtórz hasło
                   </label>
-                  <div className="flex flex-row border border-main-gray rounded-md pl-[16px] focus-within:border-zinc-800 transition-colors">
+                  <div className="flex flex-row border border-main-gray rounded-md pl-[16px] focus-within:border-zinc-800 transition-colors items-center">
                     <Image
                       src="/icons/lock-password-icon.svg"
                       width={18}
@@ -137,10 +150,21 @@ export default function SetNewPassword() {
                           }
                         },
                       })}
-                      type="password"
+                      type={showPasswordConfirmation ? "text" : "password"}
                       placeholder="Powtórz hasło"
                       className="px-[16px] py-[10px] text-sm flex-1 outline-none rounded-md"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                      className="w-[30px] h-[30px] mr-[8px] rounded-full hover:bg-gray-200 bg-zinc-100 flex items-center justify-center focus:outline-none"
+                    >
+                      {showPasswordConfirmation ? (
+                        <Image width={16} height={16} src="/icons/eye-closed.svg" className="text-gray-500" />
+                      ) : (
+                        <Image width={16} height={16} src="/icons/eye.svg" className="text-gray-500" />
+                      )}
+                    </button>
                   </div>
                   {errors.passwordConfirmation && (
                     <p className="text-red-500 text-sm">{errors.passwordConfirmation.message}</p>
