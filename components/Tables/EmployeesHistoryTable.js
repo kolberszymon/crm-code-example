@@ -38,7 +38,7 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   );
 }
 
-export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchValue, selectedTransactionStatus, selectedTransferStatus, date, role = "admin" }) => {
+export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchValue, merchantSearchValue, selectedTransactionStatus, selectedTransferStatus, date, role = "admin" }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
@@ -65,11 +65,11 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
     }
 
     return filteredData.filter(row => 
-      row.id.toLowerCase().includes(searchValue.toLowerCase()) ||
-      row.employee?.toLowerCase().includes(searchValue.toLowerCase()) ||            
-      row.accountNumber?.toLowerCase().includes(searchValue.toLowerCase())      
+      (row.id.toLowerCase().includes(searchValue.toLowerCase()) ||
+      row.employee?.toLowerCase().includes(searchValue.toLowerCase())) &&
+      row.merchant?.toLowerCase().includes(merchantSearchValue.toLowerCase())
     );
-  }, [data, searchValue, selectedTransactionStatus, selectedTransferStatus, date]);
+  }, [data, searchValue, selectedTransactionStatus, selectedTransferStatus, date, merchantSearchValue]);
     
 
   const columns = useMemo(
@@ -114,8 +114,46 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
         ),
       },
       {
-        accessorKey: "employee",
-        header: "Pracownik",
+        accessorKey: "employee",        
+        header: ({ column }) => (
+          <div className="flex items-center">
+            Pracownik
+            <button
+              onClick={() => {
+                const isDesc = column.getIsSorted() === "desc";
+                setSorting([{ id: "employee", desc: !isDesc }]);
+              }}
+              className="ml-2"
+            >
+              <Icons.SortImage w={9} h={12} /> 
+            </button>
+          </div>
+        ),
+        cell: ({ getValue }) => getValue(),
+        sortingFn: (rowA, rowB, columnId) => {
+          return rowA.getValue(columnId).localeCompare(rowB.getValue(columnId));
+        },
+      },
+      {
+        accessorKey: "merchant",        
+        header: ({ column }) => (
+          <div className="flex items-center">
+            Merchant
+            <button
+              onClick={() => {
+                const isDesc = column.getIsSorted() === "desc";
+                setSorting([{ id: "merchant", desc: !isDesc }]);
+              }}
+              className="ml-2"
+            >
+              <Icons.SortImage w={9} h={12} /> 
+            </button>
+          </div>
+        ),
+        cell: ({ getValue }) => getValue(),
+        sortingFn: (rowA, rowB, columnId) => {
+          return rowA.getValue(columnId).localeCompare(rowB.getValue(columnId));
+        },
       },
       {
         accessorKey: "date",
@@ -141,10 +179,10 @@ export const EmployeesHistoryTable = ({ tableData, setSelectedRowValues, searchV
           return dateA.getTime() - dateB.getTime();
         },
       },
-      {
-        accessorKey: "hour",
-        header: "Godzina",
-      },
+      // {
+      //   accessorKey: "hour",
+      //   header: "Godzina",
+      // },
       {
         accessorKey: "amount",
         header: "Wartość netto",

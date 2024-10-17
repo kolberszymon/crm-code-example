@@ -349,7 +349,11 @@ export default function EditEmployee() {
                   type="tel"
                   className="w-full border border-gray-300 rounded-md p-2 text-sm"                  
                   {...register("phone", {
-                    required: "Numer telefonu jest wymagany",
+                    pattern: {
+                      value: /^(\+\d{1,3}[- ]?)?\d{4,15}$/,
+                      message: "Niepoprawny format numeru telefonu"
+                    },
+                    required: "Numer telefonu jest wymagany"
                   })}
                   defaultValue={employee.user.phone}
                 />

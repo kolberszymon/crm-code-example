@@ -3,6 +3,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   flexRender,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import Image from "next/image";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -36,6 +37,7 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
 const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
   const initialValue = getValue();
   const [value, setValue] = useState(!initialValue ? '' : initialValue);
+  
 
   useEffect(() => {
     setValue(initialValue === 0 ? "" : initialValue);
@@ -73,6 +75,7 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
+  const [sorting, setSorting] = useState([])
 
   const filteredData = useMemo(() => {
     let filteredData = data;
@@ -124,6 +127,24 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
       {
         accessorKey: "name",
         header: "Pracownik",
+        header: ({ column }) => (
+          <div className="flex items-center">
+            Pracownik
+            <button
+              onClick={() => {
+                const isDesc = column.getIsSorted() === "desc";
+                setSorting([{ id: "name", desc: !isDesc }]);
+              }}
+              className="ml-2 w-4 h-4"
+            >
+              <Icons.SortImage w={9} h={12} /> 
+            </button>
+          </div>
+        ),
+        cell: ({ getValue }) => getValue(),
+        sortingFn: (rowA, rowB, columnId) => {
+          return rowA.getValue(columnId).localeCompare(rowB.getValue(columnId));
+        },
       },
       {
         accessorKey: "automaticReturnOn",
@@ -146,15 +167,51 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
       },
       {
         accessorKey: "merchantName",
-        header: "Merchant",
+        header: ({ column }) => (
+          <div className="flex items-center">
+            Merchant
+            <button
+              onClick={() => {
+                const isDesc = column.getIsSorted() === "desc";
+                setSorting([{ id: "merchantName", desc: !isDesc }]);
+              }}
+              className="ml-2 w-4 h-4"
+            >
+              <Icons.SortImage w={9} h={12} /> 
+            </button>
+          </div>
+        ),
+        cell: ({ getValue }) => getValue(),
+        sortingFn: (rowA, rowB, columnId) => {
+          return rowA.getValue(columnId).localeCompare(rowB.getValue(columnId));
+        },
       },
       {
-        accessorKey: "balance",
-        header: "Saldo Pracownika",
-        cell: ({ getValue, row }) => (
+        id: 'balance',
+        accessorFn: (row) => {
+          // If balance is already a number, return it directly
+          if (typeof row.balance === 'number') return row.balance;
+          // If it's a string with spaces, parse it
+          return parseFloat(row.balance.replace(/\s/g, ''));
+        },
+        header: ({ column }) => (
+          <div className="flex items-center">
+            Saldo Pracownika
+            <button
+               onClick={() => {
+                const isDesc = column.getIsSorted() === "desc";
+                setSorting([{ id: "balance", desc: !isDesc }]);
+              }}
+              className="ml-2 w-4 h-4"
+            >
+              <Icons.SortImage w={9} h={12} />
+            </button>
+          </div>
+        ),
+        cell: ({ row }) => (
           <div className="flex items-center justify-start gap-1">
             <Icons.CoinImage w={16} h={16} />
-            <span>{formatNumberWithSpaces(getValue())}</span>
+            <span>{formatNumberWithSpaces(row.original.balance)}</span>
             {row.original.justSentTokens && <Icons.ArrowUpGreenImage w={16} h={16} />}
           </div>
         ),
@@ -216,7 +273,7 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
         },
         cell: ({ row }) => (
           <Link href={`/admin/employees/view/${row.original.id}`}>
-            <button className="flex items-center justify-start gap-1 bg-[#f6f7f8] p-[4px] rounded-full hover:bg-gray-200 transition-colors">
+            <button className="flex items-center justify-start gap-1 bg-[#f6f7f8] p-[4px] rounded-full hover:bg-gray-200 transition-colors w-[24px] h-[24px]">
               <Icons.EyeImage w={16} h={16} />
             </button>
           </Link>
@@ -232,10 +289,12 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
     state: {
       rowSelection,
       pagination: { pageIndex, pageSize },
+      sorting
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: (updater) => {
       const newPagination = updater(table.getState().pagination);

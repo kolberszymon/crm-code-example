@@ -215,7 +215,7 @@ export default function NewMerchantForm() {
                     {...register("phone", {
                       pattern: {
                         value: /^(\+\d{1,3}[- ]?)?\d{4,15}$/,
-                        message: "Invalid phone number format"
+                        message: "Niepoprawny format numeru telefonu"
                       }
                     })}
                     className="w-full border border-gray-300 rounded-md p-2 text-sm"

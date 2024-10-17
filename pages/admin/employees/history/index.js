@@ -18,13 +18,14 @@ import { CSVLink } from "react-csv";
 import { UploadFileModal } from "@/components/UploadFileModal";
 import { SelectDropdownLabelValue } from "@/components/Inputs/SelectDropdownLabelValue";
 
-const formatTransaction = (transaction) => {
+const formatTransaction = (transaction) => {  
   const transactionData = {
     id: transaction.id,
     employee: null,
     date: format(new Date(transaction.createdAt), 'dd.MM.yyyy'),
     hour: format(new Date(transaction.createdAt), 'HH:mm:ss'),
     accountNumber: null,
+    merchant: null,
     amount: transaction.transactionAmount,
     pit4Amount: transaction.pit4Amount,
     transactionStatus: transaction.transactionStatus,
@@ -34,10 +35,16 @@ const formatTransaction = (transaction) => {
   if (transaction.from.role === Role.EMPLOYEE) {
     transactionData.employee = transaction.from.employeeData.firstName + " " + transaction.from.employeeData.lastName
     transactionData.accountNumber = transaction.from.employeeData.accountNumber
+
+    transactionData.merchant = transaction.to.merchantData.merchantName
   } else if (transaction.to.role === Role.EMPLOYEE) {
     transactionData.employee = transaction.to.employeeData.firstName + " " + transaction.to.employeeData.lastName
     transactionData.accountNumber = transaction.to.employeeData.accountNumber
+
+    transactionData.merchant = transaction.from.merchantData.merchantName
   }
+
+  console.log(transactionData)
 
   return transactionData
 }
@@ -46,6 +53,7 @@ export default function Home() {
   const router = useRouter()
 
   const [searchValue, setSearchValue] = useState("");
+  const [merchantSearchValue, setMerchantSearchValue] = useState("");
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const [modalPayoffStatus, setModalPayoffStatus] = useState(TransferStatus.ROZLICZONE);
   const queryClient = useQueryClient()
@@ -174,12 +182,17 @@ export default function Home() {
            
         </div>
         <div className="flex flex-row items-center justify-between">
-          <div className="flex flex-col items-start my-[32px]">
+          <div className="flex flex-col items-start my-[64px]">
             <div className="flex flex-row items-center gap-[8px]">
               <SearchBar
                 value={searchValue}
                 setValue={setSearchValue}
-                extraCss="my-[32px]"
+                placeholder="Szukaj po pracowniku / id transakcji"
+              />
+               <SearchBar
+                value={merchantSearchValue}
+                setValue={setMerchantSearchValue}  
+                placeholder="Szukaj po merchanciee"
               />
               <DatePickerWithRange className="w-[235px] bg-white border border-zinc-400 rounded-md" date={date} setDate={setDate}/>
               <SelectDropdownLabelValue
@@ -235,6 +248,7 @@ export default function Home() {
           tableData={transactions || []}
           setSelectedRowValues={setSelectedRowValues}
           searchValue={searchValue}
+          merchantSearchValue={merchantSearchValue}
           selectedTransactionStatus={selectedTransactionStatus}
           selectedTransferStatus={selectedTransferStatus}
           date={date}

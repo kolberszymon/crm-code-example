@@ -184,7 +184,12 @@ export default function NewMerchantForm() {
                   <input
                     type="text"
                     id="phone"
-                    {...register("phone")}
+                    {...register("phone", {
+                      pattern: {
+                        value: /^(\+\d{1,3}[- ]?)?\d{4,15}$/,
+                        message: "Niepoprawny format numeru telefonu"
+                      }
+                    })}
                     className="w-full border border-gray-300 rounded-md p-2 text-sm"
                   />
                   {errors.phone && (
