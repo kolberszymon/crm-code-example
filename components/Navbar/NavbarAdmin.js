@@ -30,7 +30,7 @@ const NavbarButton = ({ title, path }) => {
   );
 };
 
-export const NavbarAdmin = () => {
+export const NavbarAdmin = ({ firstPath}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);

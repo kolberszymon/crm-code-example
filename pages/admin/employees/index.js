@@ -11,13 +11,13 @@ import Link from "next/link";
 import { ButtonRed } from "@/components/Buttons/ButtonRed";
 import AdminLayout from "@/components/Layouts/AdminLayout";
 import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CSVLink } from "react-csv";
 import { useRouter } from "next/router";
 
 export default function Home() {
   const router = useRouter()
-
+  const queryClient = useQueryClient()
   const [searchValue, setSearchValue] = useState("");
   const [searchMerchantValue, setSearchMerchantValue] = useState("");
   const [automaticReturnOn, setAutomaticReturnOn] = useState("");
@@ -25,6 +25,8 @@ export default function Home() {
   const [selectedRowValues, setSelectedRowValues] = useState({});
   const [csvData, setCsvData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [resetTableSelection, setResetTableSelection] = useState(() => () => {});
+
 
   const { data: employees, isLoading } = useQuery({
     queryKey: ['employees-list'],
@@ -71,6 +73,8 @@ export default function Home() {
     onSuccess: () => {
       showToastNotificationSuccess("Sukces", "Pracownicy zostali pomyślnie dezaktywowani")
       setIsModalOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['employees-list'] })      
+      resetTableSelection()
     },
     onError: (error) => {
       showToastNotificationError("Błąd", error.message)
@@ -194,6 +198,7 @@ export default function Home() {
             merchantSearchValue={searchMerchantValue}
             automaticReturnOn={automaticReturnOn}
             isRecurrentPaymentOn={isRecurrentPaymentOn}
+            setResetTableSelection={setResetTableSelection}
           />
         )}
 

@@ -26,7 +26,7 @@ const AdminLayout = ({ path = [], children, firstPath }) => {
 
   return (
     <div className="flex flex-row min-h-screen w-full bg-[#fafbfa]">
-      <NavbarAdmin />
+      <NavbarAdmin firstPath={firstPath} />
       <div className="flex-1 flex-col h-full">
         <HeaderAdmin />
         <main className="flex flex-1 flex-col items-start justify-start px-[32px] pt-[16px] h-full">

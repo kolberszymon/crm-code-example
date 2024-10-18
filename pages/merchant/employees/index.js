@@ -25,6 +25,8 @@ export default function Home() {
   const queryClient = useQueryClient()
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [resetTableSelection, setResetTableSelection] = useState(() => () => {});
+
   const [csvData, setCsvData] = useState([]);
 
   const { data: employees, isPending } = useQuery({
@@ -73,6 +75,7 @@ export default function Home() {
       queryClient.invalidateQueries({ queryKey: ['employees'] })
       showToastNotificationSuccess("Sukces", "Pracownicy zostali pomyślnie dezaktywowani")
       setIsModalOpen(false)
+      resetTableSelection()
     },
     onError: (error) => {
       showToastNotificationError("Błąd", error.message)
@@ -186,6 +189,7 @@ export default function Home() {
             searchValue={searchValue}            
             isRecurrentPaymentOn={isRecurrentPaymentOn}
             automaticReturnOn={automaticReturnOn}
+            setResetTableSelection={setResetTableSelection}
           />
         )}
 

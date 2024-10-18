@@ -5,6 +5,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { Role } from "@prisma/client";
+import Link from "next/link";
 
 const MerchantLayout = ({ path = [], children, firstPath}) => {
   const { data: session, status } = useSession();
@@ -51,7 +52,7 @@ const MerchantLayout = ({ path = [], children, firstPath}) => {
                 <>
                   <Image src="/icons/arrow-right.svg" width={16} height={16} alt="arrow-right" />
                   <p className="text-[#0e1726] text-xs font-normal">
-                    {path}
+                    {pathItem}
                   </p>
                 </>
               )
