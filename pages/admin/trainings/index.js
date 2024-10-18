@@ -13,6 +13,17 @@ import { ButtonRed } from "@/components/Buttons/ButtonRed";
 import { ButtonGray } from "@/components/Buttons/ButtonGray";
 import { showToastNotificationSuccess, showToastNotificationError } from "@/components/Custom/ToastNotification";
 
+const PageButton = ({ page, isActive, onClick }) => (
+  <button
+    className={`rounded-full w-[30px] h-[30px] flex items-center justify-center ${
+      isActive ? 'bg-main-green text-white' : 'bg-[#ebefee] text-black'
+    }`}
+    onClick={onClick}
+  >
+    {page}
+  </button>
+);
+
 export default function Home() {
   const [searchValue, setSearchValue] = useState("");  
   const [trainingCategory, setTrainingCategory] = useState("");
@@ -36,6 +47,8 @@ export default function Home() {
       return data;
     },    
   });
+
+  const totalPages = Math.ceil(trainigs.length / pageSize);
 
   const { data: categories, isPending: isCategoriesPending } = useQuery({
     queryKey: ['categories'],
@@ -91,6 +104,54 @@ export default function Home() {
     setIsModalDuplicateOpen(true);
     setTrainingIdToDuplicate(id);
   }
+
+  const renderPageButtons = () => {
+    let pages = [];
+    
+    // Always show first page
+    pages.push(
+      <PageButton
+        key={1}
+        page={1}
+        isActive={page === 1}
+        onClick={() => setPage(1)}
+      />
+    );
+
+    if (page > 3) {
+      pages.push(<span key="ellipsis1" className="px-1">...</span>);
+    }
+
+    // Show pages around current page
+    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) {
+      pages.push(
+        <PageButton
+          key={i}
+          page={i}
+          isActive={page === i}
+          onClick={() => setPage(i)}
+        />
+      );
+    }
+
+    if (page < totalPages - 2) {
+      pages.push(<span key="ellipsis2" className="px-1">...</span>);
+    }
+
+    // Always show last page if there's more than one page
+    if (totalPages > 1) {
+      pages.push(
+        <PageButton
+          key={totalPages}
+          page={totalPages}
+          isActive={page === totalPages}
+          onClick={() => setPage(totalPages)}
+        />
+      );
+    }
+
+    return pages;
+  };
 
   useEffect(() => {
     if (trainigs) {
@@ -158,9 +219,7 @@ export default function Home() {
             <button className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center" onClick={() => setPage(page - 1)} disabled={page === 1}>
               <Image src="/icons/arrow-left-black.svg" width={16} height={16} />
             </button>
-            <p className="rounded-full bg-main-green text-white w-[30px] h-[30px] flex items-center justify-center">
-              {page}
-            </p>
+            {renderPageButtons()}
             <button className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center" onClick={() => setPage(page + 1)} disabled={page === Math.ceil(trainigs.length / pageSize)}>
               <Image
                 src="/icons/arrow-right-black.svg"

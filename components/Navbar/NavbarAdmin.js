@@ -15,17 +15,18 @@ const NavbarSection = ({ title }) => {
   );
 };
 
-const NavbarButton = ({ title, path }) => {
+const NavbarButton = ({ title, path, firstPath }) => {
   const currentPath = usePathname();
+  const isActive = path === currentPath || path === `/admin/${firstPath}`;
 
   return (
     <Link
       className={`w-full py-[12px] pl-[16px] bg-white text-[#0e1726] text-xs flex items-start ${
-        path === currentPath ? "font-semibold" : ""
+        isActive ? "font-semibold" : ""
       }`}
       href={path}
     >
-      <p className="hover:cursor-pointer! hover:font-semibold w-full">{title}</p>
+      <p className="hover:cursor-pointer hover:font-semibold w-full">{title}</p>
     </Link>
   );
 };
@@ -44,37 +45,42 @@ export const NavbarAdmin = ({ firstPath}) => {
         </Link>
       </div>
       <NavbarSection title="Strona Główna" />
-      <NavbarButton title="Dashboard" path="/admin/dashboard" />
+      <NavbarButton title="Dashboard" path="/admin/dashboard" firstPath={firstPath} />
       <NavbarSection title="Tokeny" />
       <NavbarButton
         title="Generowanie nowych tokenów"
         path="/admin/tokens/generate"
+        firstPath={firstPath}
       />
       <NavbarSection title="Merchant" />
-      <NavbarButton title="Konta merchantów" path="/admin/merchants" />
+      <NavbarButton title="Konta merchantów" path="/admin/merchants" firstPath={firstPath} />
       <NavbarButton
         title="Rozliczenia z merchantami"
         path="/admin/merchants/payoff"
+        firstPath={firstPath}
       />
       <NavbarButton
         title="Historia transkacji merchantów"
         path="/admin/merchants/history"
+        firstPath={firstPath}
       />
-      <NavbarButton title="Konta pracowników" path="/admin/employees" />
+      <NavbarButton title="Konta pracowników" path="/admin/employees" firstPath={firstPath} />
       <NavbarButton
         title="Rozliczenia z pracownikami"
         path="/admin/employees/payoff"
+        firstPath={firstPath}
       />
       <NavbarButton
         title="Historia transakcji pracowników"
         path="/admin/employees/history"
+        firstPath={firstPath}
       />
       <NavbarSection title="Szkolenia" />
-      <NavbarButton title="Lista szkoleń" path="/admin/trainings" />
-      <NavbarButton title="Kupione szkolenia" path="/admin/trainings/bought" />
+      <NavbarButton title="Lista szkoleń" path="/admin/trainings" firstPath={firstPath} />
+      <NavbarButton title="Kupione szkolenia" path="/admin/trainings/bought" firstPath={firstPath} />
       <NavbarSection title="Konto" />
-      <NavbarButton title="Ustawienia" path="/admin/settings" />
-      <NavbarButton title="Historia zmian" path="/admin/change-history" />
+      <NavbarButton title="Ustawienia" path="/admin/settings" firstPath={firstPath} />
+      <NavbarButton title="Historia zmian" path="/admin/change-history" firstPath={firstPath} />
       <button
         className="w-full py-[12px] pl-[16px] bg-white text-mustard text-xs flex items-start hover:font-semibold transition-all border-t border-main-gray"
         onClick={openModal}

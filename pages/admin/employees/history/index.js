@@ -154,7 +154,7 @@ export default function Home() {
   }
 
   return (
-    <AdminLayout path={["Pracownicy", "Historia transakcji pracowników"]} firstPath="employees">
+    <AdminLayout path={["Pracownicy", "Historia transakcji pracowników"]} firstPath="employees/history">
       <MainComponent>
         <div className="flex flex-row justify-between items-center">
           <p className="text-zinc-950 text-base font-semibold leading-normal">

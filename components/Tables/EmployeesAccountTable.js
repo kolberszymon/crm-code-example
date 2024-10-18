@@ -34,30 +34,16 @@ function IndeterminateCheckbox({ indeterminate, className = "", ...rest }) {
   );
 }
 
-const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
-  const initialValue = getValue();
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  const onBlur = () => {
-    table.options.meta?.updateData(row.index, column.id, value);
-  };
-
-  return (
-    <div className="w-40 h-7 bg-white rounded-md border border-zinc-400 justify-center items-center flex flex-row gap-[8px] p-[13px]">
-      <Icons.CoinImage w={16} h={16} />
-      <input
-        className="text-xs font-normal text-zinc-950 outline-none border-none"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={onBlur}
-      />
-    </div>
-  );
-});
+const PageButton = ({ page, isActive, onClick }) => (
+  <button
+    className={`rounded-full w-[30px] h-[30px] flex items-center justify-center ${
+      isActive ? 'bg-main-green text-white' : 'bg-[#ebefee] text-black'
+    }`}
+    onClick={onClick}
+  >
+    {page}
+  </button>
+);
 
 export const EmployeesAccountTable = ({ tableData, setSelectedRowValues, searchValue, merchantSearchValue, automaticReturnOn, isRecurrentPaymentOn, setResetTableSelection }) => {
   const [rowSelection, setRowSelection] = useState({});
@@ -86,6 +72,54 @@ export const EmployeesAccountTable = ({ tableData, setSelectedRowValues, searchV
     );
   }, [data, searchValue, merchantSearchValue, automaticReturnOn, isRecurrentPaymentOn]);
 
+  const renderPageButtons = () => {
+    let pages = [];
+    const currentPage = pageIndex + 1;
+
+    // Always show first page
+    pages.push(
+      <PageButton
+        key={1}
+        page={1}
+        isActive={currentPage === 1}
+        onClick={() => table.setPageIndex(0)}
+      />
+    );
+
+    if (currentPage > 3) {
+      pages.push(<span key="ellipsis1">...</span>);
+    }
+
+    // Show pages around current page
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(pageCount - 1, currentPage + 1); i++) {
+      pages.push(
+        <PageButton
+          key={i}
+          page={i}
+          isActive={currentPage === i}
+          onClick={() => table.setPageIndex(i - 1)}
+        />
+      );
+    }
+
+    if (currentPage < pageCount - 2) {
+      pages.push(<span key="ellipsis2">...</span>);
+    }
+
+    // Always show last page
+    if (pageCount > 1) {
+      pages.push(
+        <PageButton
+          key={pageCount}
+          page={pageCount}
+          isActive={currentPage === pageCount}
+          onClick={() => table.setPageIndex(pageCount - 1)}
+        />
+      );
+    }
+
+    return pages;
+  };
 
   const resetRowSelection = () => {
     setRowSelection({});
@@ -219,6 +253,8 @@ export const EmployeesAccountTable = ({ tableData, setSelectedRowValues, searchV
     getSortedRowModel: getSortedRowModel(),
   });
 
+  const pageCount = table.getPageCount();
+
   useEffect(() => {
     const selectedRowsWithData = Object.keys(rowSelection)
       .filter((key) => rowSelection[key])
@@ -321,14 +357,7 @@ export const EmployeesAccountTable = ({ tableData, setSelectedRowValues, searchV
               alt="arrow left"
             />
           </button>
-          <p className="rounded-full bg-main-green text-white w-[30px] h-[30px] flex items-center justify-center">
-            {pageIndex + 1}
-          </p>
-          {table.getCanNextPage() && (
-            <p className="rounded-full bg-[#ebefee] text-black w-[30px] h-[30px] flex items-center justify-center">
-              {pageIndex + 2}
-            </p>
-          )}
+          {renderPageButtons()}
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => {

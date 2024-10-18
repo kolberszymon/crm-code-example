@@ -13,6 +13,17 @@ import { SelectDropdown } from "@/components/Inputs/SelectDropdown";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 
+const PageButton = ({ page, isActive, onClick }) => (
+  <button
+    className={`rounded-full w-[30px] h-[30px] flex items-center justify-center ${
+      isActive ? 'bg-main-green text-white' : 'bg-[#ebefee] text-black'
+    }`}
+    onClick={onClick}
+  >
+    {page}
+  </button>
+);
+
 export default function Home() {
   const [searchValue, setSearchValue] = useState("");
   const [merchantType, setMerchantType] = useState("Merchant");
@@ -98,6 +109,56 @@ export default function Home() {
     return filteredMerchants.filter((merchant) => merchant.merchantName.toLowerCase().includes(searchValue.toLowerCase()) || merchant.merchantCompany.toLowerCase().includes(searchValue.toLowerCase()));
   }, [merchants, merchantType, searchValue]);
 
+  const totalPages = Math.ceil(filteredData.length / tableSize);
+
+  const renderPageButtons = () => {
+    let pages = [];
+    
+    // Always show first page
+    pages.push(
+      <PageButton
+        key={1}
+        page={1}
+        isActive={page === 1}
+        onClick={() => setPage(1)}
+      />
+    );
+
+    if (page > 3) {
+      pages.push(<span key="ellipsis1" className="px-1">...</span>);
+    }
+
+    // Show pages around current page
+    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) {
+      pages.push(
+        <PageButton
+          key={i}
+          page={i}
+          isActive={page === i}
+          onClick={() => setPage(i)}
+        />
+      );
+    }
+
+    if (page < totalPages - 2) {
+      pages.push(<span key="ellipsis2" className="px-1">...</span>);
+    }
+
+    // Always show last page if there's more than one page
+    if (totalPages > 1) {
+      pages.push(
+        <PageButton
+          key={totalPages}
+          page={totalPages}
+          isActive={page === totalPages}
+          onClick={() => setPage(totalPages)}
+        />
+      );
+    }
+
+    return pages;
+  };
+
   const handleOpenModal = (merchantId) => {
     setSelectedMerchantId(merchantId);
     setIsModalOpen(true);    
@@ -169,15 +230,7 @@ export default function Home() {
                 alt="arrow-left"
               />
             </button>
-            <p className="rounded-full bg-main-green text-white w-[30px] h-[30px] flex items-center justify-center">
-              {page}
-            </p>
-
-            {page < Math.ceil(filteredData.length / tableSize) && (              
-              <p className="rounded-full bg-[#ebefee] text-black w-[30px] h-[30px] flex items-center justify-center">
-                {page + 1}
-              </p>              
-            )}
+            {renderPageButtons()}
             <button className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center" onClick={() => setPage(page + 1)} disabled={page === Math.ceil(filteredData.length / tableSize)}>
               <Image
                 src="/icons/arrow-right-black.svg"

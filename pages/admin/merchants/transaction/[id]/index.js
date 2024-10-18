@@ -34,7 +34,7 @@ export default function MerchantView() {
   }  
 
   return (
-    <AdminLayout path={["Merchant", "Rozliczenia z merchantami", "Szczegóły transakcji"]} firstPath="merchants">
+    <AdminLayout path={["Merchant", "Rozliczenia z merchantami", "Szczegóły transakcji"]} firstPath="merchants/history">
       <MainComponent>
         <h3 className="text-zinc-950 text-base font-semibold leading-normal mb-[32px]">
           Szczegóły transakcji

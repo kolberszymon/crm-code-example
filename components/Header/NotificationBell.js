@@ -26,9 +26,9 @@ export const NotificationBell = () => {
         className="flex items-center justify-center bg-main-gray w-[36px] h-[36px] rounded-full hover:bg-gray-200 transition-colors relative"
         onClick={toggleDropdown}
       >
-        <div className="flex items-center justify-center bg-[#00ab5630] w-[14px] h-[14px] rounded-full absolute top-0 right-0 opac">
+        {/* <div className="flex items-center justify-center bg-[#00ab5630] w-[14px] h-[14px] rounded-full absolute top-0 right-0 opac">
           <div className="bg-[#00ab55] w-[6px] h-[6px] rounded-full" />
-        </div>
+        </div> */}
 
         <Image
           src="/icons/bell-icon.svg"

@@ -132,7 +132,7 @@ export default function MerchantPayoff() {
   }
 
   return (
-    <AdminLayout path={["Merchant", "Rozliczenia z Merchantami"]} firstPath="merchants">
+    <AdminLayout path={["Merchant", "Rozliczenia z Merchantami"]} firstPath="merchants/payoff">
       <MainComponent>
         <div className="flex flex-row justify-between items-center">
           <p className="text-zinc-950 text-base font-semibold leading-normal">

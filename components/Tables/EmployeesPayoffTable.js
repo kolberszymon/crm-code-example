@@ -70,12 +70,24 @@ const TopUpAmountCell = React.memo(({ getValue, row, column, table }) => {
   );
 });
 
+const PageButton = ({ page, isActive, onClick }) => (
+  <button
+    className={`rounded-full w-[30px] h-[30px] flex items-center justify-center ${
+      isActive ? 'bg-main-green text-white' : 'bg-[#ebefee] text-black'
+    }`}
+    onClick={onClick}
+  >
+    {page}
+  </button>
+);
+
 export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchValue, merchantSearchValue, automaticReturnOn, isRecurrentPaymentOn }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState(tableData);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
   const [sorting, setSorting] = useState([])
+  
 
   const filteredData = useMemo(() => {
     let filteredData = data;
@@ -97,6 +109,55 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
       row.merchantName.toLowerCase().includes(merchantSearchValue?.toLowerCase())
     );
   }, [data, searchValue, merchantSearchValue, automaticReturnOn, isRecurrentPaymentOn]);
+
+  const renderPageButtons = () => {
+    let pages = [];
+    const currentPage = pageIndex + 1;
+
+    // Always show first page
+    pages.push(
+      <PageButton
+        key={1}
+        page={1}
+        isActive={currentPage === 1}
+        onClick={() => table.setPageIndex(0)}
+      />
+    );
+
+    if (currentPage > 3) {
+      pages.push(<span key="ellipsis1">...</span>);
+    }
+
+    // Show pages around current page
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(pageCount - 1, currentPage + 1); i++) {
+      pages.push(
+        <PageButton
+          key={i}
+          page={i}
+          isActive={currentPage === i}
+          onClick={() => table.setPageIndex(i - 1)}
+        />
+      );
+    }
+
+    if (currentPage < pageCount - 2) {
+      pages.push(<span key="ellipsis2">...</span>);
+    }
+
+    // Always show last page
+    if (pageCount > 1) {
+      pages.push(
+        <PageButton
+          key={pageCount}
+          page={pageCount}
+          isActive={currentPage === pageCount}
+          onClick={() => table.setPageIndex(pageCount - 1)}
+        />
+      );
+    }
+
+    return pages;
+  };
 
   const columns = useMemo(
     () => [
@@ -319,6 +380,8 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
     },
   });
 
+  const pageCount = table.getPageCount();
+
   useEffect(() => {
     const selectedRowsWithData = Object.keys(rowSelection)
       .filter((key) => rowSelection[key])
@@ -417,14 +480,7 @@ export const EmployeesPayoffTable = ({ tableData, setSelectedRowValues,  searchV
               alt="arrow left"
             />
           </button>
-          <p className="rounded-full bg-main-green text-white w-[30px] h-[30px] flex items-center justify-center">
-            {pageIndex + 1}
-          </p>
-          {table.getCanNextPage() && (
-            <p className="rounded-full bg-[#ebefee] text-black w-[30px] h-[30px] flex items-center justify-center">
-              {pageIndex + 2}
-            </p>
-          )}
+          {renderPageButtons()}
           <button
             className="rounded-full bg-[#ebefee] w-[24px] h-[24px] flex items-center justify-center"
             onClick={() => table.nextPage()}

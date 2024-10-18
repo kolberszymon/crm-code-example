@@ -185,7 +185,7 @@ export default function Home() {
   }
 
   return (
-    <AdminLayout path={["Pracownicy", "Rozliczenia z pracownikami"]} firstPath="employees">
+    <AdminLayout path={["Pracownicy", "Rozliczenia z pracownikami"]} firstPath="employees/payoff">
       <MainComponent>
         <div className="flex flex-row justify-between items-center">
           <p className="text-zinc-950 text-base font-semibold leading-normal">
