@@ -34,6 +34,7 @@ export default function Home() {
   const [filteredTrainings, setFilteredTrainings] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
   const queryClient = useQueryClient();
   
   // useQuery for fetching all trainings
@@ -45,10 +46,12 @@ export default function Home() {
 
       console.log(data);
       return data;
-    },    
+    },
+    onSuccess: (data) => {
+      setTotalPages(Math.ceil(data.length / pageSize));
+    },
   });
-
-  const totalPages = Math.ceil(trainigs.length / pageSize);
+  
 
   const { data: categories, isPending: isCategoriesPending } = useQuery({
     queryKey: ['categories'],
