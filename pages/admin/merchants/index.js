@@ -31,7 +31,8 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMerchantId, setSelectedMerchantId] = useState(null);
-
+  const queryClient = useQueryClient();
+  
   const { data: merchantsRaw } = useQuery({
     queryKey: ["merchants-all"],
     queryFn: async () => {
@@ -63,6 +64,7 @@ export default function Home() {
     onSuccess: () => {
       setIsModalOpen(false);
       showToastNotificationSuccess("Sukces", "Merchant został zdeaktywowany");
+      queryClient.invalidateQueries({ queryKey: ["merchants-all"] });
     },
     onError: () => {
       setIsModalOpen(false);
