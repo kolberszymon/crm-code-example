@@ -2,9 +2,6 @@ import * as React from "react"
 import { addDays, format } from "date-fns"
 import { Calendar as CalendarIcon, ChevronDown } from "lucide-react"
 import { pl } from 'date-fns/locale'
-
-
-
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -29,6 +26,7 @@ export function DatePickerWithRange({
 
   const handleSelect = (newDate) => {
     setDate(newDate)
+
     console.log(newDate)
     if (newDate?.from && newDate?.to) {
       setOpen(false)

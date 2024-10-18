@@ -44,8 +44,6 @@ const formatTransaction = (transaction) => {
     transactionData.merchant = transaction.from.merchantData.merchantName
   }
 
-  console.log(transactionData)
-
   return transactionData
 }
 
@@ -70,18 +68,13 @@ export default function Home() {
       const res = await fetch("/api/employee/fetch-history-all")
       const data = await res.json()
 
-      try {
-
-        const transactions = data.map(transaction => formatTransaction(transaction))
-        
-        return transactions
-      } catch (error) {
-        console.log(error)
-      }
-      },
-      onError: (error) => {
-        console.log(error)
-      }
+      const transactions = data.map(transaction => formatTransaction(transaction))
+      
+      return transactions
+    },
+    onError: (error) => {
+      console.log(error)
+    }
   })
 
   // useMutation to change transaction status

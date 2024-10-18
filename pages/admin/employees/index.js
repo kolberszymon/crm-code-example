@@ -96,6 +96,7 @@ export default function Home() {
   useEffect(() => {
     if (router.isReady) {
       setSearchValue(router.query.searchValue ?? "")
+      setSearchMerchantValue(router.query.merchantSearch ?? "")
     }
   }, [router])
 

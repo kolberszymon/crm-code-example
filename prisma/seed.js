@@ -6,7 +6,7 @@ async function main() {
   const { Argon2id } = await import('oslo/password');
 
   const hasher = new Argon2id()
-  const hashedPassword = await hasher.hash('test12345')
+  const hashedPassword = await hasher.hash('test1234')
 
   console.log(hashedPassword)
 
